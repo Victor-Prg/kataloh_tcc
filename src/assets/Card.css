@@ -1,0 +1,49 @@
+/* src/components/Card/styles.css */
+
+.card {
+  background-color: white;
+  border-radius: 16px; /* Borda bem arredondada (moderno) */
+  padding: 24px;       /* Espaçamento interno padrão */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent; /* Prepara para bordas */
+}
+
+/* VARIANTE 1: ELEVATED (Sombra Suave) */
+.card-elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* VARIANTE 2: OUTLINED (Apenas Borda) */
+.card-outlined {
+  background-color: transparent;
+  border-color: #E5E7EB; /* Cinza claro */
+}
+
+/* VARIANTE 3: FLAT (Fundo Cinza) */
+.card-flat {
+  background-color: #F3F4F6;
+  border: none;
+}
+
+/* INTERATIVIDADE (Opcional via prop) */
+.card-hoverable {
+  cursor: pointer;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-4px); /* Sobe um pouquinho */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.card {
+  background-color: var(--bg-card); /* <-- Mudou aqui */
+  color: var(--text-primary);       /* <-- Mudou aqui */
+  border: 1px solid var(--border-color); /* <-- Borda dinâmica */
+  /* ... mantenha o resto (radius, padding, transition) ... */
+}
+/* Atualize o flat também */
+.card-flat {
+  background-color: transparent; 
+  border: 1px solid var(--border-color);
+}

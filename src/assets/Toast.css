@@ -1,0 +1,80 @@
+/* src/components/Toast/styles.css */
+
+/* Animação de entrada (da direita para a esquerda) */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* O Container que segura todas as mensagens no canto da tela */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999; /* Garante que fique acima de tudo */
+  pointer-events: none; /* Deixa clicar no site atrás (exceto no toast) */
+}
+
+/* A mensagem individual */
+.toast {
+  pointer-events: auto; /* O toast é clicável (para fechar) */
+  width: 300px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+  border-left: 6px solid #ccc; /* Cor padrão */
+}
+
+/* VARIANTE: SUCESSO (Verde) */
+.toast.success {
+  border-left-color: #10B981;
+}
+.toast.success .icon-color {
+  color: #10B981;
+}
+
+/* VARIANTE: ERRO (Vermelho) */
+.toast.error {
+  border-left-color: #EF4444;
+}
+.toast.error .icon-color {
+  color: #EF4444;
+}
+
+/* Botão de fechar (X) */
+.toast-close {
+  background: transparent;
+  border: none;
+  color: #9CA3AF;
+  cursor: pointer;
+  margin-left: auto; /* Empurra para a direita */
+}
+.toast-close:hover {
+  color: #111827;
+}
+
+/* Título e Descrição */
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.toast-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1F2937;
+}
+.toast-desc {
+  font-size: 12px;
+  color: #6B7280;
+}

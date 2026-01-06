@@ -1,0 +1,34 @@
+/* src/assets/Footer.css */
+.footer-container {
+  background-color: #1F2937; /* Cinza escuro */
+  color: #F3F4F6;
+  padding: 40px 32px;
+  margin-top: auto; /* Empurra para o final se a tela for grande */
+}
+
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Para celular */
+  gap: 20px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-link {
+  color: #9CA3AF;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.footer-link:hover {
+  color: white;
+}

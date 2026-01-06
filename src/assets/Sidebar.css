@@ -1,0 +1,77 @@
+.sidebar-container {
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  
+  /* Se tiver "height: 100vh" aqui, REMOVA! */
+  /* Use min-height se quiser garantir que ela acompanhe o conteúdo */
+  min-height: 100%; 
+  
+  width: 250px;
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Impede que ela encolha se o conteúdo for largo */
+}
+/* ... resto do CSS igual ... */
+
+/* ESTADO: RECOLHIDO (COLLAPSED) */
+.sidebar-container.collapsed {
+  width: 80px;
+}
+
+/* O Cabeçalho interno da Sidebar (Opcional, já que temos o Header geral) */
+.sidebar-header-internal {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+/* OS ITENS DO MENU */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap; /* Não quebra linha */
+  height: 48px; /* Altura fixa ajuda no alinhamento */
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+  background-color: var(--bg-body);
+  color: var(--primary-color);
+}
+
+/* QUANDO RECOLHIDO: Centraliza os ícones */
+.sidebar-container.collapsed .sidebar-item {
+  justify-content: center;
+  padding: 0;
+}
+
+/* TEXTO DO MENU */
+.sidebar-label {
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+/* Esconde o texto quando recolhido */
+.sidebar-container.collapsed .sidebar-label,
+.sidebar-container.collapsed .logo-text {
+  opacity: 0;
+  width: 0;
+  display: none;
+}

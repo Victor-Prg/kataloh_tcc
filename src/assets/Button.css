@@ -1,0 +1,107 @@
+/* src/assets/Button.css */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px; /* Mais moderno que 12px para botões, mas ajustável */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- VARIANTES --- */
+
+/* Primary */
+.btn-primary {
+  background-color: var(--primary-color, #007AFF);
+  color: white;
+  border-color: transparent;
+}
+.btn-primary:hover {
+  filter: brightness(0.9);
+}
+.btn-primary:active {
+  filter: brightness(0.8);
+}
+
+/* Secondary */
+.btn-secondary {
+  background-color: var(--bg-input, #F3F4F6);
+  color: var(--text-primary, #111827);
+  border: 1px solid var(--border-color); /* Adicionei borda para melhor contraste no dark */
+}
+.btn-secondary:hover {
+  background-color: var(--bg-hover, #E5E7EB);
+  border-color: var(--text-secondary);
+}
+.btn-secondary:active {
+  background-color: var(--bg-active, #D1D5DB);
+}
+
+/* Outline */
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--border-color, #E5E7EB);
+  color: var(--text-primary, #111827);
+}
+.btn-outline:hover {
+  background-color: var(--bg-hover, #F9FAFB);
+  border-color: var(--text-primary, #111827); /* Borda fica da cor do texto */
+}
+
+/* Ghost */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-primary, #111827);
+}
+.btn-ghost:hover {
+  background-color: var(--bg-hover, #F3F4F6);
+}
+
+/* --- TAMANHOS --- */
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.875rem; /* 14px */
+}
+
+.btn-md {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 1rem; /* 16px */
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 1.125rem; /* 18px */
+}
+
+/* --- UTILS --- */
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

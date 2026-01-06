@@ -1,0 +1,48 @@
+/* src/assets/Tooltip.css */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* O Balãozinho (inicialmente invisível) */
+.tooltip-box {
+  visibility: hidden;
+  background-color: #1F2937; /* Preto suave */
+  color: #fff;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  
+  /* Posicionamento: Centralizado em cima */
+  position: absolute;
+  bottom: 125%; /* Fica acima do elemento */
+  left: 50%;
+  transform: translateX(-50%); /* Centraliza exato */
+  
+  /* Animação suave */
+  opacity: 0;
+  transition: opacity 0.2s, bottom 0.2s;
+  z-index: 10;
+  white-space: nowrap; /* Não quebra linha */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* A setinha embaixo do balão */
+.tooltip-box::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Embaixo do balão */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1F2937 transparent transparent transparent; /* Triângulo */
+}
+
+/* Quando passar o mouse no Wrapper, mostra o Box */
+.tooltip-wrapper:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+  bottom: 110%; /* Sobe um pouquinho */
+}

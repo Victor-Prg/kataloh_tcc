@@ -1,0 +1,55 @@
+/* src/components/Input/styles.css */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563; /* Cinza escuro */
+  margin-bottom: 6px;
+}
+
+.input-modern {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db; /* Borda cinza padrão */
+  background-color: white;
+  font-size: 16px;
+  outline: none; /* Remove a borda preta padrão */
+  transition: all 0.2s ease-in-out;
+}
+
+/* O Segredo do Brilho: Usei cores fixas aqui */
+.input-modern:focus {
+  border-color: #2563EB; /* Azul forte */
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); /* Aura azul transparente */
+}
+
+/* Estilo para a mensagem de erro */
+.input-error-msg {
+  color: #EF4444; /* Vermelho */
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Quando o input tem erro, a borda fica vermelha */
+.input-modern.error {
+  border-color: #EF4444;
+}
+
+/* O brilho (foco) também muda para vermelho */
+.input-modern.error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); /* Aura vermelha */
+}
+.input-modern {
+  background-color: var(--bg-input); /* <-- Mudou aqui */
+  color: var(--text-primary);        /* <-- Mudou aqui */
+  border: 1px solid var(--border-color);
+  /* ... resto ... */
+}

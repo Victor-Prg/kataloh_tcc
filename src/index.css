@@ -1,0 +1,41 @@
+/* src/index.css */
+
+:root {
+  /* --- MODO CLARO (Padrão) --- */
+  --bg-body: #F8FAFC;       /* Fundo da página */
+  --bg-card: #FFFFFF;       /* Fundo dos cards e modais */
+  --bg-input: #FFFFFF;      /* Fundo dos inputs */
+  
+  --text-primary: #111827;  /* Texto principal (quase preto) */
+  --text-secondary: #6B7280;/* Texto secundário (cinza) */
+  
+  --border-color: #E5E7EB;  /* Bordas */
+  --primary-color: #007AFF; /* Cor da marca */
+  
+  --bg-hover: #F1F5F9;      /* Cor de hover genérica */
+  --bg-active: #E2E8F0;     /* Cor de active genérica */
+}
+
+/* --- MODO ESCURO (Ativado via classe) --- */
+body.dark {
+  --bg-body: #0F172A;       /* Azul marinho muito escuro */
+  --bg-card: #1E293B;       /* Azul acinzentado */
+  --bg-input: #334155;      /* Cinza para inputs */
+  
+  --text-primary: #F3F4F6;  /* Branco gelo */
+  --text-secondary: #94A3B8;/* Cinza claro */
+  
+  --border-color: #334155;  /* Borda escura */
+  
+  --bg-hover: #334155;      /* Hover no dark mode (igual input) */
+  --bg-active: #475569;     /* Active no dark mode */
+}
+
+/* Aplica as variáveis ao corpo do site */
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s; /* Transição suave */
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}

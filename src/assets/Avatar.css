@@ -1,0 +1,25 @@
+.avatar-container {
+  border-radius: 50%; /* Bolinha perfeita */
+  overflow: hidden;   /* Corta o que passar da borda */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-family: sans-serif;
+  border: 2px solid white; /* Borda branca para separar do fundo */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #E5E7EB; /* Cor de fundo padrão (cinza) */
+  color: #4B5563; /* Cor do texto padrão */
+}
+
+/* Tamanho da Imagem */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Garante que a foto não fique esticada */
+}
+
+/* Tamanhos Variados */
+.avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+.avatar-md { width: 48px; height: 48px; font-size: 16px; }
+.avatar-lg { width: 80px; height: 80px; font-size: 24px; }
