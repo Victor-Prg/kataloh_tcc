@@ -1,0 +1,311 @@
+/* palettes.css */
+
+/* ==========================================
+   0. NTX (paleta oficial)
+   ========================================== */
+
+[data-palette="NTX"][data-mode="light"] {
+  --primary-100: #744BBC;
+  --primary-90: #885BD8;
+  --primary-50: #E9DFFC;
+  --secondary-100: #C38DFA;
+  --secondary-90: #B07EE5;
+  --secondary-50: #F4EBFF;
+  --bg: #F9FAFB;
+  --surface: #FFFFFF;
+  --surface-nav: #F1F3F9;
+  --border: rgba(116, 75, 188, 0.15);
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
+  --text-primary: #1A1A24;
+  --text-muted: #4A4A68;
+  --text-soft: #858594;
+  --success: #1B5E20;
+  --warning: #E65100;
+  --danger: #C62828;
+}
+
+[data-palette="NTX"][data-mode="dark"] {
+
+  --primary-100: #C38DFA;
+  --primary-90: #B07EE5;
+  --primary-50: #61467D;
+  --secondary-100: #885BD8;
+  --secondary-90: #7A52C2;
+  --secondary-50: #442D6C;
+  --bg: #080C1C;
+  --surface: #1A2437;
+  --surface-nav: #12182B;
+  --border: rgba(71, 63, 108, 0.4);
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
+  --text-primary: #F2F1F1;
+  --text-muted: #C8C8D8;
+  --text-soft: #858594;
+  --success: #2ECC71;
+  --warning: #F1C40F;
+  --danger: #E74C3C;
+}
+
+
+/* ==========================================
+   1. BRAND (Identidade Forte)
+   ========================================== */
+
+[data-palette="Brand"][data-mode="light"] {
+  --primary-100: #7733c4;
+  --primary-90: #9f66d3;
+  --primary-50: #bb93e1;
+  --secondary-100: #efe5f8;
+  --secondary-90: #dfccf0;
+  --secondary-50: #d1b7ea;
+  --bg: #f9f9fb;
+  --surface: #ffffff;
+  --surface-nav: #efe5f8;
+  --border: #eeedf2;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #130a2a;
+  --text-muted: #605579;
+  --text-soft: #a6a0b6;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="Brand"][data-mode="dark"] {
+  --primary-100: #7733c4;
+  --primary-90: #9f66d3;
+  --primary-50: #bb93e1;
+  --secondary-100: #392e55;
+  --secondary-90: #2d2246;
+  --secondary-50: #201935;
+  --bg: #0c0420;
+  --surface: #130a2a;
+  --surface-nav: #2d2246;
+  --border: #392e55;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #bb93e1;
+  --text-soft: #9e9ab0;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+/* ==========================================
+   2. NEUTRAL (Corporativo / Versátil)
+   ========================================== */
+
+[data-palette="Neutral"][data-mode="light"] {
+  --primary-100: #605579;
+  --primary-90: #776f90;
+  --primary-50: #a6a0b6;
+  --secondary-100: #f1f1f5;
+  --secondary-90: #e7e5ec;
+  --secondary-50: #dedeeb;
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --surface-nav: #f1f1f5;
+  --border: #dedce5;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #130a2a;
+  --text-muted: #605579;
+  --text-soft: #9e9ab0;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="Neutral"][data-mode="dark"] {
+  --primary-100: #a6a0b6;
+  --primary-90: #776f90;
+  --primary-50: #392e55;
+  --secondary-100: #2d2246;
+  --secondary-90: #201935;
+  --secondary-50: #130a2a;
+  --bg: #0c0420;
+  --surface: #130a2a;
+  --surface-nav: #201935;
+  --border: #392e55;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #a6a0b6;
+  --text-soft: #776f90;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+/* ==========================================
+   3. SOFT PURPLE (Branding Leve)
+   ========================================== */
+
+[data-palette="SoftPurple"][data-mode="light"] {
+  --primary-100: #9f66d3;
+  --primary-90: #bb93e1;
+  --primary-50: #efe5f8;
+  --secondary-100: #f5f0fb;
+  --secondary-90: #ede3f8;
+  --secondary-50: #dfccf0;
+  --bg: #fcfbfe;
+  --surface: #ffffff;
+  --surface-nav: #f5f0fb;
+  --border: #ede3f8;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #260048;
+  --text-muted: #605579;
+  --text-soft: #9f93b5;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="SoftPurple"][data-mode="dark"] {
+  --primary-100: #bb93e1;
+  --primary-90: #9f66d3;
+  --primary-50: #4c0091;
+  --secondary-100: #260048;
+  --secondary-90: #1a0033;
+  --secondary-50: #130024;
+  --bg: #0b0218;
+  --surface: #130024;
+  --surface-nav: #260048;
+  --border: #311d4d;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #bb93e1;
+  --text-soft: #9f93b5;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+/* ==========================================
+   4. EDITORIAL (Leitura / Conteúdo)
+   ========================================== */
+
+[data-palette="Editorial"][data-mode="light"] {
+  --primary-100: #392e55;
+  --primary-90: #605579;
+  --primary-50: #9e9ab0;
+  --secondary-100: #f9f9fb;
+  --secondary-90: #eeedf2;
+  --secondary-50: #dedce5;
+  --bg: #ffffff;
+  --surface: #f9f9fb;
+  --surface-nav: #eeedf2;
+  --border: #dedce5;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #130a2a;
+  --text-muted: #605579;
+  --text-soft: #9e9ab0;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="Editorial"][data-mode="dark"] {
+  --primary-100: #eeedf2;
+  --primary-90: #dedce5;
+  --primary-50: #605579;
+  --secondary-100: #1a1625;
+  --secondary-90: #130a2a;
+  --secondary-50: #0c0420;
+  --bg: #0c0420;
+  --surface: #130a2a;
+  --surface-nav: #1a1625;
+  --border: #392e55;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #a6a0b6;
+  --text-soft: #605579;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+/* ==========================================
+   5. DEEP PURPLE (Intenso / Criativo)
+   ========================================== */
+
+[data-palette="DeepPurple"][data-mode="light"] {
+  --primary-100: #4c0091;
+  --primary-90: #7733c4;
+  --primary-50: #9f66d3;
+  --secondary-100: #f3ebfc;
+  --secondary-90: #e7d6f9;
+  --secondary-50: #d1b7ea;
+  --bg: #f8f5fd;
+  --surface: #ffffff;
+  --surface-nav: #f3ebfc;
+  --border: #e7d6f9;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #130024;
+  --text-muted: #4c0091;
+  --text-soft: #9f66d3;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="DeepPurple"][data-mode="dark"] {
+  --primary-100: #7733c4;
+  --primary-90: #4c0091;
+  --primary-50: #260048;
+  --secondary-100: #260048;
+  --secondary-90: #201935;
+  --secondary-50: #130024;
+  --bg: #0b0218;
+  --surface: #130024;
+  --surface-nav: #260048;
+  --border: #392e55;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #bb93e1;
+  --text-soft: #9f93b5;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+/* ==========================================
+   6. GRAPHITE (Técnico / SaaS)
+   ========================================== */
+
+[data-palette="Graphite"][data-mode="light"] {
+  --primary-100: #392e55;
+  --primary-90: #605579;
+  --primary-50: #a6a0b6;
+  --secondary-100: #eeedf2;
+  --secondary-90: #dedce5;
+  --secondary-50: #bb93e1;
+  --bg: #f4f4f7;
+  --surface: #ffffff;
+  --surface-nav: #eeedf2;
+  --border: #dedce5;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #130a2a;
+  --text-muted: #605579;
+  --text-soft: #9e9ab0;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}
+
+[data-palette="Graphite"][data-mode="dark"] {
+  --primary-100: #a6a0b6;
+  --primary-90: #776f90;
+  --primary-50: #605579;
+  --secondary-100: #201935;
+  --secondary-90: #130a2a;
+  --secondary-50: #0c0420;
+  --bg: #0c0420;
+  --surface: #130a2a;
+  --surface-nav: #201935;
+  --border: #392e55;
+  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --text-primary: #ffffff;
+  --text-muted: #a6a0b6;
+  --text-soft: #776f90;
+  --success: #41c16e;
+  --warning: #f4da49;
+  --danger: #fc5e57;
+}

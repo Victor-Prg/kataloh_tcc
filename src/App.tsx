@@ -1,9 +1,10 @@
-  import './assets/theme.css';
-import { Showcase } from './pages/Showcase';
+import PlusDashboard from './pages/PlusDashboard';
 
 function App() {
   return (
-    <Showcase />
+    <div className="h-full">
+      <PlusDashboard />
+    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SignIn, Check, Warning, Trash, Info, Sun, Moon } from 'phosphor-react';
 import { 
   Button,
@@ -65,7 +65,12 @@ export const Showcase = () => {
   const inicio = (paginaAtual - 1) * pageSize;
   const usuarios = usuariosTodos.slice(inicio, inicio + pageSize);
 
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, setPalette } = useTheme();
+
+  // Define a paleta "Brand" para esta página
+  useEffect(() => {
+    setPalette('Brand')
+  }, [])
 
   const addToast = (type: 'success' | 'error') => {
     const id = Math.random().toString(36);

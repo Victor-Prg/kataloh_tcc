@@ -15,9 +15,6 @@ export * from './Skeleton';
 export * from './Tooltip';
 export * from './Sidebar';
 export * from './Textarea';
-export * from './ThemeContext';
-export * from './ThemeProvider';
-export * from './useTheme';
 export * from './Select';
 export * from './Checkbox';
 export * from './Alert';
@@ -25,11 +22,15 @@ export * from './EmptyState';
 export * from './Table';
 export * from './Tabs';
 export * from './Pagination';
-export * from './usePagination';
 export * from './Breadcrumb';
 export * from './Calendar';
 export * from './DatePicker';
-export * from './theme';
 export * from './ProgressBar';
 export * from './ErrorBoundary';
-export * from './useAsyncError';
+
+// hooks / contexto (ficam em composables para reutilizar fora de components)
+export * from '../composables/ThemeContext';
+export * from '../composables/ThemeProvider';
+export * from '../composables/useTheme';
+export * from '../composables/usePagination';
+export * from '../composables/useAsyncError';

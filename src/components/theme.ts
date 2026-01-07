@@ -4,5 +4,5 @@ export const theme = {
     md: '16px',
     lg: '24px',
     heading: '32px',
-  }
+  },
 };
