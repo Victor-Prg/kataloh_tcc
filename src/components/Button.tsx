@@ -3,7 +3,7 @@ import '../assets/Button.css';
 import { CircleNotch } from 'phosphor-react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   label?: string;
   icon?: React.ReactNode;

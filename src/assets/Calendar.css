@@ -1,0 +1,110 @@
+.calendar-root {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.calendar-current {
+  font-weight: 600;
+}
+
+.calendar-nav-group {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.calendar-nav-button {
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  transition:
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.calendar-nav-button:hover {
+  background-color: var(--bg-hover);
+}
+
+.calendar-nav-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+  border-color: var(--primary-color);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.calendar-weekday {
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-cell {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.calendar-cell:hover {
+  background-color: var(--bg-hover);
+}
+
+.calendar-cell-today {
+  border: 1px solid var(--primary-color);
+}
+
+.calendar-cell-selected {
+  background-color: var(--primary-color);
+  color: var(--text-secondary);
+}
+
+.calendar-cell-selected:hover {
+  background-color: var(--primary-color);
+}
+
+.calendar-cell-empty {
+  width: 32px;
+  height: 32px;
+}
+

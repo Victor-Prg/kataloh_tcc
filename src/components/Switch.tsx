@@ -1,4 +1,3 @@
-import React from 'react';
 import '../assets/switch.css';
 
 interface SwitchProps {

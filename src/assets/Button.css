@@ -69,6 +69,19 @@
   background-color: var(--bg-hover, #F3F4F6);
 }
 
+/* Danger */
+.btn-danger {
+  background-color: var(--danger-color, #EF4444);
+  color: #ffffff;
+  border-color: transparent;
+}
+.btn-danger:hover {
+  filter: brightness(0.9);
+}
+.btn-danger:active {
+  filter: brightness(0.8);
+}
+
 /* --- TAMANHOS --- */
 
 .btn-sm {

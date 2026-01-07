@@ -1,0 +1,41 @@
+.table-wrapper {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead {
+  background-color: var(--bg-hover);
+}
+
+.table th,
+.table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.table tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+.table-empty {
+  padding: 16px;
+}
+
+.table-row-clickable {
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
   import './assets/theme.css';
-import { Showcase } from './Showcase';
+import { Showcase } from './pages/Showcase';
 
 function App() {
   return (

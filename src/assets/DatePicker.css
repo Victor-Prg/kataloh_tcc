@@ -1,0 +1,33 @@
+.datepicker-container {
+  position: relative;
+  display: inline-block;
+}
+
+.datepicker-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.datepicker-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.datepicker-clear:hover {
+  color: var(--text-primary);
+}
+
+.datepicker-popover {
+  position: absolute;
+  margin-top: 4px;
+  z-index: 20;
+}
+
