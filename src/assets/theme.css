@@ -13,7 +13,7 @@
   --bg-hover: var(--secondary-50);
   --bg-active: var(--secondary-90);
 
-  --text-primary: var(--text-primary);
+  /* não sobrescrever o valor original de --text-primary vindo da paleta */
   --text-secondary: var(--text-muted);
 
   --border-color: var(--border);

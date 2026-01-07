@@ -42,13 +42,13 @@ const teams = [
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isDark, toggleTheme, palette, setPalette } = useTheme()
-//'NTX' | 'Brand' | 'Neutral' | 'SoftPurple' | 'Editorial' | 'DeepPurple' | 'Graphite'
+//'NTX' | 'Brand' | 'Neutral' | 'SoftPurple' | 'Editorial' | 'DeepPurple' | 'Graphite' | 'Nude' | 'Clinic' | 'Fashion' 
   // Define a paleta específica desta página ao montar
   useEffect(() => {
-    setPalette('Graphite') // Mude para 'Brand', 'Neutral', etc conforme necessário
+    setPalette('NTX') // Mude para 'Brand', 'Neutral', etc conforme necessário
   }, [])
 
-  const palettes: PaletteName[] = ['NTX', 'Brand', 'Neutral', 'SoftPurple', 'Editorial', 'DeepPurple', 'Graphite']
+  const palettes: PaletteName[] = ['NTX', 'Brand', 'Neutral', 'SoftPurple', 'Editorial', 'DeepPurple', 'Graphite', 'Nude', 'Clinic', 'Fashion']
 
   const classNames = (...classes: (string | boolean | null | undefined)[]) => classes.filter(Boolean).join(' ')
 

@@ -6,17 +6,17 @@
 
 [data-palette="NTX"][data-mode="light"] {
   --primary-100: #744BBC;
-  --primary-90: #885BD8;
-  --primary-50: #E9DFFC;
-  --secondary-100: #C38DFA;
-  --secondary-90: #B07EE5;
-  --secondary-50: #F4EBFF;
+  --primary-90: #29186D;
+  --primary-50: #F6DFFE;
+  --secondary-100: #413B62;
+  --secondary-90: #141B2B;
+  --secondary-50: #EDC6FD;
   --bg: #F9FAFB;
   --surface: #FFFFFF;
   --surface-nav: #F1F3F9;
-  --border: rgba(116, 75, 188, 0.15);
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
-  --text-primary: #1A1A24;
+  --border: rgba(81, 75, 138, 0.15);
+  --gradient: linear-gradient(180deg, #744BBC 0%, #C38DFA 100%);
+  --text-primary: #141B2B;
   --text-muted: #4A4A68;
   --text-soft: #858594;
   --success: #1B5E20;
@@ -25,21 +25,20 @@
 }
 
 [data-palette="NTX"][data-mode="dark"] {
-
-  --primary-100: #C38DFA;
-  --primary-90: #B07EE5;
-  --primary-50: #61467D;
-  --secondary-100: #885BD8;
-  --secondary-90: #7A52C2;
-  --secondary-50: #442D6C;
+  --primary-100: #885BD8;
+  --primary-90: #F6DFFE;
+  --primary-50: #4926AC;
+  --secondary-100: #413B62;
+  --secondary-90: #C38DFA;
+  --secondary-50: #29186D;
   --bg: #080C1C;
   --surface: #1A2437;
-  --surface-nav: #12182B;
-  --border: rgba(71, 63, 108, 0.4);
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
+  --surface-nav: #0E0C2E;
+  --border: rgba(71, 102, 108, 0.4);
+  --gradient: linear-gradient(180deg, #C38DFA 0%, #885BD8 100%);
   --text-primary: #F2F1F1;
   --text-muted: #C8C8D8;
-  --text-soft: #858594;
+  --text-soft: #A8AABD;
   --success: #2ECC71;
   --warning: #F1C40F;
   --danger: #E74C3C;
@@ -47,47 +46,82 @@
 
 
 /* ==========================================
-   1. BRAND (Identidade Forte)
+   1. BRAND (paleta genérica e moderna, o padrão de mercado atual)
    ========================================== */
 
 [data-palette="Brand"][data-mode="light"] {
-  --primary-100: #7733c4;
-  --primary-90: #9f66d3;
-  --primary-50: #bb93e1;
-  --secondary-100: #efe5f8;
-  --secondary-90: #dfccf0;
-  --secondary-50: #d1b7ea;
-  --bg: #f9f9fb;
-  --surface: #ffffff;
-  --surface-nav: #efe5f8;
-  --border: #eeedf2;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #130a2a;
-  --text-muted: #605579;
-  --text-soft: #a6a0b6;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  /* Azul Royal Vibrante para Ações */
+  --primary-100: #2563EB;
+  /* Cor base (Blue 600) */
+  --primary-90: #1D4ED8;
+  /* Hover (Escurece para clique) */
+  --primary-50: #DBEAFE;
+  /* Fundo de destaque leve */
+
+  /* Cinza Azulado para Elementos Secundários */
+  --secondary-100: #475569;
+  --secondary-90: #334155;
+  --secondary-50: #F1F5F9;
+
+  /* Estrutura de Fundo Limpa */
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-nav: #FFFFFF;
+
+  /* Borda sutil */
+  --border: #E2E8F0;
+
+  /* Gradiente moderno */
+  --gradient: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+
+  /* Tipografia Profissional */
+  --text-primary: #0F172A;
+  /* Quase preto (Slate 900) */
+  --text-muted: #475569;
+  /* Cinza médio */
+  --text-soft: #94A3B8;
+  /* Cinza claro */
+
+  /* Estados Padrão */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 [data-palette="Brand"][data-mode="dark"] {
-  --primary-100: #7733c4;
-  --primary-90: #9f66d3;
-  --primary-50: #bb93e1;
-  --secondary-100: #392e55;
-  --secondary-90: #2d2246;
-  --secondary-50: #201935;
-  --bg: #0c0420;
-  --surface: #130a2a;
-  --surface-nav: #2d2246;
-  --border: #392e55;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-90) 100%);
-  --text-primary: #ffffff;
-  --text-muted: #bb93e1;
-  --text-soft: #9e9ab0;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  /* Azul Elétrico para Ações */
+  --primary-100: #3B82F6;
+  /* Cor base (Blue 500) */
+  --primary-90: #60A5FA;
+  /* Hover (Acende no escuro) */
+  --primary-50: #1E3A8A;
+  /* Fundo de destaque profundo */
+
+  /* Cinzas Profundos */
+  --secondary-100: #334155;
+  --secondary-90: #475569;
+  --secondary-50: #0F172A;
+
+  /* Fundo Dark Moderno (não é preto puro) */
+  --bg: #020617;
+  --surface: #0F172A;
+  /* Card um pouco mais claro que o fundo */
+  --surface-nav: #1E293B;
+
+  /* Borda discreta */
+  --border: #1E293B;
+
+  --gradient: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%);
+
+  /* Tipografia Dark */
+  --text-primary: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-soft: #64748B;
+
+  /* Estados Dark */
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
 }
 
 /* ==========================================
@@ -95,43 +129,53 @@
    ========================================== */
 
 [data-palette="Neutral"][data-mode="light"] {
-  --primary-100: #605579;
-  --primary-90: #776f90;
-  --primary-50: #a6a0b6;
-  --secondary-100: #f1f1f5;
-  --secondary-90: #e7e5ec;
-  --secondary-50: #dedeeb;
-  --bg: #fbfbfd;
-  --surface: #ffffff;
-  --surface-nav: #f1f1f5;
-  --border: #dedce5;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #130a2a;
-  --text-muted: #605579;
-  --text-soft: #9e9ab0;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --primary-100: #4B4453;
+  /* Cinza chumbo profundo (mais corporativo que o roxo) */
+  --primary-90: #1A1A1A;
+  /* Hover: Quase preto para um efeito de peso imediato */
+  --primary-50: #A29EB2;
+  --secondary-100: #F1F5F9;
+  --secondary-90: #E2E8F0;
+  /* Hover do secundário bem marcado */
+  --secondary-50: #CBD5E1;
+  --bg: #F8FAFC;
+  /* Fundo levemente frio para parecer mais limpo */
+  --surface: #FFFFFF;
+  --surface-nav: #FFFFFF;
+  --border: #E2E8F0;
+  --gradient: linear-gradient(180deg, #4B4453 0%, #776F90 100%);
+  --text-primary: #0F172A;
+  /* Texto "Ink" profundo para melhor leitura */
+  --text-muted: #475569;
+  --text-soft: #94A3B8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 [data-palette="Neutral"][data-mode="dark"] {
-  --primary-100: #a6a0b6;
-  --primary-90: #776f90;
-  --primary-50: #392e55;
-  --secondary-100: #2d2246;
-  --secondary-90: #201935;
-  --secondary-50: #130a2a;
-  --bg: #0c0420;
-  --surface: #130a2a;
-  --surface-nav: #201935;
-  --border: #392e55;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #ffffff;
-  --text-muted: #a6a0b6;
-  --text-soft: #776f90;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --primary-100: #F8FAFC;
+  /* Botão primário "Paper White" (tendência atual) */
+  --primary-90: #CBD5E1;
+  /* Hover: Cinza claro suave */
+  --primary-50: #475569;
+  --secondary-100: #1E293B;
+  --secondary-90: #334155;
+  /* Hover do secundário acendendo */
+  --secondary-50: #0F172A;
+  --bg: #020617;
+  /* "Night Blue" profundo em vez de roxo puro */
+  --surface: #0F172A;
+  /* Elevação sutil */
+  --surface-nav: #0F172A;
+  --border: #1E293B;
+  --gradient: linear-gradient(180deg, #F8FAFC 0%, #CBD5E1 100%);
+  --text-primary: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-soft: #64748B;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
 }
 
 /* ==========================================
@@ -139,43 +183,51 @@
    ========================================== */
 
 [data-palette="SoftPurple"][data-mode="light"] {
-  --primary-100: #9f66d3;
-  --primary-90: #bb93e1;
-  --primary-50: #efe5f8;
-  --secondary-100: #f5f0fb;
-  --secondary-90: #ede3f8;
-  --secondary-50: #dfccf0;
-  --bg: #fcfbfe;
-  --surface: #ffffff;
-  --surface-nav: #f5f0fb;
-  --border: #ede3f8;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #260048;
-  --text-muted: #605579;
-  --text-soft: #9f93b5;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --primary-100: #9F66D3;
+  /* Roxo principal */
+  --primary-90: #742DC3;
+  /* Hover: Escurece para um tom mais rico e visível */
+  --primary-50: #F5EEFF;
+  /* Fundo de destaque ultra leve */
+  --secondary-100: #F1F5F9;
+  --secondary-90: #E2E8F0;
+  --secondary-50: #CBD5E1;
+  --bg: #FAFAFF;
+  /* Off-white com um toque de azul/roxo */
+  --surface: #FFFFFF;
+  --surface-nav: #FFFFFF;
+  --border: #E9E1F5;
+  --gradient: linear-gradient(180deg, #9F66D3 0%, #C38DFA 100%);
+  --text-primary: #1A0033;
+  /* Texto profundo para contraste máximo */
+  --text-muted: #5B4D70;
+  --text-soft: #94A3B8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 [data-palette="SoftPurple"][data-mode="dark"] {
-  --primary-100: #bb93e1;
-  --primary-90: #9f66d3;
-  --primary-50: #4c0091;
-  --secondary-100: #260048;
-  --secondary-90: #1a0033;
-  --secondary-50: #130024;
-  --bg: #0b0218;
-  --surface: #130024;
-  --surface-nav: #260048;
-  --border: #311d4d;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #ffffff;
-  --text-muted: #bb93e1;
-  --text-soft: #9f93b5;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --primary-100: #C38DFA;
+  /* Roxo aceso para o modo dark */
+  --primary-90: #D8B4FE;
+  /* Hover: Brilha mais no escuro (mais claro) */
+  --primary-50: #4C0091;
+  --secondary-100: #1E1B2E;
+  --secondary-90: #2D2945;
+  --secondary-50: #0F172A;
+  --bg: #0B0218;
+  --surface: #140826;
+  /* Card levemente mais claro que o fundo */
+  --surface-nav: #1A0033;
+  --border: #311D4D;
+  --gradient: linear-gradient(180deg, #C38DFA 0%, #9F66D3 100%);
+  --text-primary: #F8FAFC;
+  --text-muted: #BB93E1;
+  --text-soft: #857DA3;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
 }
 
 /* ==========================================
@@ -227,43 +279,51 @@
    ========================================== */
 
 [data-palette="DeepPurple"][data-mode="light"] {
-  --primary-100: #4c0091;
-  --primary-90: #7733c4;
-  --primary-50: #9f66d3;
-  --secondary-100: #f3ebfc;
-  --secondary-90: #e7d6f9;
-  --secondary-50: #d1b7ea;
-  --bg: #f8f5fd;
-  --surface: #ffffff;
-  --surface-nav: #f3ebfc;
-  --border: #e7d6f9;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
+  --primary-100: #4C0091;
+  /* Roxo profundo e autoritário */
+  --primary-90: #320060;
+  /* Hover: Escurece para um tom quase preto (elegância) */
+  --primary-50: #E7D6F9;
+  /* Tom de destaque suave */
+  --secondary-100: #F3EBFC;
+  --secondary-90: #D1B7EA;
+  --secondary-50: #B494D6;
+  --bg: #F8F5FD;
+  --surface: #FFFFFF;
+  --surface-nav: #F3EBFC;
+  --border: #E7D6F9;
+  --gradient: linear-gradient(180deg, #4C0091 0%, #7733C4 100%);
   --text-primary: #130024;
-  --text-muted: #4c0091;
-  --text-soft: #9f66d3;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  /* Contraste máximo */
+  --text-muted: #4C0091;
+  --text-soft: #7D659B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 [data-palette="DeepPurple"][data-mode="dark"] {
-  --primary-100: #7733c4;
-  --primary-90: #4c0091;
-  --primary-50: #260048;
-  --secondary-100: #260048;
-  --secondary-90: #201935;
-  --secondary-50: #130024;
-  --bg: #0b0218;
+  --primary-100: #BB93E1;
+  /* Lilás claro para brilhar no fundo escuro */
+  --primary-90: #D1B7EA;
+  /* Hover: Fica mais claro e iluminado */
+  --primary-50: #4C0091;
+  --secondary-100: #1A0B2E;
+  --secondary-90: #260048;
+  --secondary-50: #0B0218;
+  --bg: #0B0218;
+  /* Roxo "Vantablack" */
   --surface: #130024;
-  --surface-nav: #260048;
-  --border: #392e55;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #ffffff;
-  --text-muted: #bb93e1;
-  --text-soft: #9f93b5;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  /* Elevação profunda */
+  --surface-nav: #1A0B2E;
+  --border: #311D4D;
+  --gradient: linear-gradient(180deg, #7733C4 0%, #4C0091 100%);
+  --text-primary: #FFFFFF;
+  --text-muted: #BB93E1;
+  --text-soft: #9F93B5;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
 }
 
 /* ==========================================
@@ -271,41 +331,241 @@
    ========================================== */
 
 [data-palette="Graphite"][data-mode="light"] {
-  --primary-100: #392e55;
-  --primary-90: #605579;
-  --primary-50: #a6a0b6;
-  --secondary-100: #eeedf2;
-  --secondary-90: #dedce5;
-  --secondary-50: #bb93e1;
-  --bg: #f4f4f7;
-  --surface: #ffffff;
-  --surface-nav: #eeedf2;
-  --border: #dedce5;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #130a2a;
+  --primary-100: #392E55;
+  /* Grafite arroxeado profundo */
+  --primary-90: #1A1429;
+  /* Hover: Quase preto para impacto visual */
+  --primary-50: #A6A0B6;
+  --secondary-100: #F1F1F4;
+  --secondary-90: #E2E2E9;
+  --secondary-50: #BB93E1;
+  --bg: #F8F8FA;
+  /* Cinza "estúdio" muito limpo */
+  --surface: #FFFFFF;
+  --surface-nav: #F1F1F4;
+  --border: #DEDCE5;
+  --gradient: linear-gradient(180deg, #392E55 0%, #605579 100%);
+  --text-primary: #130A2A;
   --text-muted: #605579;
-  --text-soft: #9e9ab0;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --text-soft: #9E9AB0;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 [data-palette="Graphite"][data-mode="dark"] {
-  --primary-100: #a6a0b6;
-  --primary-90: #776f90;
-  --primary-50: #605579;
+  --primary-100: #A6A0B6;
+  /* Cinza médio iluminado */
+  --primary-90: #DEDCE5;
+  /* Hover: Acende para um cinza quase branco */
+  --primary-50: #392E55;
   --secondary-100: #201935;
-  --secondary-90: #130a2a;
-  --secondary-50: #0c0420;
-  --bg: #0c0420;
-  --surface: #130a2a;
+  --secondary-90: #2D2445;
+  --secondary-50: #0C0420;
+  --bg: #0C0420;
+  /* Fundo "Midnight" profundo */
+  --surface: #17102B;
+  /* Card com tom levemente mais saturado que o fundo */
   --surface-nav: #201935;
-  --border: #392e55;
-  --gradient: linear-gradient(180deg, var(--primary-100) 0%, var(--primary-50) 100%);
-  --text-primary: #ffffff;
-  --text-muted: #a6a0b6;
-  --text-soft: #776f90;
-  --success: #41c16e;
-  --warning: #f4da49;
-  --danger: #fc5e57;
+  --border: #392E55;
+  --gradient: linear-gradient(180deg, #A6A0B6 0%, #776F90 100%);
+  --text-primary: #F8F9FA;
+  --text-muted: #A6A0B6;
+  --text-soft: #776F90;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
+}
+
+/* ==========================================
+   7. NUDE MATURE (Sofisticação Adulta e Mistério)
+   ========================================== */
+
+[data-palette="Nude"][data-mode="light"] {
+  --primary-100: #D4A5A5;
+  /* Rosa Vintage (Maturidade e Elegância) */
+  --primary-90: #B38686;
+  /* Hover: Rosa seco profundo */
+  --primary-50: #F3E5E5;
+  /* Sombra de blush luxuosa */
+
+  --secondary-100: #EBE6E6;
+  /* Off-white acetinado */
+  --secondary-90: #D8D1D1;
+  /* Hover do secundário */
+  --secondary-50: #F9F7F7;
+
+  --bg: #FDFBFA;
+  /* Branco perolado limpo */
+  --surface: #FFFFFF;
+  --surface-nav: #F8F4F4;
+
+  --border: #E8DEDE;
+  /* Linha sutil rosada */
+
+  --gradient: linear-gradient(135deg, #D4A5A5 0%, #E8D1D1 100%);
+
+  --text-primary: #2D1B1B;
+  /* Ameixa quase preto (Muito mais chique que cinza) */
+  --text-muted: #7D6565;
+  /* Tom de sombra elegante */
+  --text-soft: #B8A8A8;
+
+  --success: #81C784;
+  --warning: #FFD54F;
+  --danger: #FF8A80;
+}
+
+[data-palette="Nude"][data-mode="dark"] {
+  --primary-100: #F3C5C2;
+  /* Rosa Madrepérola aceso */
+  --primary-90: #FFFFFF;
+  /* Hover: Brilho total de seda */
+  --primary-50: #2E1A47;
+  /* Roxo profundo (Sem marrom) */
+
+  --secondary-100: #140C1C;
+  /* Roxo "Midnight Iris" (Quase preto) */
+  --secondary-90: #261A33;
+  --secondary-50: #0A0611;
+
+  --bg: #0A0611;
+  /* Preto Obsidian (Com alma lilás, zero marrom) */
+  --surface: #140C1C;
+  /* Elevação sofisticada e profunda */
+  --surface-nav: #1A1221;
+
+  --border: #2E1A47;
+  /* Borda roxa discreta */
+
+  --gradient: linear-gradient(135deg, #F3C5C2 0%, #2E1A47 100%);
+
+  --text-primary: #FFFFFF;
+  --text-muted: #F3C5C2;
+  --text-soft: #A396AF;
+
+  --success: #A3B18A;
+  --warning: #F2E1B1;
+  --danger: #F3C5C2;
+}
+
+/* ==========================================
+   8. CLINIC & FRESH (Conforto Médico e Higiene)
+   ========================================== */
+
+   [data-palette="Clinic"][data-mode="light"] {
+    --primary-100: #0077B6;   /* Azul Sereno */
+    --primary-90: #023E8A;    /* Hover: Azul Profundo */
+    --primary-50: #EDF7FA;
+    --secondary-100: #F1F5F9; 
+    --secondary-90: #E2E8F0;
+    --secondary-50: #F8FAFC;
+    --bg: #FFFFFF;            /* Branco Puro (Higiene) */
+    --surface: #FFFFFF;
+    --surface-nav: #F8FAFC;
+    --border: #E0E7FF;
+    --gradient: linear-gradient(135deg, #0077B6 0%, #90E0EF 100%);
+    --text-primary: #1E293B;  
+    --text-muted: #475569;
+    --text-soft: #94A3B8;
+    --success: #10B981; 
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+  
+  [data-palette="Clinic"][data-mode="dark"] {
+    --primary-100: #94B8C5;   /* Azul Glacial/Slate (Muito suave, zero cansaço) */
+    --primary-90: #B7D2DB;    /* Hover: Brilho perolado frio */
+    --primary-50: #1E2E36;
+    
+    --secondary-100: #1E2022; /* Cinza Carvão Neutro Profundo */
+    --secondary-90: #2A2D30;
+    --secondary-50: #0F1112;
+    
+    --bg: #0F1112;            /* Preto "Deep Space" (Mais escuro, menos brilho) */
+    --surface: #1A1C1E;       /* Elevação discreta */
+    --surface-nav: #121416;
+    
+    --border: #2A3135;        /* Borda azulada quase invisível */
+    
+    --gradient: linear-gradient(135deg, #94B8C5 0%, #1A1C1E 100%);
+    
+    --text-primary: #CBD5E1;  /* Azul Acinzentado claro (O melhor para leitura noturna) */
+    --text-muted: #94A3B8;
+    --text-soft: #64748B;
+    
+    --success: #81C784;
+    --warning: #FFD54F;
+    --danger: #E57373;
+  }
+/* ==========================================
+   9. FASHION (Alta Moda, E-commerce e Tendência)
+   ========================================== */
+
+[data-palette="Fashion"][data-mode="light"] {
+  --primary-100: #1A1A1A;
+  /* Preto "Ink" (Elegância máxima para botões) */
+  --primary-90: #404040;
+  /* Hover: Cinza escuro profundo */
+  --primary-50: #F5F5F3;
+  /* Creme "Oatmeal" muito sutil */
+
+  --secondary-100: #E5E5E1;
+  /* Tom de linho/tecido natural */
+  --secondary-90: #D4D4CE;
+  --secondary-50: #FBFBF9;
+
+  --bg: #FFFFFF;
+  /* Branco galeria */
+  --surface: #FBFBF9;
+  /* Superfície creme sutil */
+  --surface-nav: #FFFFFF;
+
+  --border: #E5E5E1;
+  /* Linhas finas estilo editorial */
+
+  --gradient: linear-gradient(180deg, #1A1A1A 0%, #404040 100%);
+
+  --text-primary: #1A1A1A;
+  /* Tipografia forte e clara */
+  --text-muted: #737373;
+  --text-soft: #A3A3A3;
+
+  --success: #4F6D5B;
+  /* Verde sálvia (Moda orgânica) */
+  --warning: #C2A87E;
+  /* Dourado areia */
+  --danger: #924040;
+  /* Vermelho bordô profundo */
+}
+
+[data-palette="Fashion"][data-mode="dark"] {
+  --primary-100: #FFFFFF;
+  /* Botão branco (O padrão de luxo no Dark) */
+  --primary-90: #E5E5E1;
+  /* Hover: Cinza seda */
+  --primary-50: #404040;
+
+  --secondary-100: #262626;
+  /* Cinza carvão (Soft Black) */
+  --secondary-90: #404040;
+  --secondary-50: #0A0A0A;
+
+  --bg: #0A0A0A;
+  /* "Rich Black" (Não é o preto puro que cansa o olho) */
+  --surface: #171717;
+  /* Elevação discreta */
+  --surface-nav: #0A0A0A;
+
+  --border: #262626;
+
+  --gradient: linear-gradient(180deg, #FFFFFF 0%, #E5E5E1 100%);
+
+  --text-primary: #F5F5F3;
+  --text-muted: #A3A3A3;
+  --text-soft: #737373;
+
+  --success: #8BA895;
+  --warning: #C2A87E;
+  --danger: #B06B6B;
 }
