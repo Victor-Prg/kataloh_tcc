@@ -453,51 +453,62 @@
    8. CLINIC & FRESH (Conforto Médico e Higiene)
    ========================================== */
 
-   [data-palette="Clinic"][data-mode="light"] {
-    --primary-100: #0077B6;   /* Azul Sereno */
-    --primary-90: #023E8A;    /* Hover: Azul Profundo */
-    --primary-50: #EDF7FA;
-    --secondary-100: #F1F5F9; 
-    --secondary-90: #E2E8F0;
-    --secondary-50: #F8FAFC;
-    --bg: #FFFFFF;            /* Branco Puro (Higiene) */
-    --surface: #FFFFFF;
-    --surface-nav: #F8FAFC;
-    --border: #E0E7FF;
-    --gradient: linear-gradient(135deg, #0077B6 0%, #90E0EF 100%);
-    --text-primary: #1E293B;  
-    --text-muted: #475569;
-    --text-soft: #94A3B8;
-    --success: #10B981; 
-    --warning: #F59E0B;
-    --danger: #EF4444;
-  }
-  
-  [data-palette="Clinic"][data-mode="dark"] {
-    --primary-100: #94B8C5;   /* Azul Glacial/Slate (Muito suave, zero cansaço) */
-    --primary-90: #B7D2DB;    /* Hover: Brilho perolado frio */
-    --primary-50: #1E2E36;
-    
-    --secondary-100: #1E2022; /* Cinza Carvão Neutro Profundo */
-    --secondary-90: #2A2D30;
-    --secondary-50: #0F1112;
-    
-    --bg: #0F1112;            /* Preto "Deep Space" (Mais escuro, menos brilho) */
-    --surface: #1A1C1E;       /* Elevação discreta */
-    --surface-nav: #121416;
-    
-    --border: #2A3135;        /* Borda azulada quase invisível */
-    
-    --gradient: linear-gradient(135deg, #94B8C5 0%, #1A1C1E 100%);
-    
-    --text-primary: #CBD5E1;  /* Azul Acinzentado claro (O melhor para leitura noturna) */
-    --text-muted: #94A3B8;
-    --text-soft: #64748B;
-    
-    --success: #81C784;
-    --warning: #FFD54F;
-    --danger: #E57373;
-  }
+[data-palette="Clinic"][data-mode="light"] {
+  --primary-100: #0077B6;
+  /* Azul Sereno */
+  --primary-90: #023E8A;
+  /* Hover: Azul Profundo */
+  --primary-50: #EDF7FA;
+  --secondary-100: #F1F5F9;
+  --secondary-90: #E2E8F0;
+  --secondary-50: #F8FAFC;
+  --bg: #FFFFFF;
+  /* Branco Puro (Higiene) */
+  --surface: #FFFFFF;
+  --surface-nav: #F8FAFC;
+  --border: #E0E7FF;
+  --gradient: linear-gradient(135deg, #0077B6 0%, #90E0EF 100%);
+  --text-primary: #1E293B;
+  --text-muted: #475569;
+  --text-soft: #94A3B8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+[data-palette="Clinic"][data-mode="dark"] {
+  --primary-100: #94B8C5;
+  /* Azul Glacial/Slate (Muito suave, zero cansaço) */
+  --primary-90: #B7D2DB;
+  /* Hover: Brilho perolado frio */
+  --primary-50: #1E2E36;
+
+  --secondary-100: #1E2022;
+  /* Cinza Carvão Neutro Profundo */
+  --secondary-90: #2A2D30;
+  --secondary-50: #0F1112;
+
+  --bg: #0F1112;
+  /* Preto "Deep Space" (Mais escuro, menos brilho) */
+  --surface: #1A1C1E;
+  /* Elevação discreta */
+  --surface-nav: #121416;
+
+  --border: #2A3135;
+  /* Borda azulada quase invisível */
+
+  --gradient: linear-gradient(135deg, #94B8C5 0%, #1A1C1E 100%);
+
+  --text-primary: #CBD5E1;
+  /* Azul Acinzentado claro (O melhor para leitura noturna) */
+  --text-muted: #94A3B8;
+  --text-soft: #64748B;
+
+  --success: #81C784;
+  --warning: #FFD54F;
+  --danger: #E57373;
+}
+
 /* ==========================================
    9. FASHION (Alta Moda, E-commerce e Tendência)
    ========================================== */
@@ -568,4 +579,68 @@
   --success: #8BA895;
   --warning: #C2A87E;
   --danger: #B06B6B;
+}
+
+/* ==========================================
+   10. KATALOH (Ajuste de Tom: Verde Premium)
+   ========================================== */
+
+[data-palette="Kataloh"][data-mode="light"] {
+/* Verde Kataloh Premium - Mais fechado e sofisticado */
+  --primary-100: #A3D900;
+  /* O tom equilibrado que você buscou */
+  --primary-90: #8CB800;
+  /* Hover: Verde denso */
+  --primary-50: #F4FBE5;
+  /* Fundo de destaque suave */
+
+  --secondary-100: #1D2025;
+  /* Seu cinza original da logo */
+  --secondary-90: #333942;
+  --secondary-50: #F8F9FA;
+
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-nav: #FFFFFF;
+  /* Navbar Clean */
+
+  --border: #E2E8F0;
+
+  --gradient: linear-gradient(135deg, #A3D900 0%, #1D2025 100%);
+
+  --text-primary: #1D2025;
+  --text-muted: #64748B;
+  --text-soft: #94A3B8;
+
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+[data-palette="Kataloh"][data-mode="dark"] {
+/* Verde Kataloh Premium no Dark - Confortável e Vibrante */
+  --primary-100: #A3D900;
+  --primary-90: #B8F000;
+  /* Hover: Brilho controlado */
+  --primary-50: #1D2025;
+
+  --secondary-100: #333942;
+  --secondary-90: #4A525E;
+  --secondary-50: #0A0C0E;
+
+  --bg: #0A0C0E;
+  --surface: #1D2025;
+  --surface-nav: #0A0C0E;
+
+  --border: #2D333B;
+
+  --gradient: linear-gradient(135deg, #A3D900 0%, #0A0C0E 100%);
+
+  --text-primary: #F8FAFC;
+  --text-muted: #A3D900;
+  --text-soft: #64748B;
+
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
 }

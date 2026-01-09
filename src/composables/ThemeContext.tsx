@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 
 // Paletas disponíveis no sistema
-export type PaletteName = 'NTX' | 'Brand' | 'Neutral' | 'SoftPurple' | 'Editorial' | 'DeepPurple' | 'Graphite' | 'Nude' | 'Clinic' | 'Fashion' ;
+export type PaletteName = 'NTX' | 'Brand' | 'Neutral' | 'SoftPurple' | 'Editorial' | 'DeepPurple' | 'Graphite' | 'Nude' | 'Clinic' | 'Fashion' | 'Kataloh' ;
 
 // Define o formato do nosso contexto
 interface ThemeContextType {

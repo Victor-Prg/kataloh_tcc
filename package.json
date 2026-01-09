@@ -1,5 +1,5 @@
 {
-  "name": "meu-design-system",
+  "name": "kataloh",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,7 +14,8 @@
     "@heroicons/react": "^2.2.0",
     "phosphor-react": "^1.4.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
