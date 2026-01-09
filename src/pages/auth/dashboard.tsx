@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import Navbar from '../../components/navbar'
+import Navbar from '../../components/Navbar'
 import Sidebar from '../../components/Sidebar'
 
 function Dashboard() {
