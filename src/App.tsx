@@ -5,6 +5,7 @@ import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
 import Dashboard from './pages/auth/dashboard'; // Certifique-se que este arquivo existe aqui
+import Financeiro from './pages/financeiro';
 
 function App() {
   return (
@@ -20,6 +21,9 @@ function App() {
           {/* --- Rota do Dashboard --- */}
           {/* Ao acessar /dashboard, renderiza a página completa com Sidebar */}
           <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* --- Pré-visualização da tela Financeiro (sem integração ao layout) --- */}
+          <Route path="/financeiro" element={<Financeiro />} />
 
           {/* --- Fallback --- */}
           {/* Qualquer rota desconhecida redireciona para o Login */}
