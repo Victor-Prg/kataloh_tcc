@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import {
@@ -26,9 +26,7 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  // AJUSTE AQUI: 'Início' agora aponta para '/dashboard' (Link Real)
-  { name: 'Início', href: '/dashboard', icon: HomeIcon }, 
-  
+  { name: 'Início', href: '/dashboard', icon: HomeIcon },
   {
     name: 'Loja',
     icon: ShoppingBagIcon,
@@ -50,7 +48,8 @@ const navigation: NavigationItem[] = [
     icon: BanknotesIcon,
     current: false,
     children: [
-      { name: 'Repasses', href: '#', icon: ArrowPathIcon },
+      { name: 'Tesouraria', href: '/financeiro/tesouraria', icon: BanknotesIcon },
+      { name: 'Repasses', href: '/financeiro/repasses', icon: ArrowPathIcon },
       // Link Real do Histórico
       { name: 'Histórico', href: '/financeiro/historico', icon: ClockIcon }, 
     ],
@@ -101,7 +100,6 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
       collapsed ? 'justify-center px-0 w-full' : paddingLeftClass
     );
 
-    // Se for Link Real (Dashboard ou Histórico), usa o <Link> do Router
     if (isRealLink) {
       return (
         <Link to={item.href!} className={commonClasses} title={collapsed ? item.name : undefined}>
@@ -110,7 +108,6 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
       );
     }
 
-    // Se for Placeholder (#), usa <a> travado
     return (
       <a 
         href="#" 
@@ -170,6 +167,8 @@ type SidebarProps = {
 }
 
 export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+  const navigate = useNavigate()
+
   return (
     <div
       className={classNames(
@@ -186,17 +185,38 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       >
         <div className="flex items-center justify-center">
           {collapsed ? (
-            <img
-              alt="Kataloh Icon"
-              src={iconKataloh}
-              className="absolute transition-all duration-200 ease-in-out opacity-100 scale-100"
-              style={{ width: '32px' }}
-            />
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center justify-center"
+            >
+              <img
+                alt="Kataloh Icon"
+                src={iconKataloh}
+                className={classNames(
+                  'absolute transition-all duration-200 ease-in-out transform origin-center',
+                  collapsed ? "opacity-100 scale-100" : "opacity-0 scale-50"
+                )}
+                style={{ width: '32px' }}
+              />
+            </button>
           ) : (
-            <div className="relative">
-              <img alt="Logo" src={logo} className="h-18 w-auto dark:hidden transition-all" />
-              <img alt="Logo" src={logo} className="h-18 w-auto hidden dark:block transition-all" />
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="relative"
+            >
+              <img
+                alt="Your Company"
+                src={logo}
+                className="h-16 w-auto dark:hidden transition-all"
+              />
+              <img
+                alt="Your Company"
+                src={logo}
+                className="h-16 w-auto hidden dark:block transition-all"
+              />
+            </button>
           )}
         </div>
 

@@ -18,6 +18,30 @@ export const Pagination = ({
 }: PaginationProps) => {
   const canGoPrev = currentPage > 1;
   const canGoNext = currentPage < totalPages;
+  const isDisabled = totalPages <= 0;
+
+  const visiblePages = React.useMemo(() => {
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    const maxVisible = 10;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    const pages: number[] = [];
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    return pages;
+  }, [currentPage, totalPages]);
 
   const handlePrev = () => {
     if (canGoPrev) {
@@ -43,8 +67,6 @@ export const Pagination = ({
     }
   };
 
-  const isDisabled = totalPages <= 0;
-
   return (
     <nav
       className={`pagination-root ${className || ''}`}
@@ -67,13 +89,22 @@ export const Pagination = ({
         className="pagination-button"
         onClick={handlePrev}
         disabled={!canGoPrev || isDisabled}
-        aria-label="Página anterior"
+          aria-label="Página anterior"
       >
         Anterior
       </button>
-      <span className="pagination-info">
-        Página {Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1))} de {Math.max(totalPages, 1)}
-      </span>
+      {visiblePages.map((page) => (
+        <button
+          key={page}
+          type="button"
+          className={`pagination-button${page === currentPage ? ' is-active' : ''}`}
+          onClick={() => onPageChange(page)}
+          aria-current={page === currentPage ? 'page' : undefined}
+          disabled={isDisabled}
+        >
+          {page}
+        </button>
+      ))}
       <button
         type="button"
         className="pagination-button"

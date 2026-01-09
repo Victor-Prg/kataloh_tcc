@@ -1,17 +1,27 @@
 .datepicker-container {
   position: relative;
-  display: inline-block;
+  display: block;
 }
 
 .datepicker-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+}
+
+.datepicker-container .input-group {
+  width: 100%;
+}
+
+.datepicker-container .input-modern {
+  width: 100%;
+  padding-right: 32px;
 }
 
 .datepicker-clear {
   position: absolute;
-  right: 8px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   border: none;

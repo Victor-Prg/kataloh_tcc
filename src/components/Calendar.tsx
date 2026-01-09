@@ -7,6 +7,8 @@ export interface CalendarProps {
   onChange?: (date: Date) => void;
   initialMonth?: Date;
   className?: string;
+  rangeStart?: Date;
+  rangeEnd?: Date;
 }
 
 export const Calendar = ({
@@ -15,6 +17,8 @@ export const Calendar = ({
   onChange,
   initialMonth,
   className,
+  rangeStart,
+  rangeEnd,
 }: CalendarProps) => {
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState<Date | undefined>(defaultValue);
@@ -105,6 +109,25 @@ export const Calendar = ({
     );
   };
 
+  const isInRange = (date: Date) => {
+    if (!rangeStart || !rangeEnd) {
+      return false;
+    }
+
+    const start = new Date(
+      rangeStart.getFullYear(),
+      rangeStart.getMonth(),
+      rangeStart.getDate(),
+    );
+    const end = new Date(
+      rangeEnd.getFullYear(),
+      rangeEnd.getMonth(),
+      rangeEnd.getDate(),
+    );
+
+    return date > start && date < end;
+  };
+
   return (
     <div
       className={`calendar-root ${className || ''}`}
@@ -170,14 +193,17 @@ export const Calendar = ({
           const date = new Date(year, month, day);
           const isSelected = isSameDay(selectedDate, date);
           const isToday = isSameDay(today, date);
+          const isRangeStart = isSameDay(rangeStart, date);
+          const isRangeEnd = isSameDay(rangeEnd, date);
+          const withinRange = isInRange(date);
 
           return (
             <button
               key={day}
               type="button"
               className={`calendar-cell ${isToday ? 'calendar-cell-today' : ''} ${
-                isSelected ? 'calendar-cell-selected' : ''
-              }`}
+                isSelected || isRangeStart || isRangeEnd ? 'calendar-cell-selected' : ''
+              } ${withinRange ? 'calendar-cell-in-range' : ''}`}
               onClick={() => handleSelectDate(day)}
               aria-pressed={isSelected}
               aria-label={date.toLocaleDateString('pt-BR')}
