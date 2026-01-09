@@ -2,15 +2,14 @@ import { Menu, MenuButton, MenuItem, MenuItems, Popover } from '@headlessui/reac
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { BellIcon, Bars3Icon, SunIcon, MoonIcon } from '@heroicons/react/24/outline' 
 import logo from '../assets/logo.svg'
-import userAvatar from '../assets/mulherdoindiano.png'
 // Se o arquivo navbar.css não existir, comente a linha abaixo para evitar erros
 // import '../assets/navbar.css' 
 import { useTheme } from '../composables/useTheme'
 
 const user = {
-  name: 'mulher do indiano',
-  email: 'mulherdo.indiano@example.com',
-  imageUrl: userAvatar,
+  name: 'usuário',
+  email: 'usuario@example.com',
+  imageUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
 }
 
 const userNavigation = [

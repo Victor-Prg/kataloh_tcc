@@ -5,15 +5,15 @@ import {
   Text, 
   Input, 
   Select, 
-  DatePicker, 
   Badge, 
   Pagination, 
-  Stack, 
   Button 
-} from '../../components'; // Ajuste o caminho dos componentes se necessário
+} from '../../components'; 
+// Certifique-se que o caminho do DateRangePicker está correto
+import { DateRangePicker } from '../../components/DateRangePicker'; 
 import { FileCsv } from 'phosphor-react';
 
-// --- TIPAGEM DOS DADOS ---
+// --- TIPAGEM ---
 type StatusTransacao = 'concluido' | 'pendente' | 'falha' | 'cancelado';
 
 interface Transacao {
@@ -23,10 +23,10 @@ interface Transacao {
   valor: number;
   tipo: 'PIX' | 'BOLETO' | 'CARTAO';
   status: StatusTransacao;
-  idTransacaoPix?: string; // ID E2E do PIX
+  idTransacaoPix?: string;
 }
 
-// --- DADOS MOCKADOS (Para teste) ---
+// --- DADOS MOCKADOS ---
 const MOCK_DATA: Transacao[] = Array.from({ length: 25 }).map((_, i) => ({
   id: `TRX-${1000 + i}`,
   cliente: i % 2 === 0 ? `Cliente Exemplo ${i}` : `Loja do Fulano ${i}`,
@@ -37,7 +37,6 @@ const MOCK_DATA: Transacao[] = Array.from({ length: 25 }).map((_, i) => ({
   idTransacaoPix: `E12345678202401${String(i).padStart(4, '0')}`
 }));
 
-// --- OPÇÕES DE FILTRO ---
 const statusOptions = [
   { label: 'Todos', value: 'all' },
   { label: 'Concluído', value: 'concluido' },
@@ -46,54 +45,68 @@ const statusOptions = [
 ];
 
 export default function HistoricoRepasses() {
-  // Estados dos Filtros
+  // Estados
   const [buscaCliente, setBuscaCliente] = useState('');
   const [statusFiltro, setStatusFiltro] = useState('all');
-  const [dataFiltro, setDataFiltro] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<{ start?: Date; end?: Date }>({});
   
-  // Estado da Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // --- LÓGICA DE FILTRAGEM ---
   const dadosFiltrados = useMemo(() => {
     return MOCK_DATA.filter((item) => {
-      // 1. Filtro por Cliente (Busca textual)
+      // 1. Filtro Texto (Recriado aqui para não dar erro de variável não definida)
       const matchCliente = item.cliente.toLowerCase().includes(buscaCliente.toLowerCase()) || 
                            item.id.toLowerCase().includes(buscaCliente.toLowerCase());
       
-      // 2. Filtro por Status
+      // 2. Filtro Status (Recriado aqui)
       const matchStatus = statusFiltro === 'all' || item.status === statusFiltro;
 
-      // 3. Filtro por Data (Compara dia/mês/ano ignorando hora)
+      // 3. Filtro de Data (INTERVALO)
       let matchData = true;
-      if (dataFiltro) {
-        matchData = item.dataHora.toDateString() === dataFiltro.toDateString();
+      const { start, end } = dateRange;
+
+      if (start || end) {
+        const itemDate = new Date(item.dataHora);
+        itemDate.setHours(0, 0, 0, 0);
+
+        if (start) {
+          const startDate = new Date(start);
+          startDate.setHours(0, 0, 0, 0);
+          if (itemDate < startDate) matchData = false;
+        }
+
+        if (matchData && end) {
+          const endDate = new Date(end);
+          endDate.setHours(0, 0, 0, 0);
+          if (itemDate > endDate) matchData = false;
+        }
       }
 
       return matchCliente && matchStatus && matchData;
     });
-  }, [buscaCliente, statusFiltro, dataFiltro]);
+  }, [buscaCliente, statusFiltro, dateRange]);
 
-  // --- LÓGICA DE PAGINAÇÃO ---
+  // Paginação
   const totalPages = Math.ceil(dadosFiltrados.length / itemsPerPage);
   const currentData = dadosFiltrados.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // --- DEFINIÇÃO DAS COLUNAS ---
+  // Colunas da Tabela
   const columns = [
     {
       key: 'id',
       header: 'ID Transação',
       renderCell: (row: Transacao) => (
-        <Stack gap={2}>
+        <div className="flex flex-col gap-1">
           <Text size="sm" style={{ fontWeight: 'bold' }}>{row.id}</Text>
           <Text size="sm" color="var(--text-secondary)" style={{ fontSize: '11px' }}>
             PIX: {row.idTransacaoPix}
           </Text>
-        </Stack>
+        </div>
       ),
     },
     {
@@ -140,8 +153,7 @@ export default function HistoricoRepasses() {
           falha: 'Falhou',
           cancelado: 'Cancelado'
         };
-        
-        return <Badge variant={variantMap[row.status]} label={labelMap[row.status]} />;
+        return <Badge variant={variantMap[row.status] || 'neutro'} label={labelMap[row.status]} />;
       },
     },
   ];
@@ -149,39 +161,32 @@ export default function HistoricoRepasses() {
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
       
-      {/* CABEÇALHO DA PÁGINA */}
+      {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <Text as="h1" size="heading" style={{ fontWeight: 'bold' }}>Histórico de Repasses</Text>
           <Text color="var(--text-secondary)">Gerencie as transferências PIX realizadas.</Text>
         </div>
-        <Button 
-          variant="outline" 
-          label="Exportar CSV" 
-          icon={<FileCsv size={20} />} 
-        />
+        <Button variant="outline" label="Exportar CSV" icon={<FileCsv size={20} />} />
       </div>
 
-      {/* ÁREA DE FILTROS */}
+      {/* Filtros */}
       <Card variant="outlined" padding="20px">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           
-          {/* Busca por Texto */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="md:col-span-4">
             <Input 
-              label="Buscar Cliente ou ID" 
-              placeholder="Digite o nome..." 
+              label="Buscar" 
+              placeholder="Nome do cliente ou ID..." 
               value={buscaCliente}
               onChange={(e) => {
                 setBuscaCliente(e.target.value);
-                setCurrentPage(1); // Resetar página ao filtrar
+                setCurrentPage(1);
               }}
-              // Se o seu Input suportar ícone, coloque aqui, senão remove
             />
           </div>
 
-          {/* Filtro de Status */}
-          <div>
+          <div className="md:col-span-3">
             <Select 
               label="Status" 
               options={statusOptions}
@@ -193,38 +198,38 @@ export default function HistoricoRepasses() {
             />
           </div>
 
-          {/* Filtro de Data */}
-          <div>
-            <DatePicker 
-              label="Data do Repasse"
-              value={dataFiltro}
-              onChange={(date) => {
-                setDataFiltro(date);
+          <div className="md:col-span-5">
+            <DateRangePicker 
+              label="Período"
+              startDate={dateRange.start}
+              endDate={dateRange.end}
+              onChange={(range) => {
+                setDateRange(range);
                 setCurrentPage(1);
               }}
-              placeholder="Selecionar data"
+              placeholder="Início - Fim"
             />
           </div>
+
         </div>
       </Card>
 
-      {/* TABELA DE DADOS */}
+      {/* Tabela */}
       <Card variant="elevated" padding="0">
         <Table 
           columns={columns} 
           data={currentData} 
-          emptyTitle="Nenhum repasse encontrado"
-          emptyDescription="Tente ajustar os filtros de busca."
+          emptyTitle="Nenhum repasse encontrado" 
+          emptyDescription="Ajuste os filtros de data ou status." 
         />
         
-        {/* RODAPÉ COM PAGINAÇÃO */}
         {dadosFiltrados.length > 0 && (
           <div className="p-4 border-t border-[var(--border-color)] flex justify-end">
             <Pagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              showFirstLast
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+              showFirstLast 
             />
           </div>
         )}

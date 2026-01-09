@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type MouseEvent } from 'react';
 import { Calendar } from './Calendar';
 import { Input } from './Input';
 import '../assets/DatePicker.css';
+import { XMarkIcon } from '@heroicons/react/24/outline'; // Certifique-se que o import está correto
 
 type DateFormat = 'DD/MM/YYYY' | 'YYYY-MM-DD';
 
@@ -37,7 +38,6 @@ export const DatePicker = ({
     if (!selectedDate) {
       return '';
     }
-
     const day = String(selectedDate.getDate()).padStart(2, '0');
     const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
     const year = selectedDate.getFullYear();
@@ -45,39 +45,24 @@ export const DatePicker = ({
     if (format === 'YYYY-MM-DD') {
       return `${year}-${month}-${day}`;
     }
-
     return `${day}/${month}/${year}`;
   }, [selectedDate, format]);
 
   const toggleOpen = () => {
-    if (disabled) {
-      return;
-    }
-    setOpen(prev => !prev);
+    if (disabled) return;
+    setOpen((prev) => !prev);
   };
 
   const handleDateChange = (date: Date) => {
-    if (!isControlled) {
-      setInternalDate(date);
-    }
-
-    if (onChange) {
-      onChange(date);
-    }
-
+    if (!isControlled) setInternalDate(date);
+    if (onChange) onChange(date);
     setOpen(false);
   };
 
   const handleClear = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-
-    if (!isControlled) {
-      setInternalDate(undefined);
-    }
-
-    if (onChange) {
-      onChange(undefined);
-    }
+    if (!isControlled) setInternalDate(undefined);
+    if (onChange) onChange(undefined);
   };
 
   const inputId = 'datepicker-input';
@@ -87,10 +72,10 @@ export const DatePicker = ({
       ref={containerRef}
       className="datepicker-container"
     >
-      <div className="datepicker-input-wrapper">
+      <div className="datepicker-input-wrapper relative">
         <Input
           id={inputId}
-          label={label}
+          label={label} // Mantivemos o label dentro do Input como você queria
           placeholder={placeholder}
           value={formattedValue}
           readOnly
@@ -99,15 +84,22 @@ export const DatePicker = ({
           onClick={toggleOpen}
           aria-haspopup="dialog"
           aria-expanded={open || undefined}
+          // Adicionei pr-10 para o texto da data não ficar embaixo do X
+          className="pr-9 cursor-pointer" 
         />
+        
         {selectedDate && !disabled && (
           <button
             type="button"
-            className="datepicker-clear"
+            // MUDANÇA AQUI:
+            // 1. Usamos 'bottom-1.5' (ou bottom-2) para alinhar com a base do input
+            // 2. Removemos 'top-1/2' e '-translate-y-1/2'
+            // 3. Isso garante que o Label em cima não empurre o X para o lugar errado
+            className="datepicker-clear absolute right-3 bottom-2 p-1 text-gray-400 hover:text-[var(--danger)] transition-colors z-10"
             onClick={handleClear}
             aria-label="Limpar data"
           >
-            ×
+            <XMarkIcon className="h-4 w-4" strokeWidth={3} /> 
           </button>
         )}
       </div>
