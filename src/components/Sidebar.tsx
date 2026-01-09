@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg' // <--- IMPORTAMOS O ÍCONE AQUI
-import '../assets/sidebar.css'
+import '../assets/Sidebar.css'
 
 const navigation = [
   { name: 'Início', href: '#', icon: HomeIcon, current: true },
