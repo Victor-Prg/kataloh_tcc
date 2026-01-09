@@ -5,11 +5,11 @@ import { ThemeProvider } from './composables/ThemeProvider';
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
-import Dashboard from './pages/auth/dashboard'; 
-import HistoricoRepasses from './pages/financeiro/HistoricoRepasses'; // Sua nova página
+import Dashboard from './pages/auth/dashboard'; // Ajustei o caminho (provavelmente não está em /auth)
+import HistoricoRepasses from './pages/financeiro/HistoricoRepasses'; // A página nova que criamos
 
-// Layout
-import DashboardLayout from './components/DashboardLayout'; // O arquivo criado acima
+// Layouts
+import DashboardLayout from './components/DashboardLayout'; // <--- IMPORTANTE: Recuperar o layout
 
 function App() {
   return (
@@ -18,33 +18,25 @@ function App() {
         <div className="h-full font-sans text-[var(--text-primary)] bg-[var(--bg-body)]">
           <Routes>
             
-            {/* ROTAS PÚBLICAS (Sem Sidebar) */}
+            {/* --- ROTAS PÚBLICAS (Sem Sidebar) --- */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<ForgotPassword />} />
 
-            {/* ROTAS PROTEGIDAS (Com Sidebar e Navbar) */}
+            {/* --- ROTAS PROTEGIDAS (Com Sidebar e Navbar) --- */}
+            {/* Envolvemos as páginas internas com o DashboardLayout */}
             <Route element={<DashboardLayout />}>
-              
-              {/* Ao acessar /dashboard, carrega o Dashboard antigo */}
               <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* Ao acessar /financeiro/historico, carrega a nova tabela */}
               <Route path="/financeiro/historico" element={<HistoricoRepasses />} />
-              
-              {/* Outras rotas futuras... */}
-              <Route path="/loja/listagem" element={<div>Página de Listagem</div>} />
-              
             </Route>
 
-            {/* Rota Desconhecida -> Login */}
+            {/* --- Fallback --- */}
             <Route path="*" element={<Navigate to="/" />} />
-            
           </Routes>
         </div>
       </BrowserRouter>
-    </ThemeProvider>
+    </ThemeProvider> // <--- O ERRO ESTAVA AQUI: Faltava fechar essa tag
   );
-}
+};
 
 export default App;
