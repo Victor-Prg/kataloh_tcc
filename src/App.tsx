@@ -1,32 +1,49 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './composables/ThemeProvider';
 
-// Importação das Páginas
+// Páginas
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
-import Dashboard from './pages/auth/dashboard'; // Certifique-se que este arquivo existe aqui
+import Dashboard from './pages/auth/dashboard'; 
+import HistoricoRepasses from './pages/financeiro/HistoricoRepasses'; // Sua nova página
+
+// Layout
+import DashboardLayout from './components/DashboardLayout'; // O arquivo criado acima
 
 function App() {
   return (
-    <BrowserRouter>
-      {/* Container principal que herda as cores do tema */}
-      <div className="h-full min-h-screen font-sans text-[var(--text-primary)] bg-[var(--bg-body)] transition-colors duration-300">
-        <Routes>
-          {/* --- Rotas Públicas --- */}
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot" element={<ForgotPassword />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="h-full font-sans text-[var(--text-primary)] bg-[var(--bg-body)]">
+          <Routes>
+            
+            {/* ROTAS PÚBLICAS (Sem Sidebar) */}
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<ForgotPassword />} />
 
-          {/* --- Rota do Dashboard --- */}
-          {/* Ao acessar /dashboard, renderiza a página completa com Sidebar */}
-          <Route path="/dashboard" element={<Dashboard />} />
+            {/* ROTAS PROTEGIDAS (Com Sidebar e Navbar) */}
+            <Route element={<DashboardLayout />}>
+              
+              {/* Ao acessar /dashboard, carrega o Dashboard antigo */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Ao acessar /financeiro/historico, carrega a nova tabela */}
+              <Route path="/financeiro/historico" element={<HistoricoRepasses />} />
+              
+              {/* Outras rotas futuras... */}
+              <Route path="/loja/listagem" element={<div>Página de Listagem</div>} />
+              
+            </Route>
 
-          {/* --- Fallback --- */}
-          {/* Qualquer rota desconhecida redireciona para o Login */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+            {/* Rota Desconhecida -> Login */}
+            <Route path="*" element={<Navigate to="/" />} />
+            
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
