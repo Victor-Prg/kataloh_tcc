@@ -3,11 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ThemeContext } from '../../composables/ThemeContext'
 import Logo from '../../assets/logo.svg'
 
-type LoginProps = {
-    onCreateAccount?: () => void
-}
-
-export default function Example({ onCreateAccount }: LoginProps) {
+export default function Example() {
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
