@@ -1,4 +1,4 @@
-import '../assets/switch.css';
+import '../assets/Switch.css';
 
 interface SwitchProps {
   checked: boolean;
