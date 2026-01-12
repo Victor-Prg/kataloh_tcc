@@ -9,6 +9,8 @@ import Dashboard from './pages/auth/dashboard';
 import Treasury from './pages/financeiro/treasury';
 import FinanceiroRepasses from './pages/financeiro/repasses';
 import HistoricoRepasses from './pages/financeiro/HistoricoRepasses';
+import AdminGerenciarLojas from './pages/admin/gerenciar-lojas';
+import AdminPedidosLoja from './pages/admin/pedidos-loja';
 
 // Layouts
 import DashboardLayout from './components/DashboardLayout';
@@ -30,6 +32,10 @@ function App() {
               <Route path="/financeiro/repasses" element={<FinanceiroRepasses />} />
               <Route path="/financeiro/historico" element={<HistoricoRepasses />} />
               <Route path="/financeiro/tesouraria" element={<Treasury />} />
+
+              {/* --- Admin (para acesso às telas criadas) --- */}
+              <Route path="/admin/gerenciar-lojas" element={<AdminGerenciarLojas />} />
+              <Route path="/admin/pedidos-loja/:lojaId" element={<AdminPedidosLoja />} />
             </Route>
 
             {/* --- Fallback --- */}
