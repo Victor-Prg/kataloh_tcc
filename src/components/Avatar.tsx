@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../assets/avatar.css';
+import '../assets/Avatar.css';
 
 interface AvatarProps {
   src?: string;
