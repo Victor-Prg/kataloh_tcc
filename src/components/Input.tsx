@@ -1,5 +1,5 @@
 import React from 'react';
-import '../assets/input.css';
+import '../assets/Input.css';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
