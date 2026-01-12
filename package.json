@@ -12,6 +12,8 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
+    "flowbite": "^4.0.1",
+    "flowbite-datepicker": "^2.0.0",
     "phosphor-react": "^1.4.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
