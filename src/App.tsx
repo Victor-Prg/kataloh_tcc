@@ -7,6 +7,8 @@ import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
 import Dashboard from './pages/auth/dashboard';
 import Treasury from './pages/financeiro/treasury';
+import { Lojas } from './pages/clientes/Lojas';
+import { LojaDetalhes } from './pages/clientes/LojaDetalhes';
 import FinanceiroRepasses from './pages/financeiro/repasses';
 import HistoricoRepasses from './pages/financeiro/HistoricoRepasses';
 
@@ -19,6 +21,9 @@ function App() {
       <BrowserRouter>
         <div className="h-full font-sans text-[var(--text-primary)] bg-[var(--bg-body)]">
           <Routes>
+            // Exemplo de como ficaria no seu Router
+            <Route path="/cliente/lojas" element={<Lojas />} />
+            <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
             {/* --- ROTAS PÚBLICAS (Sem Sidebar) --- */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />

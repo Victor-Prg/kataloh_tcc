@@ -32,7 +32,7 @@ const navigation: NavigationItem[] = [
     icon: ShoppingBagIcon,
     current: false,
     children: [
-      { name: 'Listagem', href: '#', icon: ListBulletIcon },
+      { name: 'Listagem', href: '/cliente/lojas', icon: ListBulletIcon },
       { 
         name: 'Cadastro', 
         icon: PencilSquareIcon, 
