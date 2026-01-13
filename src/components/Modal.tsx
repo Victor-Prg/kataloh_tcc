@@ -39,7 +39,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           color: 'var(--text-primary)',
           
           padding: '24px',
-          borderRadius: '16px',
+          borderRadius: '12px',
           width: '500px',
           maxWidth: '90%',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
@@ -57,8 +57,13 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           alignItems: 'center', 
           marginBottom: '24px' 
         }}>
-          {/* O componente Text já lida com a cor automaticamente agora */}
-          <Text as="h2" size="lg" style={{ fontWeight: 'bold' }}>{title}</Text>
+          <Text
+            as="h2"
+            size="lg"
+            style={{ fontWeight: 'bold', fontSize: 28 }}
+          >
+            {title}
+          </Text>
           
           <button 
             onClick={onClose}

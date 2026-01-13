@@ -6,20 +6,19 @@ import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
 import Dashboard from './pages/auth/dashboard';
-
-// Páginas Financeiras
-import Treasury from './pages/financeiro/treasury';
+import Tesouraria from './pages/financeiro/tesouraria';
+import { Lojas } from './pages/clientes/Lojas';
+import { LojaDetalhes } from './pages/clientes/LojaDetalhes';
 import FinanceiroRepasses from './pages/financeiro/repasses';
 import HistoricoRepasses from './pages/financeiro/HistoricoRepasses';
-
-// Páginas Admin
 import AdminGerenciarLojas from './pages/admin/gerenciar-lojas';
 import AdminPedidosLoja from './pages/admin/pedidos-loja';
+import RecepcaoLoja from './pages/loja/recepcao';
+import NewPedido from './pages/loja/new-pedido';
 
 // --- IMPORTAÇÕES DE CLIENTES ---
 // Verifique se o caminho da pasta é 'clientes' (plural) mesmo
-import { Lojas } from './pages/clientes/Lojas'; 
-import { LojaDetalhes } from './pages/clientes/LojaDetalhes'; 
+
 
 // Layout
 import DashboardLayout from './components/DashboardLayout';
@@ -30,7 +29,10 @@ function App() {
       <BrowserRouter>
         <div className="h-full font-sans text-[var(--text-primary)] bg-[var(--bg-body)]">
           <Routes>
-            {/* Rotas Públicas */}
+            // Exemplo de como ficaria no seu Router
+            <Route path="/cliente/lojas" element={<Lojas />} />
+            <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
+            {/* --- ROTAS PÚBLICAS (Sem Sidebar) --- */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<ForgotPassword />} />
@@ -38,23 +40,9 @@ function App() {
             {/* Rotas Protegidas (DashboardLayout) */}
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* --- AQUI ESTÁ A CORREÇÃO DAS ROTAS --- */}
-              
-              {/* 1. Rota da Listagem (/clientes) */}
-              {/* É para cá que o botão "Voltar" do LojaDetalhes aponta */}
-              <Route path="/clientes" element={<Lojas />} />
-
-              {/* 2. Rota de Detalhes (/cliente/lojas/:id) */}
-              {/* É para cá que o Card do Lojas aponta */}
-              <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
-              
-              {/* ------------------------------------- */}
-
-              {/* Outras Rotas */}
               <Route path="/financeiro/repasses" element={<FinanceiroRepasses />} />
               <Route path="/financeiro/historico" element={<HistoricoRepasses />} />
-              <Route path="/financeiro/tesouraria" element={<Treasury />} />
+              <Route path="/financeiro/tesouraria" element={<Tesouraria />} />
               <Route path="/admin/gerenciar-lojas" element={<AdminGerenciarLojas />} />
               <Route path="/admin/pedidos-loja/:lojaId" element={<AdminPedidosLoja />} />
             </Route>
@@ -66,6 +54,6 @@ function App() {
       </BrowserRouter>
     </ThemeProvider>
   );
-};
+}
 
 export default App;

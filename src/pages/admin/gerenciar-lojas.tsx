@@ -1,6 +1,10 @@
 import type { KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
+import {
+  PlusIcon,
+  ExclamationTriangleIcon,
+  ClipboardDocumentListIcon,
+} from '@heroicons/react/20/solid'
 
 type LojaStatus = 'aberta' | 'fechada'
 
@@ -126,7 +130,7 @@ export default function AdminGerenciarLojas() {
             <h1 className="text-base font-semibold text-[var(--text-primary)] sm:text-lg">
               Admin – Gerenciar Lojas
             </h1>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
+            <p className="mt-1 text-sm text-[var(--text-primary)]">
               Visualize as lojas ativas e acesse os pedidos pendentes de cada uma.
             </p>
           </div>
@@ -157,7 +161,7 @@ export default function AdminGerenciarLojas() {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
-                className="mx-auto size-12 text-[color:var(--text-soft)]"
+                className="mx-auto size-12 text-[color:var(--text-primary)]"
               >
                 <path
                   d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
@@ -170,7 +174,7 @@ export default function AdminGerenciarLojas() {
               <h3 className="mt-4 text-sm font-semibold text-[color:var(--text-primary)]">
                 Nenhuma loja cadastrada
               </h3>
-              <p className="mt-2 text-sm text-[color:var(--text-soft)]">
+              <p className="mt-2 text-sm text-[color:var(--text-primary)]">
                 Cadastre uma loja para começar a monitorar pedidos e status em tempo real.
               </p>
               <div className="mt-6">
@@ -204,7 +208,7 @@ export default function AdminGerenciarLojas() {
                       <p className="text-sm font-semibold text-[var(--text-primary)]">
                         {loja.nome}
                       </p>
-                      <p className="mt-1 text-xs text-[var(--text-soft)]">
+                      <p className="mt-1 text-xs text-[var(--text-primary)]">
                         ID: {loja.id}
                       </p>
                     </div>
@@ -213,8 +217,8 @@ export default function AdminGerenciarLojas() {
                     <span
                       className={`inline-flex items-center gap-x-1.5 rounded-full px-3 py-1 text-xs font-medium ${
                         loja.status === 'aberta'
-                          ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                          : 'border border-zinc-500/40 bg-zinc-500/10 text-zinc-300'
+                          ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200'
+                          : 'border border-zinc-500/40 bg-zinc-500/10 text-zinc-700 dark:text-zinc-300'
                       }`}
                     >
                       <svg
@@ -230,7 +234,7 @@ export default function AdminGerenciarLojas() {
                     </span>
                   <div className="flex flex-wrap justify-end gap-1">
                       {loja.pedidosPendentes >= 6 && (
-                        <span className="inline-flex items-center gap-x-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-200">
+                        <span className="inline-flex items-center gap-x-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-200">
                           <svg
                             viewBox="0 0 6 6"
                             aria-hidden="true"
@@ -242,7 +246,7 @@ export default function AdminGerenciarLojas() {
                         </span>
                       )}
                       {loja.pedidosEmPreparo >= 5 && (
-                        <span className="inline-flex items-center gap-x-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-200">
+                        <span className="inline-flex items-center gap-x-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-200">
                           <svg
                             viewBox="0 0 6 6"
                             aria-hidden="true"
@@ -260,8 +264,14 @@ export default function AdminGerenciarLojas() {
                 <div className="mt-4 space-y-3">
                   <div className="flex items-baseline justify-between">
                     <div>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        Pedidos pendentes
+                      <p className="text-xs text-[var(--text-primary)]">
+                        <span className="inline-flex items-center gap-1">
+                          <ClipboardDocumentListIcon
+                            aria-hidden="true"
+                            className="size-4 text-[var(--text-primary)]"
+                          />
+                          <span>Pedidos pendentes</span>
+                        </span>
                       </p>
                       <p className="mt-1 text-xl font-semibold text-[var(--text-primary)]">
                         {loja.pedidosPendentes}
@@ -271,7 +281,7 @@ export default function AdminGerenciarLojas() {
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="text-[var(--text-muted)]">
+                      <p className="text-[var(--text-primary)]">
                         Em preparo
                       </p>
                       <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">
@@ -279,7 +289,7 @@ export default function AdminGerenciarLojas() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[var(--text-muted)]">
+                      <p className="text-[var(--text-primary)]">
                         Finalizados hoje
                       </p>
                       <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">
@@ -289,7 +299,7 @@ export default function AdminGerenciarLojas() {
                   </div>
 
                   <div className="mt-1 flex items-center justify-between border-t border-[color:var(--border)] pt-3 text-xs">
-                    <p className="text-[var(--text-muted)]">
+                    <p className="text-[var(--text-primary)]">
                       Total no dia
                     </p>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">

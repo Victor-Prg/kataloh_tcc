@@ -37,7 +37,7 @@ const navigation: NavigationItem[] = [
     icon: ShoppingBagIcon,
     current: false,
     children: [
-      { name: 'Listagem', href: '/lojas/listagem', icon: ListBulletIcon }, // Ajustei para não conflitar com a rota de clientes
+      { name: 'Listagem', href: '/cliente/lojas', icon: ListBulletIcon },
       { 
         name: 'Cadastro', 
         icon: PencilSquareIcon, 

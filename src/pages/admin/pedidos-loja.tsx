@@ -1,10 +1,26 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Modal } from '../../components/Modal'
+import {
+  EyeIcon,
+  BuildingStorefrontIcon,
+  ExclamationTriangleIcon,
+  ClipboardDocumentListIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ChartBarIcon,
+  UserCircleIcon,
+  CreditCardIcon,
+  DocumentTextIcon,
+  ChatBubbleLeftRightIcon,
+} from '@heroicons/react/20/solid'
 
 interface PedidoItem {
   id: string
   nome: string
   quantidade: number
+  imagem?: string
+  observacao?: string
 }
 
 type FormaPagamento = 'pix' | 'cartao_credito' | 'cartao_debito' | 'dinheiro'
@@ -20,6 +36,7 @@ interface PedidoLoja {
   formaPagamento: FormaPagamento
   status: 'pendente' | 'em_preparo' | 'finalizado'
   atrasado?: boolean
+  observacao?: string
 }
 
 const PEDIDOS_LOJA_MOCK: PedidoLoja[] = [
@@ -30,12 +47,24 @@ const PEDIDOS_LOJA_MOCK: PedidoLoja[] = [
     cliente: 'João Silva',
     hora: '10:15',
     itens: [
-      { id: '1', nome: 'Combo X-Burger', quantidade: 1 },
-      { id: '2', nome: 'Refrigerante Lata', quantidade: 2 },
+      {
+        id: '1',
+        nome: 'Combo X-Burger',
+        quantidade: 1,
+        imagem: 'https://placehold.co/96x96/ea580c/ffffff?text=Burger',
+        observacao: 'Sem maionese, adicionar bacon extra',
+      },
+      {
+        id: '2',
+        nome: 'Refrigerante Lata',
+        quantidade: 2,
+        imagem: 'https://placehold.co/96x96/0ea5e9/ffffff?text=Refri',
+      },
     ],
     formaPagamento: 'pix',
     status: 'pendente',
     atrasado: true,
+    observacao: 'Cliente pediu para entregar na portaria. Tocar interfone 301.',
   },
   {
     id: '2',
@@ -57,11 +86,17 @@ const PEDIDOS_LOJA_MOCK: PedidoLoja[] = [
     cliente: 'Carlos Andrade',
     hora: '11:05',
     itens: [
-      { id: '1', nome: 'Prato Executivo Frango Grelhado', quantidade: 1 },
+      {
+        id: '1',
+        nome: 'Prato Executivo Frango Grelhado',
+        quantidade: 1,
+        imagem: 'https://placehold.co/96x96/22c55e/ffffff?text=Prato',
+      },
     ],
     formaPagamento: 'cartao_debito',
     status: 'pendente',
     atrasado: true,
+    observacao: 'Retirar cebola da guarnição.',
   },
   {
     id: '4',
@@ -162,12 +197,23 @@ const PEDIDOS_LOJA_MOCK: PedidoLoja[] = [
     cliente: 'Bruno Almeida',
     hora: '13:55',
     itens: [
-      { id: '1', nome: 'Combo Família (4 burguers)', quantidade: 1 },
-      { id: '2', nome: 'Refrigerante 2L', quantidade: 1 },
+      {
+        id: '1',
+        nome: 'Combo Família (4 burguers)',
+        quantidade: 1,
+        imagem: 'https://placehold.co/96x96/f97316/ffffff?text=Combo',
+      },
+      {
+        id: '2',
+        nome: 'Refrigerante 2L',
+        quantidade: 1,
+        imagem: 'https://placehold.co/96x96/4b5563/ffffff?text=2L',
+      },
     ],
     formaPagamento: 'pix',
     status: 'pendente',
     atrasado: true,
+    observacao: 'Enviar copos e gelo à parte.',
   },
   {
     id: '12',
@@ -304,6 +350,7 @@ export default function AdminPedidosLoja() {
   const navigate = useNavigate()
   const params = useParams<{ lojaId: string }>()
   const lojaId = params.lojaId ?? ''
+  const [pedidoSelecionado, setPedidoSelecionado] = useState<PedidoLoja | null>(null)
 
   const pedidosPendentes = useMemo(
     () =>
@@ -342,6 +389,14 @@ export default function AdminPedidosLoja() {
 
   const lojaStatus = getLojaStatus(lojaId)
 
+  const handleAbrirDetalhes = (pedido: PedidoLoja) => {
+    setPedidoSelecionado(pedido)
+  }
+
+  const handleFecharDetalhes = () => {
+    setPedidoSelecionado(null)
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="lg:flex lg:items-center lg:justify-between">
@@ -349,29 +404,35 @@ export default function AdminPedidosLoja() {
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Admin – Pedidos da Loja
           </h1>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
+          <p className="mt-1 text-sm text-[var(--text-primary)]">
             Visualização somente leitura dos pedidos pendentes da loja.
           </p>
           <div className="mt-2 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:space-x-3">
-            <div className="inline-flex items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-              Modo monitoramento
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+              <EyeIcon aria-hidden="true" className="h-3 w-3" />
+              <span>Modo monitoramento</span>
             </div>
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                 lojaStatus === 'aberta'
-                  ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
-                  : 'border border-zinc-500/40 bg-zinc-500/10 text-zinc-300'
+                  ? 'border border-emerald-500/40 bg-emerald-500/10 text-black dark:text-emerald-200'
+                  : 'border border-zinc-500/40 bg-zinc-500/10 text-black dark:text-zinc-300'
               }`}
             >
-              Loja {lojaStatus === 'aberta' ? 'aberta' : 'fechada'}
+              <BuildingStorefrontIcon aria-hidden="true" className="h-3 w-3" />
+              <span>Loja {lojaStatus === 'aberta' ? 'aberta' : 'fechada'}</span>
             </span>
             {hasPedidosEmAtraso && (
-              <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-200">
-                Pedidos em atraso
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-black dark:text-amber-200">
+                <ExclamationTriangleIcon
+                  aria-hidden="true"
+                  className="h-3 w-3 text-amber-500"
+                />
+                <span>Pedidos em atraso</span>
               </span>
             )}
           </div>
-          <p className="mt-2 text-xs text-[var(--text-soft)]">
+          <p className="mt-2 text-xs text-[var(--text-primary)]">
             Loja ID: {lojaId || 'não informada'}
           </p>
         </div>
@@ -386,35 +447,56 @@ export default function AdminPedidosLoja() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+      <div className="mt-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Pedidos abertos
+          <div className="flex flex-col gap-1 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--text-primary)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+                <ClipboardDocumentListIcon
+                  aria-hidden="true"
+                  className="h-4 w-4 text-[var(--text-primary)]"
+                />
+              </span>
+              <span>Pedidos abertos</span>
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)]">
               {metrics.abertos}
             </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Em preparo
+          <div className="flex flex-col gap-1 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--text-primary)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+                <ClockIcon aria-hidden="true" className="h-4 w-4 text-amber-500" />
+              </span>
+              <span>Em preparo</span>
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)]">
               {metrics.emPreparo}
             </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Finalizados
+          <div className="flex flex-col gap-1 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--text-primary)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+                <CheckCircleIcon
+                  aria-hidden="true"
+                  className="h-4 w-4 text-emerald-500"
+                />
+              </span>
+              <span>Finalizados</span>
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)]">
               {metrics.finalizados}
             </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Total no dia
+          <div className="flex flex-col gap-1 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--text-primary)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+                <ChartBarIcon
+                  aria-hidden="true"
+                  className="h-4 w-4 text-[var(--text-primary)]"
+                />
+              </span>
+              <span>Total no dia</span>
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)]">
               {metrics.total}
@@ -429,7 +511,7 @@ export default function AdminPedidosLoja() {
             <p className="text-sm font-medium text-[var(--text-primary)]">
               Nenhum pedido pendente no momento
             </p>
-            <p className="mt-2 text-xs text-[var(--text-muted)]">
+            <p className="mt-2 text-xs text-[var(--text-primary)]">
               Assim que novos pedidos chegarem, eles aparecerão aqui para monitoramento.
             </p>
           </div>
@@ -438,23 +520,46 @@ export default function AdminPedidosLoja() {
             {pedidosPendentes.map((pedido) => (
               <div
                 key={pedido.id}
-                className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm"
+                role="button"
+                tabIndex={0}
+                onClick={() => handleAbrirDetalhes(pedido)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    handleAbrirDetalhes(pedido)
+                  }
+                }}
+                className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm cursor-pointer transition-colors hover:border-[color:var(--primary-100)] hover:bg-[color:var(--bg-hover)] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
               >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
-                      {pedido.cliente}
+                      <span className="inline-flex items-center gap-1.5">
+                        <UserCircleIcon
+                          aria-hidden="true"
+                          className="h-4 w-4 text-[var(--text-primary)]"
+                        />
+                        <span>{pedido.cliente}</span>
+                      </span>
                     </p>
-                    <p className="text-xs text-[var(--text-soft)]">
-                      Pedido {pedido.codigo} • {pedido.hora}
+                    <p className="text-xs text-[var(--text-primary)]">
+                      <span className="inline-flex items-center gap-1.5">
+                        <ClockIcon
+                          aria-hidden="true"
+                          className="h-3 w-3 text-[var(--text-muted)]"
+                        />
+                        <span>
+                          Pedido {pedido.codigo} • {pedido.hora}
+                        </span>
+                      </span>
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300 border border-amber-500/30">
+                    <span className="inline-flex rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-black dark:text-amber-200 border border-amber-500/30">
                       Pendente
                     </span>
                     {pedido.atrasado && (
-                      <span className="inline-flex rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-medium text-rose-200">
+                      <span className="inline-flex rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-medium text-black dark:text-rose-200">
                         Em atraso
                       </span>
                     )}
@@ -462,13 +567,19 @@ export default function AdminPedidosLoja() {
                 </div>
 
                 <div className="mt-4 space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                    Itens
+                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-primary)]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <ClipboardDocumentListIcon
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-[var(--text-muted)]"
+                      />
+                      <span>Itens</span>
+                    </span>
                   </p>
                   <ul className="space-y-1 text-sm text-[var(--text-primary)]">
                     {pedido.itens.map((item) => (
                       <li key={item.id}>
-                        <span className="text-[var(--text-soft)]">
+                        <span className="text-[var(--text-primary)]">
                           {item.quantidade}x
                         </span>{' '}
                         {item.nome}
@@ -477,16 +588,32 @@ export default function AdminPedidosLoja() {
                   </ul>
                 </div>
 
-                <div className="mt-4 flex flex-col gap-1 text-sm text-[var(--text-soft)] sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-4 flex flex-col gap-1 text-sm text-[var(--text-primary)] sm:flex-row sm:items-center sm:justify-between">
                   <p>
-                    Forma de pagamento:{' '}
-                    <span className="text-[var(--text-primary)]">
-                      {getFormaPagamentoLabel(pedido.formaPagamento)}
+                    <span className="inline-flex items-center gap-1.5">
+                      <CreditCardIcon
+                        aria-hidden="true"
+                        className="h-4 w-4 text-[var(--text-muted)]"
+                      />
+                      <span>
+                        Forma de pagamento:{' '}
+                        <span className="text-[var(--text-primary)]">
+                          {getFormaPagamentoLabel(pedido.formaPagamento)}
+                        </span>
+                      </span>
                     </span>
                   </p>
-                  <p className="text-[var(--text-muted)]">
-                    Status:{' '}
-                    <span className="text-[var(--text-primary)]">Pendente</span>
+                  <p className="text-[var(--text-primary)]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <CheckCircleIcon
+                        aria-hidden="true"
+                        className="h-4 w-4 text-[var(--text-muted)]"
+                      />
+                      <span>
+                        Status:{' '}
+                        <span className="text-[var(--text-primary)]">Pendente</span>
+                      </span>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -494,9 +621,133 @@ export default function AdminPedidosLoja() {
           </div>
         )}
       </div>
-      <div className="mt-4 border-t border-[color:var(--border)] pt-3 text-xs text-[var(--text-muted)]">
+      <div className="mt-4 border-t border-[color:var(--border)] pt-3 text-xs text-[var(--text-primary)]">
         Última atualização: há {LAST_UPDATE_SECONDS} segundos
       </div>
+
+      <Modal
+        isOpen={!!pedidoSelecionado}
+        onClose={handleFecharDetalhes}
+        title={
+          pedidoSelecionado
+            ? `Pedido ${pedidoSelecionado.codigo} • ${pedidoSelecionado.cliente}`
+            : ''
+        }
+      >
+        {pedidoSelecionado && (
+          <div className="space-y-4 text-sm text-[var(--text-primary)]">
+            <div className="flex flex-col gap-1">
+              <p
+                className="text-[var(--text-muted)]"
+                style={{ fontSize: 20, fontWeight: 600 }}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <DocumentTextIcon
+                    aria-hidden="true"
+                    className="h-5 w-5 text-[var(--text-muted)]"
+                  />
+                  <span>Detalhes do pedido</span>
+                </span>
+              </p>
+              <p>
+                Código:{' '}
+                <span className="font-medium">{pedidoSelecionado.codigo}</span>
+              </p>
+              <p>
+                Hora:{' '}
+                <span className="font-medium">{pedidoSelecionado.hora}</span>
+              </p>
+              <p>
+                Forma de pagamento:{' '}
+                <span className="font-medium">
+                  {getFormaPagamentoLabel(pedidoSelecionado.formaPagamento)}
+                </span>
+              </p>
+              <p>
+                Status:{' '}
+                <span className="inline-flex items-center gap-1.5 font-medium capitalize">
+                  <CheckCircleIcon
+                    aria-hidden="true"
+                    className="h-4 w-4 text-[var(--text-muted)]"
+                  />
+                  <span>
+                    {pedidoSelecionado.status === 'pendente'
+                      ? 'Pendente'
+                      : pedidoSelecionado.status === 'em_preparo'
+                        ? 'Em preparo'
+                        : 'Finalizado'}
+                  </span>
+                </span>
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p
+                className="text-[var(--text-muted)]"
+                style={{ fontSize: 20, fontWeight: 600 }}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <ClipboardDocumentListIcon
+                    aria-hidden="true"
+                    className="h-5 w-5 text-[var(--text-muted)]"
+                  />
+                  <span>Itens</span>
+                </span>
+              </p>
+              <div className="space-y-3">
+                {pedidoSelecionado.itens.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] p-2"
+                  >
+                    <div className="h-16 w-16 overflow-hidden rounded-md bg-[color:var(--bg-body)]">
+                      <img
+                        src={
+                          item.imagem ??
+                          'https://placehold.co/96x96/111827/FFFFFF?text=ITEM'
+                        }
+                        alt={item.nome}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.nome}</p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        Quantidade: {item.quantidade}x
+                      </p>
+                      {item.observacao && (
+                        <p className="mt-1 text-xs text-[var(--text-primary)]">
+                          Obs: {item.observacao}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <p
+                className="text-[var(--text-muted)]"
+                style={{ fontSize: 20, fontWeight: 600 }}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <ChatBubbleLeftRightIcon
+                    aria-hidden="true"
+                    className="h-5 w-5 text-[var(--text-muted)]"
+                  />
+                  <span>Observação do pedido</span>
+                </span>
+              </p>
+              <p className="text-sm leading-relaxed text-[var(--text-primary)]">
+                {pedidoSelecionado.observacao && pedidoSelecionado.observacao.trim().length > 0
+                  ? pedidoSelecionado.observacao
+                  : 'Sem observação informada.'}
+              </p>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

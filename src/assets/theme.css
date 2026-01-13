@@ -22,3 +22,11 @@
   --surface-nav-color: var(--surface-nav);
   --focus-ring: var(--primary-50);
 }
+
+:root[data-palette][data-mode='light'] {
+  --chip-text: #000000;
+}
+
+:root[data-palette][data-mode='dark'] {
+  --chip-text: #ffffff;
+}

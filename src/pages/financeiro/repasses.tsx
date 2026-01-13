@@ -1,5 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import {
+  FileCsv,
+  ArrowsLeftRight,
+  CurrencyDollarSimple,
+  CreditCard,
+  Clock,
+  ClipboardText,
+  CheckCircle,
+  Eye,
+  Storefront,
+  UserCircle,
+} from 'phosphor-react'
 
 type MetodoRepasse = 'pix' | 'dinheiro' | 'cartao'
 
@@ -119,56 +131,56 @@ const getStatusConfig = (status: StatusRepasse) => {
       return {
         label: 'Solicitado',
         className:
-          'bg-amber-500/10 text-amber-300 border border-amber-500/30',
+          'bg-amber-500/10 text-[color:var(--chip-text)] border border-amber-500/30',
       }
     case 'confirmado':
       return {
         label: 'Confirmado',
         className:
-          'bg-sky-500/10 text-sky-300 border border-sky-500/30',
+          'bg-sky-500/10 text-[color:var(--chip-text)] border border-sky-500/30',
       }
     case 'pago':
       return {
         label: 'Pago',
         className:
-          'bg-emerald-500/15 text-emerald-300 border border-emerald-500/40',
+          'bg-emerald-500/15 text-[color:var(--chip-text)] border border-emerald-500/40',
       }
     case 'cancelado':
       return {
         label: 'Cancelado',
         className:
-          'bg-rose-500/10 text-rose-300 border border-rose-500/30',
+          'bg-rose-500/10 text-[color:var(--chip-text)] border border-rose-500/30',
       }
     default:
       return {
         label: status,
         className:
-          'bg-zinc-700/40 text-zinc-100 border border-zinc-500/40',
+          'bg-zinc-500/10 text-[color:var(--chip-text)] border border-zinc-500/30',
       }
   }
 }
 
 const metodoConfig: Record<
   MetodoRepasse,
-  { label: string; icon: string; className: string }
+  { label: string; icon: ReactNode; className: string }
 > = {
   pix: {
     label: 'PIX',
-    icon: '⇄',
+    icon: <ArrowsLeftRight size={12} weight="bold" />,
     className:
-      'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30',
+      'bg-emerald-500/10 text-[color:var(--chip-text)] border border-emerald-500/30',
   },
   dinheiro: {
     label: 'Dinheiro',
-    icon: 'R$',
+    icon: <CurrencyDollarSimple size={12} weight="bold" />,
     className:
-      'bg-lime-500/10 text-lime-200 border border-lime-500/30',
+      'bg-lime-500/10 text-[color:var(--chip-text)] border border-lime-500/30',
   },
   cartao: {
     label: 'Cartão',
-    icon: '💳',
+    icon: <CreditCard size={12} weight="bold" />,
     className:
-      'bg-sky-500/10 text-sky-200 border border-sky-500/30',
+      'bg-sky-500/10 text-[color:var(--chip-text)] border border-sky-500/30',
   },
 }
 
@@ -580,112 +592,155 @@ function FinanceiroRepasses() {
           <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[color:var(--text-primary)]">
             Financeiro – Repasses Diários
           </h1>
-          <p className="mt-1 text-[20px] leading-[24px] text-[color:var(--text-muted)]">
+          <p className="mt-1 text-[20px] leading-[24px] text-[color:var(--text-primary)]">
             Controle de repasses solicitados pelas lojas
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
-          <select
-            value={dateFilter}
-            onChange={(event) =>
-              setDateFilter(event.target.value as DateFilter)
-            }
-            className="rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-          >
-            <option value="hoje">Hoje</option>
-            <option value="ontem">Ontem</option>
-          </select>
+          <div className="relative">
+            <select
+              value={dateFilter}
+              onChange={(event) =>
+                setDateFilter(event.target.value as DateFilter)
+              }
+              className="appearance-none rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-8 pl-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            >
+              <option value="hoje">Hoje</option>
+              <option value="ontem">Ontem</option>
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+              ▼
+            </span>
+          </div>
 
-          <select
-            value={storeFilter}
-            onChange={(event) => setStoreFilter(event.target.value)}
-            className="rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-          >
-            <option value="todas">Todas as lojas</option>
-            {lojas.map((loja) => (
-              <option key={loja} value={loja}>
-                {loja}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={storeFilter}
+              onChange={(event) => setStoreFilter(event.target.value)}
+              className="appearance-none rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-8 pl-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            >
+              <option value="todas">Todas as lojas</option>
+              {lojas.map((loja) => (
+                <option key={loja} value={loja}>
+                  {loja}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+              ▼
+            </span>
+          </div>
 
-          <select
-            value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as 'todos' | StatusRepasse)
-            }
-            className="rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-          >
-            <option value="todos">Todos os status</option>
-            <option value="solicitado">Solicitado</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="pago">Pago</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as 'todos' | StatusRepasse)
+              }
+              className="appearance-none rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-8 pl-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            >
+              <option value="todos">Todos os status</option>
+              <option value="solicitado">Solicitado</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+              ▼
+            </span>
+          </div>
 
           <button
             type="button"
             onClick={handleResetarFiltros}
-            className="hidden sm:inline-flex items-center rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            className="hidden sm:inline-flex items-center rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
           >
             Limpar filtros
           </button>
           <button
             type="button"
             onClick={handleExportarCsv}
-            className="inline-flex items-center gap-1 rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--surface-nav)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
           >
-            Exportar CSV
+            <FileCsv size={16} className="text-[color:var(--text-primary)]" />
+            <span>Exportar</span>
           </button>
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-            Total solicitado (período)
-          </p>
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <CurrencyDollarSimple
+                size={16}
+                className="text-[color:var(--text-primary)]"
+              />
+            </span>
+            <span>Total solicitado (período)</span>
+          </div>
           <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
             {formatCurrency(resumo.totalSolicitado)}
           </p>
-          <p className="mt-1 text-[0.75rem] text-[color:var(--text-soft)]">
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Soma de todos os repasses filtrados
           </p>
         </div>
 
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-            Total pago
-          </p>
-          <p className="mt-2 text-xl font-semibold text-emerald-300">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <CheckCircle
+                size={16}
+                weight="bold"
+                className="text-emerald-500"
+              />
+            </span>
+            <span>Total pago</span>
+          </div>
+          <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
             {formatCurrency(resumo.totalPago)}
           </p>
-          <p className="mt-1 text-[0.75rem] text-[color:var(--text-soft)]">
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Repasses com status Pago
           </p>
         </div>
 
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-            Total pendente
-          </p>
-          <p className="mt-2 text-xl font-semibold text-amber-300">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <Clock
+                size={16}
+                weight="bold"
+                className="text-amber-500"
+              />
+            </span>
+            <span>Total pendente</span>
+          </div>
+          <p className="mt-2 text-xl font-semibold text-amber-700 dark:text-amber-300">
             {formatCurrency(resumo.totalPendente)}
           </p>
-          <p className="mt-1 text-[0.75rem] text-[color:var(--text-soft)]">
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Status Solicitado ou Confirmado
           </p>
         </div>
 
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-            Quantidade de repasses
-          </p>
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <ClipboardText
+                size={16}
+                weight="bold"
+                className="text-[color:var(--text-primary)]"
+              />
+            </span>
+            <span>Quantidade de repasses</span>
+          </div>
           <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
             {resumo.quantidade}
           </p>
-          <p className="mt-1 text-[0.75rem] text-[color:var(--text-soft)]">
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Registros exibidos na tabela
           </p>
         </div>
@@ -697,7 +752,7 @@ function FinanceiroRepasses() {
             {errorMessage}
           </div>
         )}
-        <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-muted)]">
+        <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)]">
           <p>
             {totalRegistros === 0
               ? 'Nenhum repasse encontrado para os filtros selecionados'
@@ -709,11 +764,11 @@ function FinanceiroRepasses() {
 
         <div className="block sm:hidden">
           {isLoading ? (
-            <div className="px-4 py-6 text-center text-xs text-[color:var(--text-muted)]">
+            <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
               Carregando repasses...
             </div>
           ) : totalRegistros === 0 ? (
-            <div className="px-4 py-6 text-center text-xs text-[color:var(--text-muted)]">
+            <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
               Nenhum repasse encontrado para os filtros selecionados
             </div>
           ) : (
@@ -734,15 +789,15 @@ function FinanceiroRepasses() {
                         <p className="text-sm font-semibold text-[color:var(--text-primary)]">
                           {repasse.loja}
                         </p>
-                        <p className="text-[0.7rem] text-[color:var(--text-soft)]">
+                        <p className="text-[0.7rem] text-[color:var(--text-primary)]">
                           {repasse.lojaCodigo ?? repasse.id}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-emerald-300">
+                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                           {formatCurrency(repasse.valor)}
                         </p>
-                        <p className="text-[0.7rem] text-[color:var(--text-soft)]">
+                        <p className="text-[0.7rem] text-[color:var(--text-primary)]">
                           {formatDate(repasse.data)} • {repasse.hora}
                         </p>
                       </div>
@@ -768,25 +823,28 @@ function FinanceiroRepasses() {
                       <button
                         type="button"
                         onClick={() => handleVerDetalhes(repasse)}
-                        className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-[0.7rem] font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-[0.7rem] font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
                       >
-                        Ver detalhes
+                        <Eye size={14} className="text-[color:var(--text-primary)]" />
+                        <span>Ver detalhes</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleConfirmarRepasse(repasse.id)}
                         disabled={!podeConfirmar}
-                        className="inline-flex items-center rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[0.7rem] font-semibold text-amber-200 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--chip-text)] hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
                       >
-                        Confirmar
+                        <CheckCircle size={14} weight="bold" />
+                        <span>Confirmar</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleMarcarComoPago(repasse.id)}
                         disabled={!podeMarcarPago}
-                        className="inline-flex items-center rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-[0.7rem] font-semibold text-emerald-200 hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--chip-text)] hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
                       >
-                        Marcar como pago
+                        <CurrencyDollarSimple size={14} weight="bold" />
+                        <span>Marcar como pago</span>
                       </button>
                     </div>
                   </div>
@@ -800,7 +858,7 @@ function FinanceiroRepasses() {
           <table className="min-w-full divide-y divide-[color:var(--border)] text-sm">
             <thead className="bg-[color:var(--surface-nav)]">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   <button
                     type="button"
                     onClick={() => handleChangeSort('loja')}
@@ -812,7 +870,7 @@ function FinanceiroRepasses() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   <button
                     type="button"
                     onClick={() => handleChangeSort('cliente')}
@@ -824,7 +882,7 @@ function FinanceiroRepasses() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   <button
                     type="button"
                     onClick={() => handleChangeSort('valor')}
@@ -836,10 +894,10 @@ function FinanceiroRepasses() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   Método de repasse
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   <button
                     type="button"
                     onClick={() => handleChangeSort('data')}
@@ -851,7 +909,7 @@ function FinanceiroRepasses() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   Hora
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
@@ -866,7 +924,7 @@ function FinanceiroRepasses() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   Ações
                 </th>
               </tr>
@@ -876,7 +934,7 @@ function FinanceiroRepasses() {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-4 py-6 text-center text-xs text-[color:var(--text-muted)]"
+                    className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]"
                   >
                     Carregando repasses...
                   </td>
@@ -885,7 +943,7 @@ function FinanceiroRepasses() {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-4 py-6 text-center text-xs text-[color:var(--text-muted)]"
+                    className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]"
                   >
                     Nenhum repasse encontrado para os filtros selecionados
                   </td>
@@ -906,7 +964,7 @@ function FinanceiroRepasses() {
                         <div className="text-sm font-medium text-[color:var(--text-primary)]">
                           {repasse.loja}
                         </div>
-                        <div className="text-xs text-[color:var(--text-soft)]">
+                        <div className="text-xs text-[color:var(--text-primary)]">
                           {repasse.lojaCodigo ?? repasse.id}
                         </div>
                       </td>
@@ -914,12 +972,12 @@ function FinanceiroRepasses() {
                         <div className="text-sm text-[color:var(--text-primary)]">
                           {repasse.cliente}
                         </div>
-                        <div className="text-xs text-[color:var(--text-soft)]">
+                        <div className="text-xs text-[color:var(--text-primary)]">
                           {repasse.id}
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right align-top">
-                        <div className="text-sm font-semibold text-emerald-300">
+                        <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                           {formatCurrency(repasse.valor)}
                         </div>
                       </td>
@@ -951,25 +1009,28 @@ function FinanceiroRepasses() {
                           <button
                             type="button"
                             onClick={() => handleVerDetalhes(repasse)}
-                            className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
                           >
-                            Ver detalhes
+                            <Eye size={14} className="text-[color:var(--text-primary)]" />
+                            <span>Ver detalhes</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleConfirmarRepasse(repasse.id)}
                             disabled={!podeConfirmar}
-                            className="inline-flex items-center rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-200 hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-[color:var(--chip-text)] hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
                           >
-                            Confirmar
+                            <CheckCircle size={14} weight="bold" />
+                            <span>Confirmar</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleMarcarComoPago(repasse.id)}
                             disabled={!podeMarcarPago}
-                            className="inline-flex items-center rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/25 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-[color:var(--chip-text)] hover:bg-emerald-500/25 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
                           >
-                            Marcar como pago
+                            <CurrencyDollarSimple size={14} weight="bold" />
+                            <span>Marcar como pago</span>
                           </button>
                         </div>
                       </td>
@@ -980,22 +1041,27 @@ function FinanceiroRepasses() {
             </tbody>
           </table>
           {totalRegistros > 0 && (
-            <div className="flex flex-col gap-2 border-t border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-muted)] sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 border-t border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)] sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <span>Itens por página:</span>
-                <select
-                  value={pageSize}
-                  onChange={(event) => {
-                    const value = Number(event.target.value)
-                    setPageSize(value)
-                    setPage(1)
-                  }}
-                  className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2 py-1 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={pageSize}
+                    onChange={(event) => {
+                      const value = Number(event.target.value)
+                      setPageSize(value)
+                      setPage(1)
+                    }}
+                    className="appearance-none rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-7 pl-2 py-1 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                  </select>
+                  <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+                    ▼
+                  </span>
+                </div>
               </div>
               <div className="flex items-center justify-between gap-3 sm:justify-end">
                 <p>
@@ -1050,7 +1116,13 @@ function FinanceiroRepasses() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Loja
+                    <span className="inline-flex items-center gap-1.5">
+                      <Storefront
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Loja</span>
+                    </span>
                   </p>
                   <p className="mt-1 font-medium text-[color:var(--text-primary)]">
                     {selectedRepasse.loja}
@@ -1061,7 +1133,13 @@ function FinanceiroRepasses() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Valor
+                    <span className="inline-flex items-center gap-1.5">
+                      <CurrencyDollarSimple
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Valor</span>
+                    </span>
                   </p>
                   <p className="mt-1 text-base font-semibold text-emerald-300">
                     {formatCurrency(selectedRepasse.valor)}
@@ -1071,7 +1149,13 @@ function FinanceiroRepasses() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Cliente
+                    <span className="inline-flex items-center gap-1.5">
+                      <UserCircle
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Cliente</span>
+                    </span>
                   </p>
                   <p className="mt-1 font-medium text-[color:var(--text-primary)]">
                     {selectedRepasse.cliente}
@@ -1079,7 +1163,13 @@ function FinanceiroRepasses() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Data e hora
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Data e hora</span>
+                    </span>
                   </p>
                   <p className="mt-1 text-[color:var(--text-primary)]">
                     {formatDate(selectedRepasse.data)} às {selectedRepasse.hora}
@@ -1089,7 +1179,13 @@ function FinanceiroRepasses() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Método de repasse
+                    <span className="inline-flex items-center gap-1.5">
+                      <ArrowsLeftRight
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Método de repasse</span>
+                    </span>
                   </p>
                   {(() => {
                     const metodoCfg = metodoConfig[selectedRepasse.metodo]
@@ -1107,7 +1203,13 @@ function FinanceiroRepasses() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    Status atual
+                    <span className="inline-flex items-center gap-1.5">
+                      <CheckCircle
+                        size={12}
+                        className="text-[color:var(--text-muted)]"
+                      />
+                      <span>Status atual</span>
+                    </span>
                   </p>
                   {(() => {
                     const statusCfg = getStatusConfig(selectedRepasse.status)
@@ -1123,7 +1225,13 @@ function FinanceiroRepasses() {
               </div>
               <div className="mt-2 rounded-lg bg-[color:var(--surface-nav)] px-3 py-2 text-xs text-[color:var(--text-soft)]">
                 <p className="font-medium text-[color:var(--text-muted)]">
-                  Linha do tempo do status
+                  <span className="inline-flex items-center gap-1.5">
+                    <ClipboardText
+                      size={12}
+                      className="text-[color:var(--text-muted)]"
+                    />
+                    <span>Linha do tempo do status</span>
+                  </span>
                 </p>
                 <div className="mt-2 flex flex-col gap-1">
                   <span>
