@@ -11,7 +11,11 @@ import {
   TruckIcon,
   ArrowPathIcon,
   ClockIcon,
-  UserIcon 
+  UserIcon,
+  Cog6ToothIcon,
+  BuildingStorefrontIcon,
+  DocumentTextIcon,
+  QueueListIcon
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg'
@@ -27,35 +31,60 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Início', href: '/dashboard', icon: HomeIcon },
+  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   
-  // --- NOVA OPÇÃO CLIENTE (Ajustada para a rota /clientes) ---
-  { name: 'Cliente', href: '/clientes', icon: UserIcon }, 
+  // --- ADMIN ---
+  {
+    name: 'Admin',
+    icon: Cog6ToothIcon,
+    current: false,
+    children: [
+      {
+        name: 'Financeiro',
+        icon: BanknotesIcon,
+        children: [
+          { name: 'Tesouraria', href: '/financeiro/tesouraria', icon: BanknotesIcon },
+          { name: 'Repasses', href: '/financeiro/repasses', icon: ArrowPathIcon },
+          { name: 'Histórico', href: '/financeiro/historico', icon: ClockIcon },
+        ],
+      },
+      {
+        name: 'Lojas',
+        icon: BuildingStorefrontIcon,
+        children: [
+          { name: 'Gerenciar Lojas', href: '/admin/gerenciar-lojas', icon: Cog6ToothIcon },
+        ],
+      },
+    ],
+  },
   
+  // --- CLIENTE ---
+  {
+    name: 'Cliente',
+    icon: UserIcon,
+    current: false,
+    children: [
+      { name: 'Lojas Disponíveis', href: '/cliente/lojas', icon: ShoppingBagIcon },
+    ],
+  },
+  
+  // --- LOJA ---
   {
     name: 'Loja',
     icon: ShoppingBagIcon,
     current: false,
     children: [
-      { name: 'Listagem', href: '/cliente/lojas', icon: ListBulletIcon },
-      { 
-        name: 'Cadastro', 
-        icon: PencilSquareIcon, 
+      { name: 'Recepção', href: '/loja/recepcao', icon: ListBulletIcon },
+      { name: 'Novo Pedido', href: '/loja/newpedido', icon: PencilSquareIcon },
+      {
+        name: 'Cadastros',
+        icon: QueueListIcon,
         children: [
-          { name: 'Produtos', href: '#', icon: CubeIcon },
-          { name: 'Entregadores', href: '#', icon: TruckIcon },
-        ]
+          { name: 'Menu', href: '/loja/cadastros/menu', icon: DocumentTextIcon },
+          { name: 'Produtos', href: '/loja/cadastros/produtos', icon: CubeIcon },
+          { name: 'Entregadores', href: '/loja/cadastros/entregadores', icon: TruckIcon },
+        ],
       },
-    ],
-  },
-  {
-    name: 'Financeiro',
-    icon: BanknotesIcon,
-    current: false,
-    children: [
-      { name: 'Tesouraria', href: '/financeiro/tesouraria', icon: BanknotesIcon },
-      { name: 'Repasses', href: '/financeiro/repasses', icon: ArrowPathIcon },
-      { name: 'Histórico', href: '/financeiro/historico', icon: ClockIcon }, 
     ],
   },
 ]

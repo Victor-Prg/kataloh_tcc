@@ -29,50 +29,42 @@ export const Lojas = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden bg-[var(--bg-body)]">
-      
-      {/* BARRA SUPERIOR (CABEÇALHO) 
-          Alteração: Mudei de 'bg-[var(--surface)]' para 'bg-[var(--bg-body)]'
-          Mantive a borda ('border-b') para separar visualmente do conteúdo de forma sutil.
-      */}
-      <div className="w-full bg-[var(--bg-body)] border-b border-[var(--border)] px-4 md:px-6 py-4 shrink-0 z-20">
-        <div className="flex justify-between items-center w-full">
-          <h1 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">Lojas Disponíveis</h1>
-          
-          <div className="flex bg-[var(--surface-nav)] p-1 rounded-lg border border-[var(--border)]">
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-all ${
-                viewMode === 'grid' 
-                  ? 'bg-[var(--surface)] shadow text-[var(--primary-100)]' 
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <LayoutGrid size={20} />
-            </button>
-            <button 
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-all ${
-                viewMode === 'list' 
-                  ? 'bg-[var(--surface)] shadow text-[var(--primary-100)]' 
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <List size={20} />
-            </button>
-          </div>
+    <div className="w-full">
+      {/* CABEÇALHO */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Lojas Disponíveis</h1>
+        
+        <div className="flex bg-[var(--surface-nav)] p-1 rounded-lg border border-[var(--border)]">
+          <button 
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-md transition-all ${
+              viewMode === 'grid' 
+                ? 'bg-[var(--surface)] shadow text-[var(--primary-100)]' 
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <LayoutGrid size={20} />
+          </button>
+          <button 
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-md transition-all ${
+              viewMode === 'list' 
+                ? 'bg-[var(--surface)] shadow text-[var(--primary-100)]' 
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <List size={20} />
+          </button>
         </div>
       </div>
 
-      {/* CONTEÚDO (CARDS) - Scroll apenas aqui dentro */}
-      <div className="flex-1 w-full overflow-y-auto p-4 md:p-6">
-        <div className={`
-          max-w-7xl mx-auto pb-4
-          ${viewMode === 'grid' 
-            ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6' 
-            : 'flex flex-col gap-4' 
-          }
-        `}>
+      {/* GRID DE LOJAS */}
+      <div className={`
+        ${viewMode === 'grid' 
+          ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6' 
+          : 'flex flex-col gap-4' 
+        }
+      `}>
           {MOCK_STORES.map((store) => (
             <div 
               key={store.id} 
@@ -110,7 +102,6 @@ export const Lojas = () => {
               </div>
             </div>
           ))}
-        </div>
       </div>
     </div>
   );

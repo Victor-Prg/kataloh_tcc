@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Card, Text, Button, Input, Badge, Checkbox } from '../../components'
+import { Card, Text, Button, Input, Badge } from '../../components'
+import { Search, Plus, Minus, X, ShoppingCart, Trash2, StickyNote } from 'lucide-react'
 import exemploImagem from '../../assets/exemplo.png'
 
 type Produto = {
@@ -8,6 +9,14 @@ type Produto = {
   descricao: string
   preco: number
   categoriaId: string
+  disponivel?: boolean
+  tempo?: string
+}
+
+type ItemPedido = {
+  produto: Produto
+  quantidade: number
+  observacao: string
 }
 
 type Categoria = {
@@ -25,44 +34,74 @@ const produtosMock: Produto[] = [
   {
     id: 'combo-duplo',
     nome: 'Combo Duplo',
-    descricao: '2 hambúrgueres + batata',
+    descricao: '2 hambúrgueres + batata frita grande',
     preco: 45.9,
     categoriaId: 'destaques',
+    disponivel: true,
+    tempo: '25-30 min',
   },
   {
     id: 'trio-cheddar',
     nome: 'Trio Cheddar',
-    descricao: 'Hambúrguer cheddar + refri',
+    descricao: 'Hambúrguer cheddar + refri + batata',
     preco: 32.5,
     categoriaId: 'destaques',
+    disponivel: true,
+    tempo: '20-25 min',
   },
   {
     id: 'x-bacon',
     nome: 'X-Bacon',
-    descricao: 'Pão, carne, queijo e muito bacon',
+    descricao: 'Pão artesanal, 180g de carne, queijo cheddar e muito bacon crocante',
     preco: 28,
     categoriaId: 'hamburgueres',
+    disponivel: true,
+    tempo: '15-20 min',
   },
   {
     id: 'x-salada',
     nome: 'X-Salada',
-    descricao: 'Clássico com alface e tomate',
+    descricao: 'Clássico com alface, tomate, cebola e maionese da casa',
     preco: 22,
     categoriaId: 'hamburgueres',
+    disponivel: true,
+    tempo: '15-20 min',
+  },
+  {
+    id: 'x-veggie',
+    nome: 'Veggie Burger',
+    descricao: 'Hambúrguer de grão-de-bico, queijo, rúcula e molho especial',
+    preco: 26,
+    categoriaId: 'hamburgueres',
+    disponivel: true,
+    tempo: '15-20 min',
   },
   {
     id: 'refrigerante',
-    nome: 'Refrigerante lata',
-    descricao: '350 ml bem gelado',
+    nome: 'Refrigerante Lata',
+    descricao: 'Coca-Cola, Guaraná ou Sprite - 350ml gelado',
     preco: 6.5,
     categoriaId: 'bebidas',
+    disponivel: true,
+    tempo: 'Imediato',
   },
   {
     id: 'suco-laranja',
-    nome: 'Suco de laranja',
-    descricao: 'Natural, sem açúcar',
+    nome: 'Suco de Laranja',
+    descricao: 'Natural, feito na hora, 500ml',
     preco: 9.9,
     categoriaId: 'bebidas',
+    disponivel: true,
+    tempo: '5 min',
+  },
+  {
+    id: 'agua',
+    nome: 'Água Mineral',
+    descricao: 'Garrafa 500ml gelada',
+    preco: 4.5,
+    categoriaId: 'bebidas',
+    disponivel: true,
+    tempo: 'Imediato',
   },
 ]
 
@@ -75,207 +114,374 @@ function formatCurrency(value: number) {
 
 export default function NewPedido() {
   const [busca, setBusca] = useState('')
-  const [pedidoPresencial, setPedidoPresencial] = useState(true)
-  const [itens, setItens] = useState<Record<string, number>>({})
+  const [categoriaAtiva, setCategoriaAtiva] = useState<string>('destaques')
+  const [carrinho, setCarrinho] = useState<ItemPedido[]>([])
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null)
+  const [observacaoTemp, setObservacaoTemp] = useState('')
+  const [numeroMesa, setNumeroMesa] = useState('')
 
   const produtosFiltrados = useMemo(() => {
     const termo = busca.trim().toLowerCase()
-    if (!termo) {
-      return produtosMock
+    let produtos = produtosMock
+
+    if (categoriaAtiva !== 'todos') {
+      produtos = produtos.filter(p => p.categoriaId === categoriaAtiva)
     }
 
-    return produtosMock.filter(produto => {
-      return (
-        produto.nome.toLowerCase().includes(termo) ||
-        produto.descricao.toLowerCase().includes(termo)
-      )
-    })
-  }, [busca])
+    if (termo) {
+      produtos = produtos.filter(produto => {
+        return (
+          produto.nome.toLowerCase().includes(termo) ||
+          produto.descricao.toLowerCase().includes(termo)
+        )
+      })
+    }
+
+    return produtos
+  }, [busca, categoriaAtiva])
 
   const totalItens = useMemo(
-    () => Object.values(itens).reduce((accumulator, quantidade) => accumulator + quantidade, 0),
-    [itens],
+    () => carrinho.reduce((acc, item) => acc + item.quantidade, 0),
+    [carrinho],
   )
 
   const totalValor = useMemo(
-    () =>
-      produtosMock.reduce((accumulator, produto) => {
-        const quantidade = itens[produto.id] ?? 0
-        if (!quantidade) {
-          return accumulator
-        }
-        return accumulator + quantidade * produto.preco
-      }, 0),
-    [itens],
+    () => carrinho.reduce((acc, item) => acc + (item.produto.preco * item.quantidade), 0),
+    [carrinho],
   )
 
-  const handleAdicionarProduto = (produtoId: string) => {
-    setItens(previous => ({
-      ...previous,
-      [produtoId]: (previous[produtoId] ?? 0) + 1,
-    }))
+  const handleAdicionarAoCarrinho = (produto: Produto) => {
+    setProdutoSelecionado(produto)
+    setObservacaoTemp('')
   }
 
-  const handleLimparProduto = (produtoId: string) => {
-    setItens(previous => {
-      const atual = previous[produtoId] ?? 0
-      const novo = Math.max(0, atual - 1)
+  const handleConfirmarItem = () => {
+    if (!produtoSelecionado) return
 
-      if (novo === 0) {
-        const copia = { ...previous }
-        delete copia[produtoId]
-        return copia
-      }
+    const itemExistente = carrinho.find(item => 
+      item.produto.id === produtoSelecionado.id && 
+      item.observacao === observacaoTemp
+    )
 
-      return {
-        ...previous,
-        [produtoId]: novo,
+    if (itemExistente) {
+      setCarrinho(carrinho.map(item => 
+        item === itemExistente 
+          ? { ...item, quantidade: item.quantidade + 1 }
+          : item
+      ))
+    } else {
+      setCarrinho([...carrinho, {
+        produto: produtoSelecionado,
+        quantidade: 1,
+        observacao: observacaoTemp
+      }])
+    }
+
+    setProdutoSelecionado(null)
+    setObservacaoTemp('')
+  }
+
+  const handleRemoverItem = (index: number) => {
+    setCarrinho(carrinho.filter((_, i) => i !== index))
+  }
+
+  const handleAlterarQuantidade = (index: number, delta: number) => {
+    setCarrinho(carrinho.map((item, i) => {
+      if (i === index) {
+        const novaQuantidade = item.quantidade + delta
+        return novaQuantidade > 0 ? { ...item, quantidade: novaQuantidade } : item
       }
-    })
+      return item
+    }).filter(item => item.quantidade > 0))
+  }
+
+  const handleFinalizarPedido = () => {
+    if (carrinho.length === 0 || !numeroMesa) return
+    alert(`Pedido da mesa ${numeroMesa} enviado para a cozinha!\n\nTotal: ${formatCurrency(totalValor)}`)
+    setCarrinho([])
+    setNumeroMesa('')
   }
 
   return (
-    <div className="space-y-6">
-      <header className="space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--primary-100)] text-sm font-bold text-black">
-              LOGO
-            </div>
-            <div className="space-y-1">
-              <Text as="h1" size="heading" style={{ fontWeight: 'bold', fontSize: 28 }}>
-                Loja Exemplo #1
-              </Text>
-              <div className="flex flex-wrap gap-2 text-xs">
-                <Badge label="4.8" variant="sucesso" />
-                <Badge label="Lanches" variant="neutro" />
-                <Badge label="30-45 min" variant="neutro" />
-              </div>
-            </div>
+    <div className="h-full flex flex-col lg:flex-row gap-6">
+      {/* COLUNA ESQUERDA - CARDÁPIO */}
+      <div className="flex-1 flex flex-col gap-4 min-w-0">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+              Novo Pedido
+            </h1>
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
+              Selecione os produtos do cardápio
+            </p>
           </div>
 
-          <Card variant="outlined" padding="12px" className="flex flex-col gap-2 min-w-[220px]">
-            <div className="flex items-center justify-between gap-3">
-              <Text size="sm" color="var(--text-secondary)">
-                Pedido presencial
-              </Text>
-              <Checkbox
-                checked={pedidoPresencial}
-                onChange={event => setPedidoPresencial(event.target.checked)}
-              />
-            </div>
-            <div className="flex items-center justify-between text-xs text-[color:var(--text-secondary)]">
-              <span>Itens selecionados: {totalItens}</span>
-              <span>Total: {formatCurrency(totalValor)}</span>
-            </div>
-            <Button
-              variant="primary"
-              size="sm"
-              label="Avançar para resumo"
-              disabled={totalItens === 0}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--text-secondary)]">Mesa:</span>
+            <input
+              type="text"
+              value={numeroMesa}
+              onChange={(e) => setNumeroMesa(e.target.value)}
+              placeholder="Nº"
+              className="w-20 px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
             />
-          </Card>
+          </div>
         </div>
 
-        <Input
-          label="Buscar no cardápio"
-          placeholder="Digite o nome do produto"
-          value={busca}
-          onChange={event => setBusca(event.target.value)}
-        />
-      </header>
+        {/* BUSCA */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
+          <input
+            type="text"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar produtos..."
+            className="w-full pl-11 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+          />
+        </div>
 
-      <div className="space-y-8">
-        {categoriasMock.map(categoria => {
-          const produtosDaCategoria = produtosFiltrados.filter(
-            produto => produto.categoriaId === categoria.id,
-          )
+        {/* CATEGORIAS */}
+        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <button
+            onClick={() => setCategoriaAtiva('todos')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+              categoriaAtiva === 'todos'
+                ? 'bg-[var(--primary-100)] text-white'
+                : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
+            }`}
+          >
+            Todos
+          </button>
+          {categoriasMock.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoriaAtiva(cat.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                categoriaAtiva === cat.id
+                  ? 'bg-[var(--primary-100)] text-white'
+                  : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
+              }`}
+            >
+              {cat.nome}
+            </button>
+          ))}
+        </div>
 
-          if (produtosDaCategoria.length === 0) {
-            return null
-          }
+        {/* GRID DE PRODUTOS */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pb-4">
+            {produtosFiltrados.map((produto) => (
+              <button
+                key={produto.id}
+                onClick={() => handleAdicionarAoCarrinho(produto)}
+                disabled={!produto.disponivel}
+                className={`bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
+                  !produto.disponivel ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <div className="relative h-40 mb-3 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
+                  <img
+                    src={exemploImagem}
+                    alt={produto.nome}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  {produto.disponivel && (
+                    <div className="absolute bottom-2 right-2 bg-[var(--primary-100)] text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Plus size={20} />
+                    </div>
+                  )}
+                  {!produto.disponivel && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">Indisponível</span>
+                    </div>
+                  )}
+                </div>
 
-          return (
-            <section key={categoria.id} className="space-y-3">
-              <Text as="h2" size="lg" style={{ fontWeight: 'bold', fontSize: 28 }}>
-                {categoria.nome}
-              </Text>
+                <h3 className="font-bold text-base text-[var(--text-primary)] mb-1 line-clamp-1">
+                  {produto.nome}
+                </h3>
+                
+                <p className="text-xs text-[var(--text-secondary)] mb-2 line-clamp-2 leading-relaxed">
+                  {produto.descricao}
+                </p>
 
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
-                {produtosDaCategoria.map(produto => {
-                  const quantidadeSelecionada = itens[produto.id] ?? 0
-
-                  return (
-                    <Card
-                      key={produto.id}
-                      variant="elevated"
-                      padding="16px"
-                      className="flex flex-col md:flex-row items-start gap-3 h-full"
-                    >
-                      <div className="w-full space-y-1 min-h-[72px] md:flex-1 md:mt-4">
-                        <Text
-                          size="sm"
-                          style={{ fontWeight: 'bold', fontSize: 20 }}
-                        >
-                          {produto.nome}
-                        </Text>
-                        <Text
-                          size="sm"
-                          color="var(--text-secondary)"
-                          style={{ fontSize: 14 }}
-                        >
-                          {produto.descricao}
-                        </Text>
-                        <Text
-                          size="sm"
-                          style={{ fontWeight: 'bold', fontSize: 16 }}
-                        >
-                          {formatCurrency(produto.preco)}
-                        </Text>
-                      </div>
-
-                      <div className="flex w-full items-start justify-center md:w-auto md:justify-end md:ml-auto">
-                        <div className="relative flex h-32 w-32 md:h-40 md:w-40 items-center justify-center overflow-hidden rounded-lg bg-[color:var(--surface-nav)]">
-                          <img
-                            src={exemploImagem}
-                            alt={produto.nome}
-                            className="h-full w-full object-cover"
-                          />
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            label="+"
-                            onClick={() => handleAdicionarProduto(produto.id)}
-                            className="absolute bottom-1 right-1 rounded-full px-0 py-0 h-7 w-7 flex items-center justify-center"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-2 flex w-full gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          label="-1"
-                          onClick={() => handleLimparProduto(produto.id)}
-                          disabled={quantidadeSelecionada === 0}
-                          className="w-1/2 justify-center"
-                        />
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          label={quantidadeSelecionada > 0 ? `+ ${quantidadeSelecionada}` : '+1'}
-                          onClick={() => handleAdicionarProduto(produto.id)}
-                          className="w-1/2 justify-center"
-                        />
-                      </div>
-                    </Card>
-                  )
-                })}
-              </div>
-            </section>
-          )
-        })}
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-lg font-bold text-[var(--primary-100)]">
+                    {formatCurrency(produto.preco)}
+                  </span>
+                  {produto.tempo && (
+                    <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-body)] px-2 py-1 rounded">
+                      {produto.tempo}
+                    </span>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* COLUNA DIREITA - CARRINHO */}
+      <div className="lg:w-96 flex flex-col bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-8rem)]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ShoppingCart size={24} className="text-[var(--primary-100)]" />
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">
+              Pedido
+            </h2>
+          </div>
+          <span className="bg-[var(--primary-100)] text-white text-xs font-bold px-2 py-1 rounded-full">
+            {totalItens} {totalItens === 1 ? 'item' : 'itens'}
+          </span>
+        </div>
+
+        {/* LISTA DE ITENS */}
+        <div className="flex-1 overflow-y-auto mb-4 space-y-3">
+          {carrinho.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+              <ShoppingCart size={48} className="text-[var(--text-muted)] mb-3 opacity-30" />
+              <p className="text-[var(--text-muted)] text-sm">
+                Nenhum item no pedido
+              </p>
+              <p className="text-[var(--text-muted)] text-xs mt-1">
+                Selecione produtos do cardápio
+              </p>
+            </div>
+          ) : (
+            carrinho.map((item, index) => (
+              <div
+                key={index}
+                className="bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-3 space-y-2"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-[var(--text-primary)] truncate">
+                      {item.produto.nome}
+                    </h4>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      {formatCurrency(item.produto.preco)} cada
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoverItem(index)}
+                    className="text-red-500 hover:text-red-700 p-1"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+
+                {item.observacao && (
+                  <div className="flex items-start gap-1 bg-[var(--surface)] p-2 rounded text-xs">
+                    <StickyNote size={12} className="text-[var(--primary-100)] mt-0.5 flex-shrink-0" />
+                    <span className="text-[var(--text-secondary)]">{item.observacao}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center border border-[var(--border)] rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleAlterarQuantidade(index, -1)}
+                      className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="px-3 text-sm font-bold text-[var(--text-primary)]">
+                      {item.quantidade}
+                    </span>
+                    <button
+                      onClick={() => handleAlterarQuantidade(index, 1)}
+                      className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <span className="font-bold text-[var(--text-primary)]">
+                    {formatCurrency(item.produto.preco * item.quantidade)}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* TOTAL E FINALIZAR */}
+        <div className="border-t border-[var(--border)] pt-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-[var(--text-secondary)] text-sm">Subtotal</span>
+            <span className="font-semibold text-[var(--text-primary)]">
+              {formatCurrency(totalValor)}
+            </span>
+          </div>
+          
+          <div className="flex justify-between items-center text-lg">
+            <span className="font-bold text-[var(--text-primary)]">Total</span>
+            <span className="font-bold text-[var(--primary-100)]">
+              {formatCurrency(totalValor)}
+            </span>
+          </div>
+
+          <button
+            onClick={handleFinalizarPedido}
+            disabled={carrinho.length === 0 || !numeroMesa}
+            className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Enviar para Cozinha
+          </button>
+        </div>
+      </div>
+
+      {/* MODAL DE ADICIONAR ITEM COM OBSERVAÇÃO */}
+      {produtoSelecionado && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--surface)] rounded-xl max-w-md w-full p-6 space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">
+                  {produtoSelecionado.nome}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                  {formatCurrency(produtoSelecionado.preco)}
+                </p>
+              </div>
+              <button
+                onClick={() => setProdutoSelecionado(null)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="h-48 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
+              <img
+                src={exemploImagem}
+                alt={produtoSelecionado.nome}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Observações (opcional)
+              </label>
+              <textarea
+                value={observacaoTemp}
+                onChange={(e) => setObservacaoTemp(e.target.value)}
+                placeholder="Ex: Sem cebola, ponto da carne, etc..."
+                rows={3}
+                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
+              />
+            </div>
+
+            <button
+              onClick={handleConfirmarItem}
+              className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all"
+            >
+              Adicionar ao Pedido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -5,16 +5,19 @@ import { ThemeProvider } from './composables/ThemeProvider';
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
-import Dashboard from './pages/auth/dashboard';
-import Tesouraria from './pages/financeiro/tesouraria';
+import Dashboard from './pages/admin/dashboard';
+import Tesouraria from './pages/admin/financeiro/tesouraria';
 import { Lojas } from './pages/clientes/Lojas';
 import { LojaDetalhes } from './pages/clientes/LojaDetalhes';
-import FinanceiroRepasses from './pages/financeiro/repasses';
-import HistoricoRepasses from './pages/financeiro/HistoricoRepasses';
-import AdminGerenciarLojas from './pages/admin/gerenciar-lojas';
-import AdminPedidosLoja from './pages/admin/pedidos-loja';
+import FinanceiroRepasses from './pages/admin/financeiro/repasses';
+import HistoricoRepasses from './pages/admin/financeiro/HistoricoRepasses';
+import AdminGerenciarLojas from './pages/admin/lojas/gerenciar-lojas';
+import AdminPedidosLoja from './pages/admin/lojas/pedidos-loja';
 import RecepcaoLoja from './pages/loja/recepcao';
 import NewPedido from './pages/loja/new-pedido';
+import MenuCadastro from './pages/loja/cadastros/menu';
+import ProdutosCadastro from './pages/loja/cadastros/produtos';
+import EntregadoresCadastro from './pages/loja/cadastros/entregadores';
 
 // --- IMPORTAÇÕES DE CLIENTES ---
 // Verifique se o caminho da pasta é 'clientes' (plural) mesmo
@@ -29,9 +32,6 @@ function App() {
       <BrowserRouter>
         <div className="h-full font-sans text-[var(--text-primary)] bg-[var(--bg-body)]">
           <Routes>
-            // Exemplo de como ficaria no seu Router
-            <Route path="/cliente/lojas" element={<Lojas />} />
-            <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
             {/* --- ROTAS PÚBLICAS (Sem Sidebar) --- */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -40,9 +40,24 @@ function App() {
             {/* Rotas Protegidas (DashboardLayout) */}
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Cliente */}
+              <Route path="/cliente/lojas" element={<Lojas />} />
+              <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
+              
+              {/* Loja */}
+              <Route path="/loja/recepcao" element={<RecepcaoLoja />} />
+              <Route path="/loja/newpedido" element={<NewPedido />} />
+              <Route path="/loja/cadastros/menu" element={<MenuCadastro />} />
+              <Route path="/loja/cadastros/produtos" element={<ProdutosCadastro />} />
+              <Route path="/loja/cadastros/entregadores" element={<EntregadoresCadastro />} />
+              
+              {/* Financeiro */}
               <Route path="/financeiro/repasses" element={<FinanceiroRepasses />} />
               <Route path="/financeiro/historico" element={<HistoricoRepasses />} />
               <Route path="/financeiro/tesouraria" element={<Tesouraria />} />
+              
+              {/* Admin */}
               <Route path="/admin/gerenciar-lojas" element={<AdminGerenciarLojas />} />
               <Route path="/admin/pedidos-loja/:lojaId" element={<AdminPedidosLoja />} />
             </Route>

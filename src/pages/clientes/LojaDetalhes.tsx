@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, Search, Plus, Minus, ShoppingBag, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, Star, Search, Plus, Minus, ShoppingBag, X, Trash2, Clock, MapPin, Tag } from 'lucide-react';
 
 // --- TIPAGENS ---
 interface Product {
@@ -9,6 +9,8 @@ interface Product {
   description: string;
   price: number;
   image: string;
+  category?: string;
+  discount?: number;
 }
 
 interface CartItem extends Product {
@@ -18,6 +20,7 @@ interface CartItem extends Product {
 interface Category {
   id: string;
   title: string;
+  icon?: string;
   items: Product[];
 }
 
@@ -25,27 +28,112 @@ interface Category {
 const CATALOG_MOCK: Category[] = [
   {
     id: 'promo',
-    title: 'Destaques da Casa',
+    title: '🔥 Destaques da Casa',
     items: [
-      { id: 101, name: "Combo Duplo", description: "2 Hamburgueres + Batata", price: 45.90, image: "https://placehold.co/100x100/orange/white?text=Combo" },
-      { id: 102, name: "Trio Cheddar", description: "Hamburguer Cheddar + Refri", price: 32.50, image: "https://placehold.co/100x100/red/white?text=Trio" },
+      { 
+        id: 101, 
+        name: "Combo Duplo", 
+        description: "2 Hamburgueres suculentos + Batata frita crocante + Refri 1L", 
+        price: 45.90, 
+        image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=600&fit=crop&q=80", 
+        discount: 15 
+      },
+      { 
+        id: 102, 
+        name: "Trio Cheddar Premium", 
+        description: "Hamburguer artesanal com cheddar derretido + Refri + Sobremesa", 
+        price: 32.50, 
+        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&q=80", 
+        discount: 10 
+      },
     ]
   },
   {
     id: 'burgers',
-    title: 'Hambúrgueres',
+    title: '🍔 Hambúrgueres',
     items: [
-      { id: 201, name: "X-Bacon", description: "Pão, carne, queijo e muito bacon", price: 28.00, image: "https://placehold.co/100x100/brown/white?text=Bacon" },
-      { id: 202, name: "X-Salada", description: "Clássico com alface e tomate", price: 22.00, image: "https://placehold.co/100x100/green/white?text=Salada" },
-      { id: 203, name: "Veggie", description: "Hamburguer de grão de bico", price: 26.00, image: "https://placehold.co/100x100/green/white?text=Veggie" },
+      { 
+        id: 201, 
+        name: "Bloomin' Bacon Burger", 
+        description: "Pão brioche, carne angus 180g, queijo cheddar derretido, bacon crocante e molho barbecue", 
+        price: 28.00, 
+        image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 202, 
+        name: "Classic Aussie Burger", 
+        description: "O clássico com alface fresca, tomate, queijo e nosso molho especial da casa", 
+        price: 22.00, 
+        image: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 203, 
+        name: "Veggie Aussie", 
+        description: "Hamburguer vegetariano de grão de bico, guacamole cremoso e vegetais grelhados", 
+        price: 26.00, 
+        image: "https://images.unsplash.com/photo-1520072959219-c595dc870360?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 204, 
+        name: "Double Smash Burger", 
+        description: "Dupla de carne smash, queijo americano, cebola caramelizada e picles crocantes", 
+        price: 34.00, 
+        image: "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=800&h=600&fit=crop&q=80" 
+      },
     ]
   },
   {
     id: 'drinks',
-    title: 'Bebidas',
+    title: '🥤 Bebidas',
     items: [
-      { id: 301, name: "Coca-Cola Lata", description: "350ml", price: 6.00, image: "https://placehold.co/100x100/red/white?text=Cola" },
-      { id: 302, name: "Suco Natural", description: "Laranja 500ml", price: 12.00, image: "https://placehold.co/100x100/orange/white?text=Suco" },
+      { 
+        id: 301, 
+        name: "Coca-Cola Lata", 
+        description: "350ml geladinha", 
+        price: 6.00, 
+        image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 302, 
+        name: "Suco Natural Premium", 
+        description: "Laranja ou limonada suíça 500ml", 
+        price: 12.00, 
+        image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 303, 
+        name: "Milkshake Artesanal", 
+        description: "Chocolate belga, morango ou baunilha 400ml com chantilly", 
+        price: 15.00, 
+        image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=800&h=600&fit=crop&q=80" 
+      },
+    ]
+  },
+  {
+    id: 'sides',
+    title: '🍟 Acompanhamentos',
+    items: [
+      { 
+        id: 401, 
+        name: "Bloomin' Fries", 
+        description: "Porção de 400g de batatas fritas crocantes com tempero especial", 
+        price: 14.00, 
+        image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 402, 
+        name: "Onion Rings Crocantes", 
+        description: "12 anéis de cebola empanados servidos com molho ranch", 
+        price: 16.00, 
+        image: "https://images.unsplash.com/photo-1639024471283-03518883512d?w=800&h=600&fit=crop&q=80" 
+      },
+      { 
+        id: 403, 
+        name: "Chicken Nuggets Premium", 
+        description: "10 nuggets de frango empanados com molho barbecue ou mostarda e mel", 
+        price: 18.00, 
+        image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&h=600&fit=crop&q=80" 
+      },
     ]
   }
 ];
@@ -57,6 +145,8 @@ export const LojaDetalhes = () => {
   // --- ESTADOS ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // --- LÓGICA DO CARRINHO ---
   
@@ -88,6 +178,19 @@ export const LojaDetalhes = () => {
     return cart.find((item) => item.id === productId)?.quantity || 0;
   };
 
+  // Filtrar produtos
+  const filteredCategories = useMemo(() => {
+    return CATALOG_MOCK.map(category => ({
+      ...category,
+      items: category.items.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            product.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategory === 'all' || category.id === selectedCategory;
+        return matchesSearch && matchesCategory;
+      })
+    })).filter(category => category.items.length > 0);
+  }, [searchTerm, selectedCategory]);
+
   // Cálculos
   const cartTotal = useMemo(() => {
     return cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -108,158 +211,243 @@ export const LojaDetalhes = () => {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-[var(--bg-body)]">
-      
-      {/* BOTÃO VOLTAR */}
-      <button 
-        onClick={() => navigate('/clientes')} 
-        className="absolute top-4 left-4 z-40 bg-[var(--surface)] p-3 rounded-full shadow-md border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--bg-body)] active:scale-95 transition-all"
-      >
-        <ArrowLeft size={20} />
-      </button>
+    <div className="w-full min-h-screen pb-32">
+      {/* HEADER COM HERO */}
+      <div className="relative bg-gradient-to-br from-orange-500 to-red-600 dark:from-orange-600 dark:to-red-700 rounded-2xl overflow-hidden mb-6 shadow-xl">
+        {/* Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
 
-      {/* BANNER DE FUNDO */}
-      <div className="absolute top-0 left-0 w-full h-40 bg-[var(--surface-nav)] z-0"></div>
+        <div className="relative p-6 md:p-8">
+          {/* Botão Voltar */}
+          <button 
+            onClick={() => navigate('/cliente/lojas')} 
+            className="mb-6 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg text-white transition-all border border-white/30"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm font-medium">Voltar</span>
+          </button>
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <div className="relative z-10 flex flex-col w-full max-w-7xl mx-auto px-4 md:px-6">
-        
-        {/* INFO DA LOJA */}
-        <div className="mt-28 mb-6 md:mb-8">
-           <div className="flex items-end gap-4 md:gap-5">
-             <div className="relative flex-shrink-0">
+          {/* Info da Loja */}
+          <div className="flex items-center gap-6">
+            <div className="relative flex-shrink-0">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white shadow-2xl p-4 flex items-center justify-center overflow-hidden">
                 <img 
-                  src="https://placehold.co/100x100/orange/white?text=LOGO" 
-                  className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[var(--bg-body)] shadow-lg bg-[var(--surface)]"
+                  src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop&q=80" 
+                  className="w-full h-full object-cover rounded-lg"
                   alt="Logo"
                 />
-             </div>
-             
-             <div className="mb-1 md:mb-2 flex-1">
-               <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] drop-shadow-sm leading-tight">Loja Exemplo #{id}</h1>
-               <div className="flex flex-wrap items-center text-xs md:text-sm text-[var(--text-secondary)] gap-2 mt-1 md:mt-2 font-medium">
-                 <span className="text-yellow-500 flex items-center gap-1 bg-[var(--surface)] px-2 py-0.5 rounded-md border border-[var(--border)] shadow-sm">
-                    <Star size={12} className="md:w-3.5 md:h-3.5" fill="currentColor"/> 4.8
-                 </span>
-                 <span className="px-2 py-0.5 bg-[var(--surface)] rounded-md border border-[var(--border)]">• Lanches</span>
-                 <span className="px-2 py-0.5 bg-[var(--surface)] rounded-md border border-[var(--border)]">• 30-45 min</span>
-               </div>
-             </div>
-           </div>
-        </div>
-
-        {/* BARRA DE PESQUISA */}
-        <div className="mb-6 md:mb-8">
-          <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
-            <input 
-              type="text" 
-              placeholder="Buscar neste cardápio..." 
-              className="w-full pl-12 pr-4 py-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-transparent transition-all"
-            />
+              </div>
+            </div>
+            
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">
+                Burger House #{id}
+              </h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 bg-yellow-400 text-yellow-900 font-bold px-3 py-1.5 rounded-lg shadow-md">
+                  <Star size={16} fill="currentColor" /> 4.8
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white font-medium px-3 py-1.5 rounded-lg border border-white/30">
+                  <Clock size={16} /> 30-45 min
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white font-medium px-3 py-1.5 rounded-lg border border-white/30">
+                  <MapPin size={16} /> 2.5 km
+                </span>
+              </div>
+              <p className="text-white/90 text-sm mt-3 max-w-2xl">
+                Os melhores hambúrgueres artesanais da região! Ingredientes frescos e entrega rápida.
+              </p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* LISTAGEM DE PRODUTOS */}
-        <div className="space-y-8 md:space-y-10 pb-32">
+      {/* BARRA DE PESQUISA E FILTROS */}
+      <div className="mb-6 space-y-4">
+        {/* Pesquisa */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
+          <input 
+            type="text" 
+            placeholder="Buscar no cardápio..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-transparent transition-all shadow-sm"
+          />
+        </div>
+
+        {/* Filtro de Categorias */}
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
+              selectedCategory === 'all'
+                ? 'bg-[var(--primary-100)] text-white shadow-md'
+                : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:border-[var(--primary-100)]'
+            }`}
+          >
+            Todos
+          </button>
           {CATALOG_MOCK.map((category) => (
-            <div key={category.id} id={category.id} className="scroll-mt-24">
-              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-4 md:mb-5 border-b border-[var(--border)] pb-2">{category.title}</h2>
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
+                selectedCategory === category.id
+                  ? 'bg-[var(--primary-100)] text-white shadow-md'
+                  : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:border-[var(--primary-100)]'
+              }`}
+            >
+              {category.title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* LISTAGEM DE PRODUTOS */}
+      <div className="space-y-8">
+        {filteredCategories.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Nenhum produto encontrado</h3>
+            <p className="text-[var(--text-secondary)]">Tente buscar por outro termo</p>
+          </div>
+        ) : (
+          filteredCategories.map((category) => (
+            <div key={category.id} id={category.id}>
+              <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2">
+                {category.title}
+                <span className="text-sm font-normal text-[var(--text-muted)] bg-[var(--surface)] px-3 py-1 rounded-full border border-[var(--border)]">
+                  {category.items.length} {category.items.length === 1 ? 'item' : 'itens'}
+                </span>
+              </h2>
               
-              {/* ALTERAÇÃO AQUI: grid-cols-2 no mobile */}
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {category.items.map((product) => {
                   const qty = getItemQuantity(product.id);
+                  const finalPrice = product.discount 
+                    ? product.price * (1 - product.discount / 100)
+                    : product.price;
+
                   return (
                     <div 
                       key={product.id} 
                       className={`
-                        bg-[var(--surface)] p-3 md:p-4 rounded-xl border flex flex-col-reverse md:flex-row justify-between gap-3 md:gap-4 hover:shadow-lg transition-all cursor-pointer group h-full
-                        ${qty > 0 ? 'border-[var(--primary-100)] ring-1 ring-[var(--primary-100)]' : 'border-[var(--border)] hover:border-[var(--primary-100)]'}
+                        relative bg-[var(--surface)] rounded-2xl border overflow-hidden flex flex-col hover:shadow-2xl transition-all duration-300 group
+                        ${qty > 0 ? 'border-[var(--primary-100)] ring-2 ring-[var(--primary-100)] shadow-lg' : 'border-[var(--border)] hover:border-[var(--primary-100)]'}
                       `}
                     >
-                      <div className="flex flex-col justify-between flex-1">
-                        <div>
-                          {/* Ajustei o tamanho da fonte no mobile (text-xs) para não quebrar o layout lado a lado */}
-                          <h3 className="font-semibold text-xs md:text-lg text-[var(--text-primary)] group-hover:text-[var(--primary-100)] transition-colors line-clamp-2">{product.name}</h3>
-                          {/* Escondi a descrição no mobile muito pequeno ou limitei mais as linhas */}
-                          <p className="text-[10px] md:text-sm text-[var(--text-secondary)] line-clamp-2 mt-1 md:mt-2 leading-relaxed">{product.description}</p>
+                      {/* Badge de Desconto */}
+                      {product.discount && (
+                        <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                          <Tag size={12} />
+                          {product.discount}% OFF
                         </div>
-                        <p className="text-[var(--text-primary)] font-bold mt-2 md:mt-3 text-sm md:text-base">
-                          {formatCurrency(product.price)}
-                        </p>
-                      </div>
-                      
-                      {/* IMAGEM E CONTROLES */}
-                      {/* Ajustei a altura da imagem no mobile para h-28 para ficar proporcional */}
-                      <div className="relative w-full h-28 md:w-32 md:h-28 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                      )}
+
+                      {/* IMAGEM */}
+                      <div className="relative w-full h-48 flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                         <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                          src={product.image} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                         />
                         
-                        {qty === 0 ? (
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddItem(product);
-                            }}
-                            className="absolute bottom-2 right-2 bg-[var(--surface)] p-1.5 md:p-2 rounded-full shadow-md border border-[var(--border)] text-[var(--primary-100)] hover:bg-[var(--primary-100)] hover:text-white transition-colors"
-                          >
-                            <Plus size={16} strokeWidth={3} className="md:w-5 md:h-5" />
-                          </button>
-                        ) : (
-                          <div className="absolute bottom-2 right-2 flex items-center bg-[var(--surface)] rounded-full shadow-md border border-[var(--primary-100)] overflow-hidden scale-90 origin-bottom-right md:scale-100">
-                             <button 
+                        {/* Botão de Adicionar/Quantidade */}
+                        <div className="absolute bottom-3 right-3">
+                          {qty === 0 ? (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddItem(product);
+                              }}
+                              className="bg-white hover:bg-[var(--primary-100)] text-[var(--primary-100)] hover:text-white p-3 rounded-full shadow-lg border-2 border-white transition-all hover:scale-110 active:scale-95"
+                            >
+                              <Plus size={20} strokeWidth={3} />
+                            </button>
+                          ) : (
+                            <div className="flex items-center bg-white rounded-full shadow-lg border-2 border-[var(--primary-100)] overflow-hidden">
+                              <button 
                                 onClick={(e) => { e.stopPropagation(); handleRemoveItem(product.id); }}
-                                className="p-1.5 md:p-2 hover:bg-gray-100 text-[var(--text-primary)]"
-                             >
-                               <Minus size={14} className="md:w-4 md:h-4" />
-                             </button>
-                             <span className="text-xs md:text-sm font-bold text-[var(--primary-100)] px-1">{qty}</span>
-                             <button 
+                                className="p-2 hover:bg-gray-100 text-[var(--primary-100)] transition-colors"
+                              >
+                                <Minus size={18} strokeWidth={3} />
+                              </button>
+                              <span className="text-base font-bold text-[var(--primary-100)] px-3">{qty}</span>
+                              <button 
                                 onClick={(e) => { e.stopPropagation(); handleAddItem(product); }}
-                                className="p-1.5 md:p-2 bg-[var(--primary-100)] text-white hover:brightness-90"
-                             >
-                               <Plus size={14} className="md:w-4 md:h-4" />
-                             </button>
-                          </div>
-                        )}
+                                className="p-2 bg-[var(--primary-100)] text-white hover:brightness-110 transition-all"
+                              >
+                                <Plus size={18} strokeWidth={3} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* INFORMAÇÕES DO PRODUTO */}
+                      <div className="p-4 flex flex-col gap-2 flex-1">
+                        <h3 className="font-bold text-base text-[var(--text-primary)] group-hover:text-[var(--primary-100)] transition-colors line-clamp-2 min-h-[48px]">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed flex-1">
+                          {product.description}
+                        </p>
+                        
+                        <div className="flex items-center gap-2 mt-2">
+                          {product.discount ? (
+                            <>
+                              <span className="text-xs text-[var(--text-muted)] line-through">
+                                {formatCurrency(product.price)}
+                              </span>
+                              <span className="text-xl font-bold text-green-600">
+                                {formatCurrency(finalPrice)}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-xl font-bold text-[var(--text-primary)]">
+                              {formatCurrency(product.price)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
 
-      {/* --- BARRA FLUTUANTE DO CARRINHO (COR DO TEMA) --- */}
+      {/* --- BARRA FLUTUANTE DO CARRINHO --- */}
       {cart.length > 0 && !isCartOpen && (
-        <div className="fixed bottom-0 left-0 w-full z-40 p-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className="w-full max-w-4xl mx-auto bg-[var(--primary-100)] hover:brightness-110 text-white p-4 rounded-xl shadow-2xl flex items-center justify-between transition-transform active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-black/20 p-2 rounded-lg">
-                <ShoppingBag size={24} className="text-white" />
+        <div className="fixed bottom-0 left-0 w-full z-40 p-4 pointer-events-none">
+          <div className="max-w-7xl mx-auto pointer-events-auto">
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white p-5 rounded-2xl shadow-2xl flex items-center justify-between transition-all active:scale-[0.98] border-2 border-white/20"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
+                  <ShoppingBag size={28} className="text-white" />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs text-white/90 font-medium">Total do pedido</p>
+                  <p className="font-bold text-2xl text-white">{formatCurrency(cartTotal)}</p>
+                </div>
               </div>
-              <div className="text-left">
-                <p className="text-xs text-white/90">Total sem entrega</p>
-                <p className="font-bold text-lg text-white">{formatCurrency(cartTotal)}</p>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-white font-semibold hidden sm:block">Ver sacola</span>
+                <span className="bg-white text-[var(--primary-100)] px-4 py-2 rounded-xl text-base font-bold shadow-md">
+                  {cartCount}
+                </span>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <span className="text-white">Ver sacola</span>
-              <span className="bg-[var(--surface)] text-[var(--primary-100)] px-2.5 py-0.5 rounded-full text-xs border border-white/20 shadow-sm">
-                {cartCount}
-              </span>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
       )}
 
@@ -273,56 +461,65 @@ export const LojaDetalhes = () => {
           ></div>
 
           {/* Conteúdo do Modal */}
-          <div className="relative w-full md:w-[480px] bg-[var(--surface)] md:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
+          <div className="relative w-full md:w-[520px] bg-[var(--surface)] md:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-300 border border-[var(--border)]">
             
             {/* Header Modal */}
-            <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
-              <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-                <ShoppingBag size={20} className="text-[var(--primary-100)]" />
+            <div className="flex items-center justify-between p-6 border-b border-[var(--border)] bg-gradient-to-r from-orange-500/10 to-red-500/10">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+                <div className="bg-[var(--primary-100)] p-2 rounded-lg">
+                  <ShoppingBag size={24} className="text-white" />
+                </div>
                 Sua Sacola
+                <span className="bg-[var(--primary-100)] text-white text-sm font-bold px-3 py-1 rounded-full">
+                  {cartCount}
+                </span>
               </h2>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-2"
+                className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
               >
                 <X size={24} />
               </button>
             </div>
 
             {/* Lista de Itens */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {cart.length === 0 ? (
-                <div className="text-center py-10 text-[var(--text-muted)]">
-                  Sua sacola está vazia.
+                <div className="text-center py-16">
+                  <div className="text-6xl mb-4">🛒</div>
+                  <p className="text-[var(--text-muted)]">Sua sacola está vazia.</p>
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.id} className="flex gap-3 items-start border-b border-[var(--border)] pb-4 last:border-0">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-md object-cover bg-gray-100" />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-semibold text-[var(--text-primary)] text-sm">{item.name}</h4>
-                        <span className="font-bold text-[var(--text-primary)] text-sm">{formatCurrency(item.price * item.quantity)}</span>
+                  <div key={item.id} className="flex gap-4 items-start bg-[var(--bg-body)] border border-[var(--border)] rounded-xl p-4 hover:shadow-md transition-all">
+                    <img src={item.image} alt={item.name} className="w-20 h-20 rounded-lg object-cover bg-gray-100 flex-shrink-0 shadow-sm" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2 mb-2">
+                        <h4 className="font-bold text-[var(--text-primary)] text-base line-clamp-1">{item.name}</h4>
+                        <span className="font-bold text-[var(--text-primary)] text-base whitespace-nowrap">{formatCurrency(item.price * item.quantity)}</span>
                       </div>
-                      <p className="text-xs text-[var(--text-muted)] mt-1">{item.description}</p>
+                      <p className="text-xs text-[var(--text-muted)] line-clamp-2 mb-3">{item.description}</p>
                       
                       {/* Controles do Item */}
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center border border-[var(--border)] rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center border-2 border-[var(--border)] rounded-lg overflow-hidden">
                           <button 
                             onClick={() => handleRemoveItem(item.id)}
-                            className="p-1 px-2 text-[var(--text-primary)] hover:bg-[var(--bg-body)]"
+                            className="p-2 px-3 text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                           >
-                             {item.quantity === 1 ? <Trash2 size={16} className="text-red-500" /> : <Minus size={16} />}
+                            {item.quantity === 1 ? <Trash2 size={16} className="text-red-500" /> : <Minus size={16} />}
                           </button>
-                          <span className="px-2 text-sm font-medium text-[var(--text-primary)]">{item.quantity}</span>
+                          <span className="px-4 text-base font-bold text-[var(--text-primary)] bg-[var(--surface)]">{item.quantity}</span>
                           <button 
                             onClick={() => handleAddItem(item)}
-                            className="p-1 px-2 text-[var(--primary-100)] hover:bg-[var(--bg-body)]"
+                            className="p-2 px-3 text-white bg-[var(--primary-100)] hover:brightness-110 transition-all"
                           >
                             <Plus size={16} />
                           </button>
                         </div>
+                        <span className="text-sm text-[var(--text-secondary)]">
+                          {formatCurrency(item.price)} / un
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -331,30 +528,32 @@ export const LojaDetalhes = () => {
             </div>
 
             {/* Footer / Totais */}
-            <div className="p-4 bg-[var(--surface-nav)] border-t border-[var(--border)] md:rounded-b-2xl">
-              <div className="space-y-2 mb-4 text-sm">
-                <div className="flex justify-between text-[var(--text-secondary)]">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(cartTotal)}</span>
+            {cart.length > 0 && (
+              <div className="p-6 bg-[var(--surface-nav)] border-t border-[var(--border)] md:rounded-b-3xl">
+                <div className="space-y-3 mb-5">
+                  <div className="flex justify-between text-[var(--text-secondary)]">
+                    <span>Subtotal</span>
+                    <span className="font-semibold">{formatCurrency(cartTotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-[var(--text-secondary)]">
+                    <span>Taxa de entrega</span>
+                    <span className="font-semibold text-green-600">Grátis</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-[var(--text-primary)] text-2xl pt-3 border-t-2 border-[var(--border)]">
+                    <span>Total</span>
+                    <span className="text-[var(--primary-100)]">{formatCurrency(cartTotal)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-[var(--text-secondary)]">
-                  <span>Taxa de entrega</span>
-                  <span>R$ 5,00</span>
-                </div>
-                <div className="flex justify-between font-bold text-[var(--text-primary)] text-lg pt-2 border-t border-[var(--border)]">
-                  <span>Total</span>
-                  <span>{formatCurrency(cartTotal + 5)}</span>
-                </div>
-              </div>
 
-              <button 
-                onClick={handleCheckout}
-                disabled={cart.length === 0}
-                className="w-full bg-[var(--primary-100)] hover:brightness-110 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-              >
-                Fazer Pedido
-              </button>
-            </div>
+                <button 
+                  onClick={handleCheckout}
+                  disabled={cart.length === 0}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                >
+                  Fazer Pedido
+                </button>
+              </div>
+            )}
 
           </div>
         </div>

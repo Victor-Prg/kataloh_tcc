@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, useRef, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import {
+import { 
   FileCsv,
   ArrowsLeftRight,
   CurrencyDollarSimple,
@@ -8,9 +8,8 @@ import {
   Clock,
   ClipboardText,
   CheckCircle,
-  Eye,
-  Storefront,
-  UserCircle,
+  CalendarBlank,
+  CaretDown,
 } from 'phosphor-react'
 
 type MetodoRepasse = 'pix' | 'dinheiro' | 'cartao'
@@ -33,6 +32,7 @@ interface Repasse {
   hora: string
   status: StatusRepasse
   lojaCodigo?: string
+  idTransacaoPix?: string
 }
 
 const today = new Date()
@@ -40,75 +40,179 @@ const yesterday = new Date()
 yesterday.setDate(today.getDate() - 1)
 const twoDaysAgo = new Date()
 twoDaysAgo.setDate(today.getDate() - 2)
+const threeDaysAgo = new Date()
+threeDaysAgo.setDate(today.getDate() - 3)
 
 const toIsoDate = (date: Date) => date.toISOString().slice(0, 10)
 
-const REPASSES_MOCK: Repasse[] = [
+const REPASSES_HISTORICO_MOCK: Repasse[] = [
   {
-    id: 'R-2026-0001',
+    id: 'R-2026-0020',
     loja: 'Loja Central',
     lojaCodigo: 'LC-01',
-    cliente: 'João Silva',
-    valor: 320.5,
+    cliente: 'Roberto Santos',
+    valor: 450.0,
     metodo: 'pix',
-    data: toIsoDate(today),
-    hora: '10:15',
-    status: 'solicitado',
+    data: toIsoDate(threeDaysAgo),
+    hora: '14:30',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200020',
   },
   {
-    id: 'R-2026-0002',
-    loja: 'Loja Central',
-    lojaCodigo: 'LC-01',
-    cliente: 'Maria Souza',
-    valor: 189.9,
-    metodo: 'cartao',
-    data: toIsoDate(today),
-    hora: '11:40',
-    status: 'confirmado',
-  },
-  {
-    id: 'R-2026-0003',
+    id: 'R-2026-0019',
     loja: 'Loja Norte',
     lojaCodigo: 'LN-02',
-    cliente: 'Carlos Andrade',
-    valor: 540.0,
-    metodo: 'dinheiro',
-    data: toIsoDate(today),
-    hora: '09:05',
+    cliente: 'Fernanda Costa',
+    valor: 680.25,
+    metodo: 'cartao',
+    data: toIsoDate(threeDaysAgo),
+    hora: '11:15',
     status: 'pago',
+    idTransacaoPix: 'E12345678202601200019',
   },
   {
-    id: 'R-2026-0004',
+    id: 'R-2026-0018',
     loja: 'Loja Sul',
     lojaCodigo: 'LS-03',
-    cliente: 'Ana Paula',
-    valor: 75.25,
-    metodo: 'pix',
-    data: toIsoDate(yesterday),
-    hora: '18:22',
-    status: 'solicitado',
+    cliente: 'Marcos Lima',
+    valor: 120.5,
+    metodo: 'dinheiro',
+    data: toIsoDate(threeDaysAgo),
+    hora: '16:45',
+    status: 'cancelado',
+    idTransacaoPix: 'E12345678202601200018',
   },
   {
-    id: 'R-2026-0005',
-    loja: 'Loja Norte',
-    lojaCodigo: 'LN-02',
-    cliente: 'Pedro Martins',
-    valor: 998.75,
-    metodo: 'cartao',
-    data: toIsoDate(yesterday),
-    hora: '16:10',
-    status: 'confirmado',
-  },
-  {
-    id: 'R-2026-0006',
-    loja: 'Loja Leste',
-    lojaCodigo: 'LL-04',
-    cliente: 'Beatriz Lima',
-    valor: 210.0,
+    id: 'R-2026-0017',
+    loja: 'Loja Central',
+    lojaCodigo: 'LC-01',
+    cliente: 'Julia Oliveira',
+    valor: 890.0,
     metodo: 'pix',
     data: toIsoDate(twoDaysAgo),
-    hora: '14:45',
+    hora: '09:20',
     status: 'pago',
+    idTransacaoPix: 'E12345678202601200017',
+  },
+  {
+    id: 'R-2026-0016',
+    loja: 'Loja Leste',
+    lojaCodigo: 'LL-04',
+    cliente: 'Ricardo Alves',
+    valor: 340.75,
+    metodo: 'cartao',
+    data: toIsoDate(twoDaysAgo),
+    hora: '13:50',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200016',
+  },
+  {
+    id: 'R-2026-0015',
+    loja: 'Loja Norte',
+    lojaCodigo: 'LN-02',
+    cliente: 'Amanda Silva',
+    valor: 550.0,
+    metodo: 'pix',
+    data: toIsoDate(twoDaysAgo),
+    hora: '10:30',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200015',
+  },
+  {
+    id: 'R-2026-0014',
+    loja: 'Loja Central',
+    lojaCodigo: 'LC-01',
+    cliente: 'Paulo Santos',
+    valor: 220.0,
+    metodo: 'dinheiro',
+    data: toIsoDate(twoDaysAgo),
+    hora: '15:10',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200014',
+  },
+  {
+    id: 'R-2026-0013',
+    loja: 'Loja Sul',
+    lojaCodigo: 'LS-03',
+    cliente: 'Luciana Ferreira',
+    valor: 780.5,
+    metodo: 'pix',
+    data: toIsoDate(yesterday),
+    hora: '08:45',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200013',
+  },
+  {
+    id: 'R-2026-0012',
+    loja: 'Loja Leste',
+    lojaCodigo: 'LL-04',
+    cliente: 'Eduardo Costa',
+    valor: 490.0,
+    metodo: 'cartao',
+    data: toIsoDate(yesterday),
+    hora: '12:20',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200012',
+  },
+  {
+    id: 'R-2026-0011',
+    loja: 'Loja Norte',
+    lojaCodigo: 'LN-02',
+    cliente: 'Camila Rodrigues',
+    valor: 160.25,
+    metodo: 'dinheiro',
+    data: toIsoDate(yesterday),
+    hora: '17:30',
+    status: 'cancelado',
+    idTransacaoPix: 'E12345678202601200011',
+  },
+  {
+    id: 'R-2026-0010',
+    loja: 'Loja Central',
+    lojaCodigo: 'LC-01',
+    cliente: 'Diego Martins',
+    valor: 920.0,
+    metodo: 'pix',
+    data: toIsoDate(yesterday),
+    hora: '11:00',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200010',
+  },
+  {
+    id: 'R-2026-0009',
+    loja: 'Loja Sul',
+    lojaCodigo: 'LS-03',
+    cliente: 'Tatiana Souza',
+    valor: 380.5,
+    metodo: 'cartao',
+    data: toIsoDate(yesterday),
+    hora: '14:15',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200009',
+  },
+  {
+    id: 'R-2026-0008',
+    loja: 'Loja Leste',
+    lojaCodigo: 'LL-04',
+    cliente: 'Gustavo Lima',
+    valor: 670.0,
+    metodo: 'pix',
+    data: toIsoDate(today),
+    hora: '09:50',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200008',
+  },
+  {
+    id: 'R-2026-0007',
+    loja: 'Loja Norte',
+    lojaCodigo: 'LN-02',
+    cliente: 'Vanessa Santos',
+    valor: 290.75,
+    metodo: 'dinheiro',
+    data: toIsoDate(today),
+    hora: '13:25',
+    status: 'pago',
+    idTransacaoPix: 'E12345678202601200007',
   },
 ]
 
@@ -232,7 +336,7 @@ function matchesDateFilter(
   return true
 }
 
-function FinanceiroRepasses() {
+function HistoricoRepasses() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const getInitialDateFilter = (): DateFilter => {
@@ -297,15 +401,18 @@ function FinanceiroRepasses() {
   const [statusFilter, setStatusFilter] = useState<'todos' | StatusRepasse>(
     getInitialStatusFilter
   )
-  const [repasses, setRepasses] = useState<Repasse[]>(REPASSES_MOCK)
+  const [repasses] = useState<Repasse[]>(REPASSES_HISTORICO_MOCK)
   const [isLoading] = useState(false)
   const [errorMessage] = useState<string | null>(null)
   const [sortKey, setSortKey] = useState<SortKey>('data')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-  const [selectedRepasse, setSelectedRepasse] = useState<Repasse | null>(null)
-  const [showDetalhes, setShowDetalhes] = useState(false)
   const [page, setPage] = useState(getInitialPage)
   const [pageSize, setPageSize] = useState(getInitialPageSize)
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [tempStartDate, setTempStartDate] = useState<string>('')
+  const [tempEndDate, setTempEndDate] = useState<string>('')
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const datePickerRef = useRef<HTMLDivElement>(null)
 
   const lojas = useMemo(
     () =>
@@ -352,12 +459,9 @@ function FinanceiroRepasses() {
       0
     )
 
-    const totalPendente = repassesFiltrados.reduce(
+    const totalCancelado = repassesFiltrados.reduce(
       (acc, repasse) =>
-        repasse.status === 'solicitado' ||
-        repasse.status === 'confirmado'
-          ? acc + repasse.valor
-          : acc,
+        repasse.status === 'cancelado' ? acc + repasse.valor : acc,
       0
     )
 
@@ -366,7 +470,7 @@ function FinanceiroRepasses() {
     return {
       totalSolicitado,
       totalPago,
-      totalPendente,
+      totalCancelado,
       quantidade,
     }
   }, [repassesFiltrados])
@@ -465,6 +569,17 @@ function FinanceiroRepasses() {
     setSearchParams,
   ])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleChangeSort = (key: SortKey) => {
     setSortKey((prevKey) => {
       if (prevKey === key) {
@@ -487,6 +602,123 @@ function FinanceiroRepasses() {
     setStatusFilter('todos')
   }
 
+  const handleQuickFilter = (type: 'hoje' | 'semana' | 'mes' | 'tudo') => {
+    const now = new Date()
+    const startOfDay = new Date(now)
+    startOfDay.setHours(0, 0, 0, 0)
+
+    switch (type) {
+      case 'hoje':
+        setCustomStartDate(toIsoDate(startOfDay))
+        setCustomEndDate(toIsoDate(now))
+        setDateFilter('periodo')
+        setTempStartDate(toIsoDate(startOfDay))
+        setTempEndDate(toIsoDate(now))
+        break
+      case 'semana': {
+        const weekAgo = new Date(startOfDay)
+        weekAgo.setDate(weekAgo.getDate() - 7)
+        setCustomStartDate(toIsoDate(weekAgo))
+        setCustomEndDate(toIsoDate(now))
+        setDateFilter('periodo')
+        setTempStartDate(toIsoDate(weekAgo))
+        setTempEndDate(toIsoDate(now))
+        break
+      }
+      case 'mes': {
+        const monthAgo = new Date(startOfDay)
+        monthAgo.setMonth(monthAgo.getMonth() - 1)
+        setCustomStartDate(toIsoDate(monthAgo))
+        setCustomEndDate(toIsoDate(now))
+        setDateFilter('periodo')
+        setTempStartDate(toIsoDate(monthAgo))
+        setTempEndDate(toIsoDate(now))
+        break
+      }
+      case 'tudo':
+        setCustomStartDate('')
+        setCustomEndDate('')
+        setDateFilter('periodo')
+        setTempStartDate('')
+        setTempEndDate('')
+        break
+    }
+    setShowDatePicker(false)
+  }
+
+  const getDateLabel = () => {
+    if (!customStartDate && !customEndDate) {
+      return 'Tudo'
+    }
+    if (customStartDate && customEndDate) {
+      return `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`
+    }
+    if (customStartDate) {
+      return `A partir de ${formatDate(customStartDate)}`
+    }
+    if (customEndDate) {
+      return `Até ${formatDate(customEndDate)}`
+    }
+    return 'Selecionar período'
+  }
+
+  const handleDateClick = (date: Date) => {
+    const isoDate = toIsoDate(date)
+    
+    if (!tempStartDate || (tempStartDate && tempEndDate)) {
+      // Primeira data ou resetar seleção
+      setTempStartDate(isoDate)
+      setTempEndDate('')
+    } else {
+      // Segunda data
+      const start = parseIsoToDate(tempStartDate)
+      const end = date
+      
+      if (start && end < start) {
+        // Se a segunda data for antes da primeira, inverte
+        setTempStartDate(isoDate)
+        setTempEndDate(tempStartDate)
+      } else {
+        setTempEndDate(isoDate)
+      }
+    }
+  }
+
+  const applyDateFilter = () => {
+    setCustomStartDate(tempStartDate)
+    setCustomEndDate(tempEndDate)
+    setDateFilter('periodo')
+    setShowDatePicker(false)
+  }
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
+    
+    return { daysInMonth, startingDayOfWeek, year, month }
+  }
+
+  const isDateInRange = (date: Date) => {
+    if (!tempStartDate || !tempEndDate) return false
+    const start = parseIsoToDate(tempStartDate)
+    const end = parseIsoToDate(tempEndDate)
+    if (!start || !end) return false
+    return date >= start && date <= end
+  }
+
+  const isDateSelected = (date: Date) => {
+    const isoDate = toIsoDate(date)
+    return isoDate === tempStartDate || isoDate === tempEndDate
+  }
+
+  const changeMonth = (offset: number) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1))
+  }
+
   const handleExportarCsv = () => {
     if (totalRegistros === 0) {
       return
@@ -497,6 +729,7 @@ function FinanceiroRepasses() {
       'Código da loja',
       'Cliente',
       'ID do repasse',
+      'ID Transação PIX',
       'Valor',
       'Método',
       'Data',
@@ -509,6 +742,7 @@ function FinanceiroRepasses() {
       repasse.lojaCodigo ?? '',
       repasse.cliente,
       repasse.id,
+      repasse.idTransacaoPix ?? '',
       repasse.valor.toFixed(2).replace('.', ','),
       repasse.metodo,
       formatDate(repasse.data),
@@ -539,50 +773,10 @@ function FinanceiroRepasses() {
 
     const link = document.createElement('a')
     link.href = url
-    link.download = 'repasses.csv'
+    link.download = 'historico-repasses.csv'
     link.click()
 
     URL.revokeObjectURL(url)
-  }
-
-  const handleConfirmarRepasse = (id: string) => {
-    const confirmed = window.confirm(
-      'Deseja realmente confirmar este repasse?'
-    )
-    if (!confirmed) return
-
-    setRepasses((prev) =>
-      prev.map((repasse) =>
-        repasse.id === id && repasse.status === 'solicitado'
-          ? { ...repasse, status: 'confirmado' }
-          : repasse
-      )
-    )
-  }
-
-  const handleMarcarComoPago = (id: string) => {
-    const confirmed = window.confirm(
-      'Deseja marcar este repasse como pago?'
-    )
-    if (!confirmed) return
-
-    setRepasses((prev) =>
-      prev.map((repasse) =>
-        repasse.id === id && repasse.status === 'confirmado'
-          ? { ...repasse, status: 'pago' }
-          : repasse
-      )
-    )
-  }
-
-  const handleVerDetalhes = (repasse: Repasse) => {
-    setSelectedRepasse(repasse)
-    setShowDetalhes(true)
-  }
-
-  const handleFecharDetalhes = () => {
-    setShowDetalhes(false)
-    setSelectedRepasse(null)
   }
 
   return (
@@ -590,28 +784,167 @@ function FinanceiroRepasses() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[color:var(--text-primary)]">
-            Financeiro – Repasses Diários
+            Financeiro – Histórico de Repasses
           </h1>
           <p className="mt-1 text-[20px] leading-[24px] text-[color:var(--text-primary)]">
-            Controle de repasses solicitados pelas lojas
+            Histórico completo de todos os repasses realizados
           </p>
-        </div>
-
+          </div>
+          
         <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
-          <div className="relative">
-            <select
-              value={dateFilter}
-              onChange={(event) =>
-                setDateFilter(event.target.value as DateFilter)
-              }
-              className="appearance-none rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-8 pl-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+          <div className="relative" ref={datePickerRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDatePicker(!showDatePicker)
+                if (!showDatePicker) {
+                  setTempStartDate(customStartDate)
+                  setTempEndDate(customEndDate)
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
             >
-              <option value="hoje">Hoje</option>
-              <option value="ontem">Ontem</option>
-            </select>
-            <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
-              ▼
-            </span>
+              <CalendarBlank size={16} weight="bold" />
+              <span>{getDateLabel()}</span>
+              <CaretDown size={12} weight="bold" className={`transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showDatePicker && (
+              <div className="absolute top-full right-0 mt-2 w-80 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-xl shadow-xl z-50 p-4">
+                <div className="mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
+                    Filtros Rápidos
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFilter('hoje')}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                    >
+                      Hoje
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFilter('semana')}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                    >
+                      Última semana
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFilter('mes')}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                    >
+                      Último mês
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFilter('tudo')}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                    >
+                      Tudo
+                    </button>
+                  </div>
+        </div>
+        
+                <div className="border-t border-[color:var(--border)] pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <button
+                      type="button"
+                      onClick={() => changeMonth(-1)}
+                      className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                    >
+                      ←
+                    </button>
+                    <p className="text-xs font-semibold text-[color:var(--text-primary)]">
+                      {currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => changeMonth(1)}
+                      className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                    >
+                      →
+                    </button>
+          </div>
+          
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+                      <div key={day} className="text-center text-[0.65rem] font-medium text-[color:var(--text-secondary)] py-1">
+                        {day}
+                </div>
+                    ))}
+             </div>
+
+                  <div className="grid grid-cols-7 gap-1">
+                    {(() => {
+                      const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth)
+                      const days = []
+                      
+                      for (let i = 0; i < startingDayOfWeek; i++) {
+                        days.push(<div key={`empty-${i}`} />)
+                      }
+                      
+                      for (let day = 1; day <= daysInMonth; day++) {
+                        const date = new Date(year, month, day)
+                        const isSelected = isDateSelected(date)
+                        const isInRange = isDateInRange(date)
+                        const isToday = isSameDay(date, new Date())
+                        
+                        days.push(
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => handleDateClick(date)}
+                            className={`
+                              aspect-square text-xs rounded-lg transition-colors
+                              ${isSelected 
+                                ? 'bg-[color:var(--primary-100)] text-white font-bold' 
+                                : isInRange 
+                                ? 'bg-[color:var(--primary-100)]/20 text-[color:var(--text-primary)]'
+                                : 'hover:bg-[color:var(--bg-hover)] text-[color:var(--text-primary)]'
+                              }
+                              ${isToday && !isSelected ? 'ring-1 ring-[color:var(--primary-100)]' : ''}
+                            `}
+                          >
+                            {day}
+                          </button>
+                        )
+                      }
+                      
+                      return days
+                    })()}
+          </div>
+          
+                  {tempStartDate && (
+                    <div className="mt-3 text-xs text-[color:var(--text-secondary)] text-center">
+                      {tempStartDate && !tempEndDate && 'Selecione a data final'}
+                      {tempStartDate && tempEndDate && `${formatDate(tempStartDate)} - ${formatDate(tempEndDate)}`}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-[color:var(--border)] mt-4 pt-3 flex justify-between gap-2">
+            <button 
+              type="button"
+                    onClick={() => {
+                      setTempStartDate('')
+                      setTempEndDate('')
+                    }}
+                    className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                  >
+                    Limpar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyDateFilter}
+                    className="px-4 py-2 text-xs font-medium rounded-lg bg-[color:var(--primary-100)] text-white hover:opacity-90 transition-opacity"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="relative">
@@ -629,8 +962,8 @@ function FinanceiroRepasses() {
             </select>
             <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
               ▼
-            </span>
-          </div>
+                 </span>
+               </div>
 
           <div className="relative">
             <select
@@ -645,19 +978,19 @@ function FinanceiroRepasses() {
               <option value="confirmado">Confirmado</option>
               <option value="pago">Pago</option>
               <option value="cancelado">Cancelado</option>
-            </select>
+             </select>
             <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
               ▼
             </span>
-          </div>
+      </div>
 
-          <button
-            type="button"
+            <button 
+              type="button"
             onClick={handleResetarFiltros}
             className="hidden sm:inline-flex items-center rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
           >
             Limpar filtros
-          </button>
+            </button>
           <button
             type="button"
             onClick={handleExportarCsv}
@@ -665,9 +998,9 @@ function FinanceiroRepasses() {
           >
             <FileCsv size={16} className="text-[color:var(--text-primary)]" />
             <span>Exportar</span>
-          </button>
-        </div>
-      </div>
+                   </button>
+                </div>
+              </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
@@ -678,8 +1011,8 @@ function FinanceiroRepasses() {
                 className="text-[color:var(--text-primary)]"
               />
             </span>
-            <span>Total solicitado (período)</span>
-          </div>
+            <span>Total (período)</span>
+                </div>
           <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
             {formatCurrency(resumo.totalSolicitado)}
           </p>
@@ -698,14 +1031,14 @@ function FinanceiroRepasses() {
               />
             </span>
             <span>Total pago</span>
-          </div>
+                </div>
           <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
             {formatCurrency(resumo.totalPago)}
           </p>
           <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Repasses com status Pago
           </p>
-        </div>
+                </div>
 
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
@@ -713,18 +1046,18 @@ function FinanceiroRepasses() {
               <Clock
                 size={16}
                 weight="bold"
-                className="text-amber-500"
+                className="text-rose-500"
               />
             </span>
-            <span>Total pendente</span>
-          </div>
-          <p className="mt-2 text-xl font-semibold text-amber-700 dark:text-amber-300">
-            {formatCurrency(resumo.totalPendente)}
+            <span>Total cancelado</span>
+              </div>
+          <p className="mt-2 text-xl font-semibold text-rose-700 dark:text-rose-300">
+            {formatCurrency(resumo.totalCancelado)}
           </p>
           <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
-            Status Solicitado ou Confirmado
+            Status Cancelado
           </p>
-        </div>
+          </div>
 
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
@@ -736,21 +1069,21 @@ function FinanceiroRepasses() {
               />
             </span>
             <span>Quantidade de repasses</span>
-          </div>
+        </div>
           <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
             {resumo.quantidade}
           </p>
           <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Registros exibidos na tabela
           </p>
-        </div>
       </div>
+        </div>
 
       <div className="mt-8 overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-sm">
         {errorMessage && (
           <div className="border-b border-[color:var(--border)] bg-[color:var(--surface-nav)] px-4 py-3 text-xs font-medium text-[color:var(--danger)]">
             {errorMessage}
-          </div>
+                          </div>
         )}
         <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)]">
           <p>
@@ -766,43 +1099,55 @@ function FinanceiroRepasses() {
           {isLoading ? (
             <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
               Carregando repasses...
-            </div>
+                  </div>
           ) : totalRegistros === 0 ? (
             <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
               Nenhum repasse encontrado para os filtros selecionados
-            </div>
+                </div>
           ) : (
             <div className="space-y-3 px-4 py-3">
               {repassesPaginados.map((repasse) => {
                 const statusCfg = getStatusConfig(repasse.status)
                 const metodoCfg = metodoConfig[repasse.metodo]
-                const podeConfirmar = repasse.status === 'solicitado'
-                const podeMarcarPago = repasse.status === 'confirmado'
 
                 return (
                   <div
                     key={repasse.id}
                     className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] p-3 text-xs"
                   >
+                    <div className="mb-2 pb-2 border-b border-[color:var(--border)]">
+                      <p className="text-[0.65rem] uppercase tracking-wide text-[color:var(--text-secondary)] mb-1">
+                        ID Transação
+                      </p>
+                      <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                        {repasse.id}
+                      </p>
+                      {repasse.idTransacaoPix && (
+                        <p className="text-[0.6rem] text-[color:var(--text-secondary)] mt-0.5">
+                          PIX: {repasse.idTransacaoPix}
+                        </p>
+                      )}
+                   </div>
+                   
                     <div className="flex items-start justify-between gap-2">
-                      <div>
+                       <div>
                         <p className="text-sm font-semibold text-[color:var(--text-primary)]">
                           {repasse.loja}
                         </p>
                         <p className="text-[0.7rem] text-[color:var(--text-primary)]">
-                          {repasse.lojaCodigo ?? repasse.id}
+                          {repasse.cliente}
                         </p>
-                      </div>
-                      <div className="text-right">
+                          </div>
+                       <div className="text-right">
                         <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                           {formatCurrency(repasse.valor)}
                         </p>
                         <p className="text-[0.7rem] text-[color:var(--text-primary)]">
                           {formatDate(repasse.data)} • {repasse.hora}
                         </p>
-                      </div>
-                    </div>
-
+                       </div>
+                   </div>
+                       
                     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                       <div
                         className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.7rem] font-medium ${metodoCfg.className}`}
@@ -811,55 +1156,29 @@ function FinanceiroRepasses() {
                           {metodoCfg.icon}
                         </span>
                         <span>{metodoCfg.label}</span>
-                      </div>
+                </div>
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[0.7rem] font-semibold ${statusCfg.className}`}
                       >
                         {statusCfg.label}
                       </span>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleVerDetalhes(repasse)}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-[0.7rem] font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-                      >
-                        <Eye size={14} className="text-[color:var(--text-primary)]" />
-                        <span>Ver detalhes</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleConfirmarRepasse(repasse.id)}
-                        disabled={!podeConfirmar}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--chip-text)] hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
-                      >
-                        <CheckCircle size={14} weight="bold" />
-                        <span>Confirmar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleMarcarComoPago(repasse.id)}
-                        disabled={!podeMarcarPago}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--chip-text)] hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
-                      >
-                        <CurrencyDollarSimple size={14} weight="bold" />
-                        <span>Marcar como pago</span>
-                      </button>
-                    </div>
-                  </div>
+              </div>
+                </div>
                 )
               })}
-            </div>
+             </div>
           )}
         </div>
-
+        
         <div className="hidden sm:block overflow-x-auto">
           <table className="min-w-full divide-y divide-[color:var(--border)] text-sm">
             <thead className="bg-[color:var(--surface-nav)]">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
-                  <button
+                  ID Transação
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                <button
                     type="button"
                     onClick={() => handleChangeSort('loja')}
                     className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
@@ -868,10 +1187,10 @@ function FinanceiroRepasses() {
                     {sortKey === 'loja' && (
                       <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                     )}
-                  </button>
+                </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
-                  <button
+                     <button
                     type="button"
                     onClick={() => handleChangeSort('cliente')}
                     className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
@@ -880,7 +1199,7 @@ function FinanceiroRepasses() {
                     {sortKey === 'cliente' && (
                       <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                     )}
-                  </button>
+                     </button>
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   <button
@@ -898,7 +1217,7 @@ function FinanceiroRepasses() {
                   Método de repasse
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
-                  <button
+                <button
                     type="button"
                     onClick={() => handleChangeSort('data')}
                     className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
@@ -907,13 +1226,13 @@ function FinanceiroRepasses() {
                     {sortKey === 'data' && (
                       <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                     )}
-                  </button>
+                </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                   Hora
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-                  <button
+                     <button
                     type="button"
                     onClick={() => handleChangeSort('status')}
                     className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
@@ -922,10 +1241,7 @@ function FinanceiroRepasses() {
                     {sortKey === 'status' && (
                       <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                     )}
-                  </button>
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
-                  Ações
+                     </button>
                 </th>
               </tr>
             </thead>
@@ -952,8 +1268,6 @@ function FinanceiroRepasses() {
                 repassesPaginados.map((repasse) => {
                   const statusCfg = getStatusConfig(repasse.status)
                   const metodoCfg = metodoConfig[repasse.metodo]
-                  const podeConfirmar = repasse.status === 'solicitado'
-                  const podeMarcarPago = repasse.status === 'confirmado'
 
                   return (
                     <tr
@@ -961,19 +1275,26 @@ function FinanceiroRepasses() {
                       className="hover:bg-[color:var(--bg-hover)] transition-colors"
                     >
                       <td className="whitespace-nowrap px-4 py-3 align-top">
+                        <div className="text-sm font-semibold text-[color:var(--text-primary)]">
+                          {repasse.id}
+                        </div>
+                        {repasse.idTransacaoPix && (
+                          <div className="text-[0.65rem] text-[color:var(--text-secondary)] mt-0.5">
+                            PIX: {repasse.idTransacaoPix}
+                          </div>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
                         <div className="text-sm font-medium text-[color:var(--text-primary)]">
                           {repasse.loja}
                         </div>
                         <div className="text-xs text-[color:var(--text-primary)]">
-                          {repasse.lojaCodigo ?? repasse.id}
+                          {repasse.lojaCodigo}
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 align-top">
                         <div className="text-sm text-[color:var(--text-primary)]">
                           {repasse.cliente}
-                        </div>
-                        <div className="text-xs text-[color:var(--text-primary)]">
-                          {repasse.id}
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right align-top">
@@ -987,9 +1308,9 @@ function FinanceiroRepasses() {
                         >
                           <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/30 text-[0.65rem]">
                             {metodoCfg.icon}
-                          </span>
+                   </span>
                           <span>{metodoCfg.label}</span>
-                        </div>
+                </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 align-top text-sm text-[color:var(--text-primary)]">
                         {formatDate(repasse.data)}
@@ -1003,36 +1324,6 @@ function FinanceiroRepasses() {
                         >
                           {statusCfg.label}
                         </span>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 align-top text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleVerDetalhes(repasse)}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-                          >
-                            <Eye size={14} className="text-[color:var(--text-primary)]" />
-                            <span>Ver detalhes</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleConfirmarRepasse(repasse.id)}
-                            disabled={!podeConfirmar}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-[color:var(--chip-text)] hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60"
-                          >
-                            <CheckCircle size={14} weight="bold" />
-                            <span>Confirmar</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMarcarComoPago(repasse.id)}
-                            disabled={!podeMarcarPago}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-[color:var(--chip-text)] hover:bg-emerald-500/25 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
-                          >
-                            <CurrencyDollarSimple size={14} weight="bold" />
-                            <span>Marcar como pago</span>
-                          </button>
-                        </div>
                       </td>
                     </tr>
                   )
@@ -1060,7 +1351,7 @@ function FinanceiroRepasses() {
                   </select>
                   <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
                     ▼
-                  </span>
+                   </span>
                 </div>
               </div>
               <div className="flex items-center justify-between gap-3 sm:justify-end">
@@ -1068,7 +1359,7 @@ function FinanceiroRepasses() {
                   Página {paginaAtualCorrigida} de {totalPaginas}
                 </p>
                 <div className="flex items-center gap-2">
-                  <button
+                <button
                     type="button"
                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                     disabled={paginaAtualCorrigida === 1}
@@ -1076,7 +1367,7 @@ function FinanceiroRepasses() {
                   >
                     Anterior
                   </button>
-                  <button
+                <button
                     type="button"
                     onClick={() =>
                       setPage((prev) => Math.min(totalPaginas, prev + 1))
@@ -1085,186 +1376,15 @@ function FinanceiroRepasses() {
                     className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
                   >
                     Próxima
-                  </button>
+                </button>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      {showDetalhes && selectedRepasse && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl">
-            <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
-                  Detalhes do repasse
-                </p>
-                <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                  {selectedRepasse.id}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleFecharDetalhes}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--surface-nav)] text-[color:var(--text-muted)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-              >
-                ×
-              </button>
-            </div>
-            <div className="space-y-4 px-4 py-4 text-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Storefront
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Loja</span>
-                    </span>
-                  </p>
-                  <p className="mt-1 font-medium text-[color:var(--text-primary)]">
-                    {selectedRepasse.loja}
-                  </p>
-                  <p className="text-xs text-[color:var(--text-soft)]">
-                    {selectedRepasse.lojaCodigo ?? selectedRepasse.id}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <CurrencyDollarSimple
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Valor</span>
-                    </span>
-                  </p>
-                  <p className="mt-1 text-base font-semibold text-emerald-300">
-                    {formatCurrency(selectedRepasse.valor)}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <UserCircle
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Cliente</span>
-                    </span>
-                  </p>
-                  <p className="mt-1 font-medium text-[color:var(--text-primary)]">
-                    {selectedRepasse.cliente}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Data e hora</span>
-                    </span>
-                  </p>
-                  <p className="mt-1 text-[color:var(--text-primary)]">
-                    {formatDate(selectedRepasse.data)} às {selectedRepasse.hora}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <ArrowsLeftRight
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Método de repasse</span>
-                    </span>
-                  </p>
-                  {(() => {
-                    const metodoCfg = metodoConfig[selectedRepasse.metodo]
-                    return (
-                      <div
-                        className={`mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${metodoCfg.className}`}
-                      >
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/30 text-[0.65rem]">
-                          {metodoCfg.icon}
-                        </span>
-                        <span>{metodoCfg.label}</span>
-                      </div>
-                    )
-                  })()}
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-[color:var(--text-muted)]">
-                    <span className="inline-flex items-center gap-1.5">
-                      <CheckCircle
-                        size={12}
-                        className="text-[color:var(--text-muted)]"
-                      />
-                      <span>Status atual</span>
-                    </span>
-                  </p>
-                  {(() => {
-                    const statusCfg = getStatusConfig(selectedRepasse.status)
-                    return (
-                      <span
-                        className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusCfg.className}`}
-                      >
-                        {statusCfg.label}
-                      </span>
-                    )
-                  })()}
-                </div>
-              </div>
-              <div className="mt-2 rounded-lg bg-[color:var(--surface-nav)] px-3 py-2 text-xs text-[color:var(--text-soft)]">
-                <p className="font-medium text-[color:var(--text-muted)]">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ClipboardText
-                      size={12}
-                      className="text-[color:var(--text-muted)]"
-                    />
-                    <span>Linha do tempo do status</span>
-                  </span>
-                </p>
-                <div className="mt-2 flex flex-col gap-1">
-                  <span>
-                    • Solicitado
-                    {selectedRepasse.status === 'solicitado' && ' (atual)'}
-                  </span>
-                  <span>
-                    • Confirmado
-                    {selectedRepasse.status === 'confirmado' && ' (atual)'}
-                    {selectedRepasse.status === 'pago' && ' (já passou)'}
-                  </span>
-                  <span>
-                    • Pago
-                    {selectedRepasse.status === 'pago' && ' (atual)'}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 border-t border-[color:var(--border)] px-4 py-3">
-              <button
-                type="button"
-                onClick={handleFecharDetalhes}
-                className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
-              >
-                Fechar
-              </button>
-            </div>
+             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    </div>
     </div>
   )
 }
 
-export default FinanceiroRepasses
-
+export default HistoricoRepasses
