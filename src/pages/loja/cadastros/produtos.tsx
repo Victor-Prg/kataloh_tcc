@@ -6,8 +6,7 @@ import {
   Image as ImageIcon, 
   X,
   Package,
-  List,
-  AlertTriangle
+  List
 } from 'lucide-react'
 import { 
   Input, 
