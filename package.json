@@ -12,12 +12,9 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
-<<<<<<< HEAD
     "lucide-react": "^0.562.0",
-=======
     "flowbite": "^4.0.1",
     "flowbite-datepicker": "^2.0.0",
->>>>>>> c0c1581d8060f666e26099cec3750ce98fc20085
     "phosphor-react": "^1.4.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

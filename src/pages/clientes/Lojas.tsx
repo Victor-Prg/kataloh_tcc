@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutGrid, List, Star, Clock, MapPin } from 'lucide-react';
+import { LayoutGrid, List, Star, Clock } from 'lucide-react';
 
 // Tipagem básica
 interface Store {
@@ -20,6 +20,8 @@ const MOCK_STORES: Store[] = [
   { id: 4, name: "Açaí do Bom", category: "Sobremesa", rating: 4.9, time: "15-25 min", image: "https://placehold.co/100x100/purple/white?text=AB" },
   { id: 5, name: "McDonalds", category: "Lanches", rating: 4.7, time: "20-30 min", image: "https://placehold.co/100x100/red/white?text=MC" },
   { id: 6, name: "Subway", category: "Lanches", rating: 4.6, time: "15-25 min", image: "https://placehold.co/100x100/green/white?text=SUB" },
+  { id: 7, name: "Coco Bambu", category: "Frutos do Mar", rating: 4.8, time: "50-60 min", image: "https://placehold.co/100x100/brown/white?text=CB" },
+  { id: 8, name: "Habibs", category: "Árabe", rating: 4.3, time: "20-30 min", image: "https://placehold.co/100x100/red/white?text=HB" },
 ];
 
 export const Lojas = () => {
@@ -27,10 +29,13 @@ export const Lojas = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[var(--bg-body)]">
+    <div className="flex flex-col w-full h-full overflow-hidden bg-[var(--bg-body)]">
       
-      {/* BARRA SUPERIOR (CABEÇALHO) */}
-      <div className="w-full bg-[var(--surface)] border-b border-[var(--border)] px-4 md:px-6 py-4 shadow-sm sticky top-0 z-20">
+      {/* BARRA SUPERIOR (CABEÇALHO) 
+          Alteração: Mudei de 'bg-[var(--surface)]' para 'bg-[var(--bg-body)]'
+          Mantive a borda ('border-b') para separar visualmente do conteúdo de forma sutil.
+      */}
+      <div className="w-full bg-[var(--bg-body)] border-b border-[var(--border)] px-4 md:px-6 py-4 shrink-0 z-20">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">Lojas Disponíveis</h1>
           
@@ -59,16 +64,11 @@ export const Lojas = () => {
         </div>
       </div>
 
-      {/* CONTEÚDO (CARDS) */}
-      <div className="flex-1 w-full p-4 md:p-6">
+      {/* CONTEÚDO (CARDS) - Scroll apenas aqui dentro */}
+      <div className="flex-1 w-full overflow-y-auto p-4 md:p-6">
         <div className={`
-          max-w-7xl mx-auto
+          max-w-7xl mx-auto pb-4
           ${viewMode === 'grid' 
-            // AQUI ESTÁ A MUDANÇA:
-            // grid-cols-2: Define 2 colunas como padrão (Mobile)
-            // sm:grid-cols-3: A partir de tablets, vira 3 colunas
-            // gap-3: Espaçamento menor no mobile para caber melhor
-            // md:gap-6: Espaçamento normal no desktop
             ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6' 
             : 'flex flex-col gap-4' 
           }
@@ -83,7 +83,6 @@ export const Lojas = () => {
               `}
             >
               {/* Imagem */}
-              {/* h-32 no mobile (menor) e md:h-40 no desktop */}
               <div className={`${viewMode === 'list' ? 'w-24 h-24 mr-4' : 'w-full h-32 md:h-40'} flex-shrink-0 relative overflow-hidden`}>
                 <img 
                   src={store.image} 
@@ -93,7 +92,6 @@ export const Lojas = () => {
               </div>
 
               {/* Textos */}
-              {/* p-3 no mobile (mais compacto) e md:p-4 no desktop */}
               <div className={`flex flex-col ${viewMode === 'grid' ? 'p-3 md:p-4' : 'flex-1'}`}>
                 <div className="flex justify-between items-start gap-1">
                   <h3 className="font-bold text-sm md:text-lg text-[var(--text-primary)] truncate">{store.name}</h3>

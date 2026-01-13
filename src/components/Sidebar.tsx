@@ -10,7 +10,8 @@ import {
   CubeIcon,
   TruckIcon,
   ArrowPathIcon,
-  ClockIcon
+  ClockIcon,
+  UserIcon 
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg'
@@ -27,12 +28,16 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { name: 'Início', href: '/dashboard', icon: HomeIcon },
+  
+  // --- NOVA OPÇÃO CLIENTE (Ajustada para a rota /clientes) ---
+  { name: 'Cliente', href: '/clientes', icon: UserIcon }, 
+  
   {
     name: 'Loja',
     icon: ShoppingBagIcon,
     current: false,
     children: [
-      { name: 'Listagem', href: '/cliente/lojas', icon: ListBulletIcon },
+      { name: 'Listagem', href: '/lojas/listagem', icon: ListBulletIcon }, // Ajustei para não conflitar com a rota de clientes
       { 
         name: 'Cadastro', 
         icon: PencilSquareIcon, 
@@ -50,7 +55,6 @@ const navigation: NavigationItem[] = [
     children: [
       { name: 'Tesouraria', href: '/financeiro/tesouraria', icon: BanknotesIcon },
       { name: 'Repasses', href: '/financeiro/repasses', icon: ArrowPathIcon },
-      // Link Real do Histórico
       { name: 'Histórico', href: '/financeiro/historico', icon: ClockIcon }, 
     ],
   },
@@ -72,8 +76,11 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
   const paddingLeftClass = depth === 0 ? 'px-2' : depth === 1 ? 'pl-9 pr-2' : 'pl-14 pr-2'
   
   // Lógica para determinar se é link real e se está ativo
+  // Verifica se a rota atual começa com o href do item (para manter ativo em sub-rotas como /clientes/1)
   const isRealLink = item.href && item.href !== '#';
-  const isActive = isRealLink ? location.pathname === item.href : false;
+  const isActive = isRealLink 
+    ? location.pathname === item.href || (item.href !== '/dashboard' && location.pathname.startsWith(item.href!))
+    : false;
 
   const ButtonContent = () => (
     <>
