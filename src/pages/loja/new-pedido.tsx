@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Card, Text, Button, Input, Badge } from '../../components'
 import { Search, Plus, Minus, X, ShoppingCart, Trash2, StickyNote } from 'lucide-react'
-import exemploImagem from '../../assets/exemplo.png'
 
 type Produto = {
   id: string
@@ -282,7 +280,7 @@ export default function NewPedido() {
               >
                 <div className="relative h-40 mb-3 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
                   <img
-                    src={exemploImagem}
+                    src={`https://placehold.co/400x300/ea580c/ffffff?text=${encodeURIComponent(produto.nome)}`}
                     alt={produto.nome}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
@@ -454,7 +452,7 @@ export default function NewPedido() {
 
             <div className="h-48 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
               <img
-                src={exemploImagem}
+                src={`https://placehold.co/400x300/ea580c/ffffff?text=${encodeURIComponent(produtoSelecionado.nome)}`}
                 alt={produtoSelecionado.nome}
                 className="w-full h-full object-cover"
               />
