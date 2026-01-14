@@ -16,7 +16,10 @@ import {
   Cog6ToothIcon,
   BuildingStorefrontIcon,
   DocumentTextIcon,
-  QueueListIcon
+  QueueListIcon,
+  MapIcon,
+  ChartBarIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg'
@@ -66,6 +69,20 @@ const navigation: NavigationItem[] = [
     current: false,
     children: [
       { name: 'Lojas Disponíveis', href: '/cliente/lojas', icon: ShoppingBagIcon },
+    ],
+  },
+
+  // --- DELIVERY ---
+  {
+    name: 'Delivery',
+    icon: TruckIcon,
+    current: false,
+    children: [
+      { name: 'Dashboard', href: '/delivery/dashboard', icon: ChartBarIcon },
+      { name: 'Lojas', href: '/delivery/lojas', icon: BuildingStorefrontIcon },
+      { name: 'Entregadores', href: '/delivery/entregadores', icon: UserGroupIcon },
+      { name: 'Histórico', href: '/delivery/historico', icon: ClockIcon },
+      { name: 'Pedidos', href: '/delivery/orders', icon: MapIcon },
     ],
   },
   

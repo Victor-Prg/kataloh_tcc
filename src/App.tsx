@@ -24,6 +24,13 @@ import MenuCadastro from './pages/loja/cadastros/menu';
 import ProdutosCadastro from './pages/loja/cadastros/produtos';
 import EntregadoresCadastro from './pages/loja/cadastros/entregadores';
 
+// Delivery
+import DeliveryDashboard from './pages/delivery/dashboard';
+import DeliveryLojas from './pages/delivery/lojas';
+import DeliveryEntregadores from './pages/delivery/entregadores';
+import DeliveryHistorico from './pages/delivery/historico';
+import DeliveryOrders from './pages/delivery/orders';
+
 // --- IMPORTAÇÕES DE CLIENTES ---
 // Verifique se o caminho da pasta é 'clientes' (plural) mesmo
 
@@ -49,6 +56,13 @@ function App() {
               {/* Cliente */}
               <Route path="/cliente/lojas" element={<Lojas />} />
               <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
+              
+              {/* Delivery */}
+              <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
+              <Route path="/delivery/lojas" element={<DeliveryLojas />} />
+              <Route path="/delivery/entregadores" element={<DeliveryEntregadores />} />
+              <Route path="/delivery/historico" element={<DeliveryHistorico />} />
+              <Route path="/delivery/orders" element={<DeliveryOrders />} />
               
               {/* Loja */}
               <Route path="/loja/dashboard" element={<LojaDashboard />} />
