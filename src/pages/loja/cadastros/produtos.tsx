@@ -7,7 +7,6 @@ import {
   X,
   Package,
   List,
-  AlertTriangle
 } from 'lucide-react'
 import { 
   Input, 
