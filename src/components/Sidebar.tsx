@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
@@ -98,9 +99,19 @@ type SidebarItemProps = {
   item: NavigationItem
   collapsed: boolean
   depth?: number
+  onToggle?: () => void
+  onCollapsedItemClick?: (item: NavigationItem) => void
+  autoOpenItemName?: string | null
 }
 
-const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
+const SidebarItem = ({
+  item,
+  collapsed,
+  depth = 0,
+  onToggle,
+  onCollapsedItemClick,
+  autoOpenItemName,
+}: SidebarItemProps) => {
   const location = useLocation();
   const paddingLeftClass = depth === 0 ? 'px-2' : depth === 1 ? 'pl-9 pr-2' : 'pl-14 pr-2'
   
@@ -126,7 +137,6 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
     </>
   );
 
-  // CASO 1: ITEM SIMPLES (SEM FILHOS)
   if (!item.children || collapsed) {
     const commonClasses = classNames(
       isActive
@@ -135,6 +145,19 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
       'group flex gap-x-3 rounded-md py-2 text-sm font-semibold leading-6 transition-all cursor-pointer',
       collapsed ? 'justify-center px-0 w-full' : paddingLeftClass
     );
+
+    if (collapsed && onCollapsedItemClick) {
+      return (
+        <button
+          type="button"
+          onClick={() => onCollapsedItemClick(item)}
+          className={commonClasses}
+          title={item.name}
+        >
+          <ButtonContent />
+        </button>
+      );
+    }
 
     if (isRealLink) {
       return (
@@ -156,9 +179,8 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
     );
   }
 
-  // CASO 2: ITEM COM FILHOS (ACCORDION)
   return (
-    <Disclosure as="div" className="w-full">
+    <Disclosure as="div" className="w-full" defaultOpen={item.name === autoOpenItemName}>
       {({ open }) => (
         <>
           <DisclosureButton
@@ -186,7 +208,14 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
           <DisclosurePanel as="ul" className="mt-1 space-y-1">
             {item.children!.map((subItem) => (
               <li key={subItem.name}>
-                <SidebarItem item={subItem} collapsed={collapsed} depth={depth + 1} />
+                <SidebarItem
+                  item={subItem}
+                  collapsed={collapsed}
+                  depth={depth + 1}
+                  onToggle={onToggle}
+                  onCollapsedItemClick={onCollapsedItemClick}
+                  autoOpenItemName={autoOpenItemName}
+                />
               </li>
             ))}
           </DisclosurePanel>
@@ -204,6 +233,25 @@ type SidebarProps = {
 
 export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const navigate = useNavigate()
+  const [autoOpenItemName, setAutoOpenItemName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (collapsed) {
+      setAutoOpenItemName(null)
+    }
+  }, [collapsed])
+
+  const handleCollapsedItemClick = (item: NavigationItem) => {
+    if (item.children && item.children.length > 0) {
+      setAutoOpenItemName(item.name)
+    } else {
+      setAutoOpenItemName(null)
+    }
+
+    if (onToggle) {
+      onToggle()
+    }
+  }
 
   return (
     <div
@@ -216,7 +264,7 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       <div
         className={classNames(
           'relative flex shrink-0 transition-all duration-300 w-full',
-          collapsed ? 'flex-col items-center pt-4 gap-6' : 'h-16 items-center justify-between'
+          collapsed ? 'h-16 items-center justify-center' : 'h-16 items-center justify-between'
         )}
       >
         <div className="flex items-center justify-center">
@@ -256,26 +304,19 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
           )}
         </div>
 
-        {onToggle && (
-          <button
-            type="button"
-            onClick={onToggle}
-            className={classNames(
-              'flex items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-primary)] hover:bg-[color:var(--primary-50)] transition-all z-10',
-              collapsed ? 'h-8 w-8 text-[10px]' : 'h-8 w-8 text-xs'
-            )}
-          >
-            {collapsed ? <ChevronRightIcon className="h-4 w-4" /> : <span className="font-bold">{'<'}</span>}
-          </button>
-        )}
       </div>
 
-      {/* NAV */}
       <nav className={classNames("flex flex-1 flex-col w-full overflow-y-auto overflow-x-hidden no-scrollbar", collapsed ? "mt-4" : "mt-8")}>
         <ul role="list" className="flex flex-1 flex-col gap-y-1">
           {navigation.map((item) => (
             <li key={item.name}>
-              <SidebarItem item={item} collapsed={Boolean(collapsed)} />
+              <SidebarItem
+                item={item}
+                collapsed={Boolean(collapsed)}
+                onToggle={onToggle}
+                onCollapsedItemClick={handleCollapsedItemClick}
+                autoOpenItemName={autoOpenItemName}
+              />
             </li>
           ))}
         </ul>

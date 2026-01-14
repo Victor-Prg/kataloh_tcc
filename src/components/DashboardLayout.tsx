@@ -98,12 +98,24 @@ export default function DashboardLayout() {
     }
   };
 
+  const handleCloseSidebar = () => {
+    if (!isCollapsed) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const handleToggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
+
   return (
     <div className="flex h-screen bg-[var(--bg-body)] text-[color:var(--text-primary)] overflow-hidden transition-colors duration-300">
       
-      {/* SIDEBAR DESKTOP */}
-      <aside className={`hidden md:flex flex-col border-r border-[color:var(--border)] bg-[color:var(--surface-nav)] transition-all duration-300 ease-in-out ${isCollapsed ? 'w-[4.5rem]' : 'w-64'}`}>
-        <Sidebar collapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
+      <aside
+        className={`hidden md:flex flex-col border-r border-[color:var(--border)] bg-[color:var(--surface-nav)] transition-all duration-300 ease-in-out ${isCollapsed ? 'w-[4.5rem]' : 'w-64'}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <Sidebar collapsed={isCollapsed} onToggle={handleToggleSidebar} />
       </aside>
 
       {/* SIDEBAR MOBILE */}
@@ -156,10 +168,16 @@ export default function DashboardLayout() {
         />
       )}
 
-      {/* ÁREA PRINCIPAL */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[color:var(--bg-body)] transition-all duration-300 ease-in-out">
+      <div
+        className="flex-1 flex flex-col min-w-0 bg-[color:var(--bg-body)] transition-all duration-300 ease-in-out"
+        onClick={handleCloseSidebar}
+      >
         <header className="border-b border-[color:var(--border)] sticky top-0 z-10 bg-[color:var(--bg-card)]">
-          <Navbar onOpenMobileMenu={() => setMobileMenuOpen(true)} />
+          <Navbar
+            onOpenMobileMenu={() => setMobileMenuOpen(true)}
+            onToggleSidebar={handleToggleSidebar}
+            isSidebarCollapsed={isCollapsed}
+          />
         </header>
 
         {/* AQUI ENTRA O CONTEÚDO DAS PÁGINAS (Histórico, Dashboard, etc) */}

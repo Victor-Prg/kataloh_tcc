@@ -1,6 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems, Popover } from '@headlessui/react'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import { BellIcon, Bars3Icon, SunIcon, MoonIcon } from '@heroicons/react/24/outline' 
+import { BellIcon, Bars3Icon, SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline' 
 import logo from '../assets/logo.svg'
 // Se o arquivo navbar.css não existir, comente a linha abaixo para evitar erros
 // import '../assets/navbar.css' 
@@ -20,9 +20,11 @@ const userNavigation = [
 
 type NavbarProps = {
   onOpenMobileMenu?: () => void
+  onToggleSidebar?: () => void
+  isSidebarCollapsed?: boolean
 }
 
-export default function Navbar({ onOpenMobileMenu }: NavbarProps) {
+export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCollapsed }: NavbarProps) {
   // --- CORREÇÃO PRINCIPAL AQUI ---
   // Em vez de criar um useState novo, usamos o que vem do Contexto.
   // O ThemeProvider já cuida de atualizar o HTML e salvar no localStorage.
@@ -32,7 +34,7 @@ export default function Navbar({ onOpenMobileMenu }: NavbarProps) {
     <Popover as="header" className="w-full bg-[color:var(--surface-nav)] border-b border-[color:var(--border)] transition-colors duration-300">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         
-        {/* --- GRUPO 1: ESQUERDA (HAMBÚRGUER + LOGO) --- */}
+        {/* --- GRUPO 1: ESQUERDA (HAMBÚRGUER + TOGGLE SIDEBAR + ÍCONE + LOGO) --- */}
         <div className="flex flex-1 justify-start items-center gap-x-4">
           
           {/* BOTÃO HAMBÚRGUER */}
@@ -45,8 +47,22 @@ export default function Navbar({ onOpenMobileMenu }: NavbarProps) {
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
 
-          {/* LOGO */}
-          <div className="flex shrink-0 items-center">
+          {/* TOGGLE SIDEBAR + LOGO */}
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onToggleSidebar?.()
+              }}
+              className="hidden md:inline-flex items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-primary)] hover:bg-[color:var(--primary-50)] transition-all h-8 w-8 text-xs"
+            >
+              {isSidebarCollapsed ? (
+                <ChevronRightIcon className="h-4 w-4" />
+              ) : (
+                <ChevronLeftIcon className="h-4 w-4" />
+              )}
+            </button>
             <a href="#">
               <img
                 alt="Kataloh"
