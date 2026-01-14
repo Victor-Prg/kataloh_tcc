@@ -2,6 +2,7 @@ Você está trabalhando em um Design System próprio.
 
 Stack do projeto:
 - React 19 .,
+- .
 - 
 - 
 - TypeScript (strict = true)
