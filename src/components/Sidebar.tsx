@@ -32,8 +32,8 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  
+  { name: 'Home', href: '/dashboard', icon: HomeIcon },
+
   // --- ADMIN ---
   {
     name: 'Admin',
@@ -75,6 +75,7 @@ const navigation: NavigationItem[] = [
     icon: ShoppingBagIcon,
     current: false,
     children: [
+      { name: 'Dashboard', href: '/loja/dashboard', icon: HomeIcon },
       { name: 'Recepção', href: '/loja/recepcao', icon: ListBulletIcon },
       { name: 'Novo Pedido', href: '/loja/newpedido', icon: PencilSquareIcon },
       {
@@ -136,7 +137,6 @@ const SidebarItem = ({
       {!collapsed && <span>{item.name}</span>}
     </>
   );
-
   if (!item.children || collapsed) {
     const commonClasses = classNames(
       isActive
