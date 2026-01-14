@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Clock, CheckCircle, Package, TrendingUp, AlertCircle } from 'lucide-react';
+import { MapPin, CheckCircle, Package, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 

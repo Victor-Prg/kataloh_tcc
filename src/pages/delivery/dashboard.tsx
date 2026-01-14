@@ -25,7 +25,6 @@ export default function DeliveryDashboard() {
   const entregadoresEmRota = 1;
   const totalGanhos = 7450.0;
   const pedidosDisponiveis = pedidos.filter((p) => p.status === 'disponivel').length;
-  const pedidosEntregues = pedidos.filter((p) => p.status === 'entregue').length;
 
   return (
     <div className="min-h-screen bg-[var(--bg-body)]">
