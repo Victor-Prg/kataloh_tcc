@@ -5,7 +5,10 @@ import { ThemeProvider } from './composables/ThemeProvider';
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
-import Dashboard from './pages/admin/dashboard';
+
+// Dashboards
+import Dashboard from './pages/admin/home';
+import LojaDashboard from './pages/loja/dashboard';
 import Tesouraria from './pages/admin/financeiro/tesouraria';
 import { Lojas } from './pages/clientes/Lojas';
 import { LojaDetalhes } from './pages/clientes/LojaDetalhes';
@@ -46,6 +49,7 @@ function App() {
               <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
               
               {/* Loja */}
+              <Route path="/loja/dashboard" element={<LojaDashboard />} />
               <Route path="/loja/recepcao" element={<RecepcaoLoja />} />
               <Route path="/loja/newpedido" element={<NewPedido />} />
               <Route path="/loja/cadastros/menu" element={<MenuCadastro />} />

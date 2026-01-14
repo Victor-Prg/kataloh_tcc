@@ -31,8 +31,8 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  
+  { name: 'Home', href: '/dashboard', icon: HomeIcon },
+
   // --- ADMIN ---
   {
     name: 'Admin',
@@ -74,6 +74,7 @@ const navigation: NavigationItem[] = [
     icon: ShoppingBagIcon,
     current: false,
     children: [
+      { name: 'Dashboard', href: '/loja/dashboard', icon: HomeIcon },
       { name: 'Recepção', href: '/loja/recepcao', icon: ListBulletIcon },
       { name: 'Novo Pedido', href: '/loja/newpedido', icon: PencilSquareIcon },
       {
@@ -111,21 +112,6 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
     ? location.pathname === item.href || (item.href !== '/dashboard' && location.pathname.startsWith(item.href!))
     : false;
 
-  const ButtonContent = () => (
-    <>
-      {item.icon && (
-        <item.icon
-          aria-hidden="true"
-          className={classNames(
-            isActive ? 'text-[color:var(--primary-100)]' : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
-            'h-8 w-8 shrink-0'
-          )}
-        />
-      )}
-      {!collapsed && <span>{item.name}</span>}
-    </>
-  );
-
   // CASO 1: ITEM SIMPLES (SEM FILHOS)
   if (!item.children || collapsed) {
     const commonClasses = classNames(
@@ -139,7 +125,16 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
     if (isRealLink) {
       return (
         <Link to={item.href!} className={commonClasses} title={collapsed ? item.name : undefined}>
-          <ButtonContent />
+          {item.icon && (
+            <item.icon
+              aria-hidden="true"
+              className={classNames(
+                isActive ? 'text-[color:var(--primary-100)]' : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
+                'h-8 w-8 shrink-0'
+              )}
+            />
+          )}
+          {!collapsed && <span>{item.name}</span>}
         </Link>
       );
     }
@@ -151,7 +146,16 @@ const SidebarItem = ({ item, collapsed, depth = 0 }: SidebarItemProps) => {
         className={commonClasses} 
         title={collapsed ? item.name : undefined}
       >
-        <ButtonContent />
+        {item.icon && (
+          <item.icon
+            aria-hidden="true"
+            className={classNames(
+              isActive ? 'text-[color:var(--primary-100)]' : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
+              'h-8 w-8 shrink-0'
+            )}
+          />
+        )}
+        {!collapsed && <span>{item.name}</span>}
       </a>
     );
   }
