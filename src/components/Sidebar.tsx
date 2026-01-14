@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
@@ -95,6 +95,37 @@ function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ')
 }
 
+type SidebarButtonContentProps = {
+  icon?: React.ElementType
+  name: string
+  isActive: boolean
+  collapsed: boolean
+}
+
+function SidebarButtonContent({
+  icon: Icon,
+  name,
+  isActive,
+  collapsed,
+}: SidebarButtonContentProps) {
+  return (
+    <>
+      {Icon && (
+        <Icon
+          aria-hidden="true"
+          className={classNames(
+            isActive
+              ? 'text-[color:var(--primary-100)]'
+              : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
+            'h-8 w-8 shrink-0'
+          )}
+        />
+      )}
+      {!collapsed && <span>{name}</span>}
+    </>
+  )
+}
+
 // --- 2. ITEM RECURSIVO ---
 type SidebarItemProps = {
   item: NavigationItem
@@ -122,21 +153,12 @@ const SidebarItem = ({
   const isActive = isRealLink 
     ? location.pathname === item.href || (item.href !== '/dashboard' && location.pathname.startsWith(item.href!))
     : false;
-
-  const ButtonContent = () => (
-    <>
-      {item.icon && (
-        <item.icon
-          aria-hidden="true"
-          className={classNames(
-            isActive ? 'text-[color:var(--primary-100)]' : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
-            'h-8 w-8 shrink-0'
-          )}
-        />
-      )}
-      {!collapsed && <span>{item.name}</span>}
-    </>
-  );
+  const buttonContentProps: SidebarButtonContentProps = {
+    icon: item.icon,
+    name: item.name,
+    isActive,
+    collapsed,
+  }
   if (!item.children || collapsed) {
     const commonClasses = classNames(
       isActive
@@ -154,7 +176,7 @@ const SidebarItem = ({
           className={commonClasses}
           title={item.name}
         >
-          <ButtonContent />
+          <SidebarButtonContent {...buttonContentProps} />
         </button>
       );
     }
@@ -162,7 +184,7 @@ const SidebarItem = ({
     if (isRealLink) {
       return (
         <Link to={item.href!} className={commonClasses} title={collapsed ? item.name : undefined}>
-          <ButtonContent />
+          <SidebarButtonContent {...buttonContentProps} />
         </Link>
       );
     }
@@ -174,7 +196,7 @@ const SidebarItem = ({
         className={commonClasses} 
         title={collapsed ? item.name : undefined}
       >
-        <ButtonContent />
+        <SidebarButtonContent {...buttonContentProps} />
       </a>
     );
   }
@@ -234,12 +256,6 @@ type SidebarProps = {
 export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const navigate = useNavigate()
   const [autoOpenItemName, setAutoOpenItemName] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (collapsed) {
-      setAutoOpenItemName(null)
-    }
-  }, [collapsed])
 
   const handleCollapsedItemClick = (item: NavigationItem) => {
     if (item.children && item.children.length > 0) {

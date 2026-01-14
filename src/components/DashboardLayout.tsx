@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom'; // Onde as páginas serão renderizadas
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -18,7 +18,7 @@ export default function DashboardLayout() {
   const EDGE_THRESHOLD = 20; // Área da borda esquerda sensível ao swipe (em pixels)
 
   // Handlers para touch events
-  const handleTouchStart = (e: TouchEvent) => {
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
     const startX = touch.clientX;
     
@@ -27,9 +27,9 @@ export default function DashboardLayout() {
       setSwipeStartX(startX);
       setIsDragging(true);
     }
-  };
+  }, [EDGE_THRESHOLD, mobileMenuOpen]);
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (swipeStartX === null || !isDragging) return;
     
     const touch = e.touches[0];
@@ -40,9 +40,9 @@ export default function DashboardLayout() {
     if (swipeStartX < EDGE_THRESHOLD) {
       e.preventDefault();
     }
-  };
+  }, [EDGE_THRESHOLD, swipeStartX, isDragging]);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     if (swipeStartX === null || swipeCurrentX === null) {
       setSwipeStartX(null);
       setSwipeCurrentX(null);
@@ -64,7 +64,7 @@ export default function DashboardLayout() {
     setSwipeStartX(null);
     setSwipeCurrentX(null);
     setIsDragging(false);
-  };
+  }, [SWIPE_THRESHOLD, swipeStartX, swipeCurrentX, mobileMenuOpen]);
 
   // Adicionar listeners de touch
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function DashboardLayout() {
       document.removeEventListener('touchmove', handleTouchMoveWrapper);
       document.removeEventListener('touchend', handleTouchEndWrapper);
     };
-  }, [swipeStartX, swipeCurrentX, mobileMenuOpen, isDragging]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   // Calcular o offset para animação visual durante o drag
   const getDragOffset = () => {
