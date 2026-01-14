@@ -8,6 +8,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Eye,
+  EyeOff,
   ArrowRight,
   Package,
   Plus,
@@ -16,7 +17,8 @@ import {
   User,
   Lock,
   Building,
-  Image as ImageIcon
+  Image as ImageIcon,
+  FileText
 } from 'lucide-react'
 import { 
   Button, 
@@ -40,12 +42,22 @@ interface LojaAtiva {
   totalPedidosHoje: number
   // Novos campos opcionais
   ramo?: RamoAtividade
-  endereco?: string
+  razaoSocial?: string
+  cnpj?: string
+  // Endereço Separado
+  cep?: string
+  rua?: string
+  numero?: string
+  bairro?: string
+  cidade?: string
+  estado?: string
   localizacao?: string
+  // Visual & Acesso
   logo?: string
   banner?: string
   usuario?: string
   senha?: string
+  endereco?: string
 }
 
 const LOJAS_ATIVAS_MOCK: LojaAtiva[] = [
@@ -69,43 +81,6 @@ const LOJAS_ATIVAS_MOCK: LojaAtiva[] = [
     totalPedidosHoje: 12,
     endereco: 'Shopping Center, Piso 2'
   },
-  {
-    id: 'loja-bairro',
-    nome: 'Loja Bairro',
-    status: 'fechada',
-    pedidosPendentes: 5,
-    pedidosEmPreparo: 1,
-    pedidosFinalizadosHoje: 6,
-    totalPedidosHoje: 12,
-    endereco: 'Rua das Flores, 123'
-  },
-  {
-    id: 'loja-norte',
-    nome: 'Loja Norte',
-    status: 'aberta',
-    pedidosPendentes: 2,
-    pedidosEmPreparo: 1,
-    pedidosFinalizadosHoje: 3,
-    totalPedidosHoje: 6,
-  },
-  {
-    id: 'loja-sul',
-    nome: 'Loja Sul',
-    status: 'fechada',
-    pedidosPendentes: 4,
-    pedidosEmPreparo: 2,
-    pedidosFinalizadosHoje: 9,
-    totalPedidosHoje: 15,
-  },
-  {
-    id: 'loja-leste',
-    nome: 'Loja Leste',
-    status: 'aberta',
-    pedidosPendentes: 6,
-    pedidosEmPreparo: 2,
-    pedidosFinalizadosHoje: 11,
-    totalPedidosHoje: 19,
-  },
 ]
 
 const RAMOS_OPTIONS = [
@@ -113,6 +88,18 @@ const RAMOS_OPTIONS = [
   { label: 'Farmacêutico', value: 'farmaceutico' },
   { label: 'Supermercado', value: 'supermercado' },
   { label: 'Varejo', value: 'varejo' },
+]
+
+const ESTADOS_OPTIONS = [
+  { label: 'AC', value: 'AC' }, { label: 'AL', value: 'AL' }, { label: 'AP', value: 'AP' },
+  { label: 'AM', value: 'AM' }, { label: 'BA', value: 'BA' }, { label: 'CE', value: 'CE' },
+  { label: 'DF', value: 'DF' }, { label: 'ES', value: 'ES' }, { label: 'GO', value: 'GO' },
+  { label: 'MA', value: 'MA' }, { label: 'MT', value: 'MT' }, { label: 'MS', value: 'MS' },
+  { label: 'MG', value: 'MG' }, { label: 'PA', value: 'PA' }, { label: 'PB', value: 'PB' },
+  { label: 'PR', value: 'PR' }, { label: 'PE', value: 'PE' }, { label: 'PI', value: 'PI' },
+  { label: 'RJ', value: 'RJ' }, { label: 'RN', value: 'RN' }, { label: 'RS', value: 'RS' },
+  { label: 'RO', value: 'RO' }, { label: 'RR', value: 'RR' }, { label: 'SC', value: 'SC' },
+  { label: 'SP', value: 'SP' }, { label: 'SE', value: 'SE' }, { label: 'TO', value: 'TO' }
 ]
 
 // Função auxiliar para gerar iniciais
@@ -125,6 +112,13 @@ const getLojaAvatarLabel = (nome: string) => {
   return `${partes[0][0]}${partes[1][0]}`.toUpperCase()
 }
 
+// Função para formatar endereço no card
+const formatAddress = (loja: LojaAtiva) => {
+  if (loja.endereco) return loja.endereco;
+  if (!loja.rua) return 'Endereço não cadastrado';
+  return `${loja.rua}, ${loja.numero || 'S/N'} - ${loja.bairro || ''}`;
+}
+
 // Função segura para gerar ID
 const generateId = () => Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
 
@@ -134,12 +128,20 @@ export default function AdminGerenciarLojas() {
   // --- ESTADOS ---
   const [lojas, setLojas] = useState<LojaAtiva[]>(LOJAS_ATIVAS_MOCK)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   
   // Estado do Formulário
   const [form, setForm] = useState<Partial<LojaAtiva>>({
     nome: '',
+    razaoSocial: '',
+    cnpj: '',
     ramo: 'alimenticio',
-    endereco: '',
+    cep: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
     localizacao: '',
     usuario: '',
     senha: '',
@@ -148,7 +150,7 @@ export default function AdminGerenciarLojas() {
     banner: ''
   })
 
-  // --- LÓGICA DO DASHBOARD ORIGINAL ---
+  // --- LÓGICA DO DASHBOARD ---
 
   const handleIrParaPedidosLoja = (loja: LojaAtiva) => {
     navigate(`/admin/pedidos-loja/${encodeURIComponent(loja.id)}`)
@@ -171,9 +173,7 @@ export default function AdminGerenciarLojas() {
     }
     const prioridadeA = getPriority(a)
     const prioridadeB = getPriority(b)
-    if (prioridadeA !== prioridadeB) {
-      return prioridadeA - prioridadeB
-    }
+    if (prioridadeA !== prioridadeB) return prioridadeA - prioridadeB
     return a.nome.localeCompare(b.nome, 'pt-BR')
   })
 
@@ -186,11 +186,11 @@ export default function AdminGerenciarLojas() {
   const totalPedidosPendentes = lojasOrdenadas.reduce((acc, l) => acc + l.pedidosPendentes, 0)
   const totalPedidosHoje = lojasOrdenadas.reduce((acc, l) => acc + l.totalPedidosHoje, 0)
 
-  // --- LÓGICA DO NOVO FORMULÁRIO ---
+  // --- LÓGICA DO FORMULÁRIO ---
 
   const handleSave = () => {
-    if (!form.nome || !form.usuario || !form.endereco) {
-      return alert('Preencha os campos obrigatórios (Nome, Usuário, Endereço)')
+    if (!form.nome || !form.razaoSocial || !form.cnpj || !form.usuario) {
+      return alert('Preencha os campos obrigatórios (*)')
     }
 
     const novaLoja: LojaAtiva = {
@@ -200,7 +200,8 @@ export default function AdminGerenciarLojas() {
       pedidosEmPreparo: 0,
       pedidosFinalizadosHoje: 0,
       totalPedidosHoje: 0,
-      status: 'fechada'
+      status: 'fechada',
+      endereco: form.rua ? `${form.rua}, ${form.numero} - ${form.bairro}` : ''
     }
 
     setLojas(prev => [...prev, novaLoja])
@@ -209,10 +210,18 @@ export default function AdminGerenciarLojas() {
 
   const resetForm = () => {
     setIsFormOpen(false)
+    setShowPassword(false)
     setForm({
       nome: '',
+      razaoSocial: '',
+      cnpj: '',
       ramo: 'alimenticio',
-      endereco: '',
+      cep: '',
+      rua: '',
+      numero: '',
+      bairro: '',
+      cidade: '',
+      estado: '',
       localizacao: '',
       usuario: '',
       senha: '',
@@ -259,87 +268,240 @@ export default function AdminGerenciarLojas() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* COLUNA 1: Identidade Visual e Básicos */}
-            <div className="space-y-5">
-              <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase">Identidade Visual</h3>
+            
+            {/* COLUNA 1: Identidade e Dados Empresariais */}
+            <div className="space-y-6">
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <span className="text-xs font-medium text-[var(--text-primary)]">Logo (Quadrada)</span>
-                  <div className="aspect-square border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
-                    {form.logo ? <img src={form.logo} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+              {/* Identidade Visual */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase flex items-center gap-2">
+                  <ImageIcon size={16} /> Identidade Visual
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium text-[var(--text-primary)]">Logo (Quadrada)</span>
+                    <div className="aspect-square border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
+                      {form.logo ? <img src={form.logo} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <span className="text-xs font-medium text-[var(--text-primary)]">Banner (Capa)</span>
-                  <div className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
-                     {form.banner ? <img src={form.banner} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium text-[var(--text-primary)]">Banner (Capa)</span>
+                    <div className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
+                       {form.banner ? <img src={form.banner} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="h-px bg-[var(--border-color)] my-4" />
+              <div className="h-px bg-[var(--border-color)]" />
 
-              <Input 
-                label="Nome Fantasia *"
-                placeholder="Ex: Pizzaria do João"
-                value={form.nome}
-                onChange={e => setForm(prev => ({...prev, nome: e.target.value}))}
-              />
+              {/* Dados Empresariais */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase flex items-center gap-2">
+                  <FileText size={16} /> Dados Empresariais
+                </h3>
+                
+                <Input 
+                  label="Nome Fantasia *"
+                  placeholder="Ex: Pizzaria do João"
+                  value={form.nome}
+                  className="w-full"
+                  maxLength={40} // Limite de 40 caracteres
+                  onChange={e => setForm(prev => ({...prev, nome: e.target.value}))}
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input 
+                    label="Razão Social *"
+                    placeholder="João Silva ME"
+                    value={form.razaoSocial}
+                    className="w-full"
+                    maxLength={150} // Limite de 150 caracteres
+                    onChange={e => setForm(prev => ({...prev, razaoSocial: e.target.value}))}
+                  />
+                  <Input 
+                    label="CNPJ *"
+                    placeholder="00.000.000/0001-00"
+                    value={form.cnpj}
+                    className="w-full"
+                    maxLength={18}
+                    onChange={e => {
+                      let value = e.target.value.replace(/\D/g, '')
+                      if (value.length > 14) value = value.slice(0, 14)
+                      value = value.replace(/^(\d{2})(\d)/, '$1.$2')
+                      value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                      value = value.replace(/\.(\d{3})(\d)/, '.$1/$2')
+                      value = value.replace(/(\d{4})(\d)/, '$1-$2')
+                      setForm(prev => ({...prev, cnpj: value}))
+                    }}
+                  />
+                </div>
 
-              <Select 
-                label="Ramo de Atividade *"
-                options={RAMOS_OPTIONS}
-                value={form.ramo}
-                onChange={e => setForm(prev => ({...prev, ramo: e.target.value as RamoAtividade}))}
-              />
+                <Select 
+                  label="Ramo de Atividade *"
+                  options={RAMOS_OPTIONS}
+                  value={form.ramo}
+                  className="w-full"
+                  onChange={e => setForm(prev => ({...prev, ramo: e.target.value as RamoAtividade}))}
+                />
+              </div>
             </div>
 
-            {/* COLUNA 2: Endereço e Acesso */}
-            <div className="space-y-5">
-              <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase">Localização & Acesso</h3>
-
-              <Input 
-                label="Endereço Completo *"
-                placeholder="Rua, Número, Bairro, Cidade"
-                icon={<MapPin size={18} />}
-                value={form.endereco}
-                onChange={e => setForm(prev => ({...prev, endereco: e.target.value}))}
-              />
-
-              <Input 
-                label="Coordenadas / Link Maps"
-                placeholder="-23.561, -46.655"
-                icon={<Building size={18} />}
-                value={form.localizacao}
-                onChange={e => setForm(prev => ({...prev, localizacao: e.target.value}))}
-              />
-
-              <div className="h-px bg-[var(--border-color)] my-4" />
+            {/* COLUNA 2: Endereço Detalhado e Acesso */}
+            <div className="space-y-6">
               
-              <div className="bg-[var(--surface-nav)] p-4 rounded-lg border border-[var(--border-color)]">
-                <h4 className="text-sm font-bold mb-3 flex items-center gap-2">
+              {/* Localização (Grid 12 colunas) */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase flex items-center gap-2">
+                  <MapPin size={16} /> Localização
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                  {/* Linha 1 */}
+                  <div className="sm:col-span-3">
+                    <Input 
+                      label="CEP"
+                      placeholder="00000-000"
+                      value={form.cep}
+                      className="w-full"
+                      maxLength={9} // 8 números + 1 hífen
+                      onChange={e => {
+                        // Remove não dígitos e limita a 8 caracteres
+                        let value = e.target.value.replace(/\D/g, '')
+                        if (value.length > 8) value = value.slice(0, 8)
+                        
+                        // Aplica máscara
+                        value = value.replace(/^(\d{5})(\d)/, '$1-$2')
+                        
+                        setForm(prev => ({...prev, cep: value}))
+                      }}
+                    />
+                  </div>
+                  <div className="sm:col-span-6">
+                    <Input 
+                      label="Cidade"
+                      placeholder="Ex: São Paulo"
+                      value={form.cidade}
+                      className="w-full"
+                      onChange={e => setForm(prev => ({...prev, cidade: e.target.value}))}
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <Select 
+                      label="Estado"
+                      options={ESTADOS_OPTIONS}
+                      value={form.estado}
+                      className="w-full"
+                      onChange={e => setForm(prev => ({...prev, estado: e.target.value}))}
+                      placeholder="UF"
+                    />
+                  </div>
+
+                  {/* Linha 2 */}
+                  <div className="sm:col-span-9">
+                    <Input 
+                      label="Rua / Logradouro *"
+                      placeholder="Ex: Av. Paulista"
+                      value={form.rua}
+                      className="w-full"
+                      onChange={e => setForm(prev => ({...prev, rua: e.target.value}))}
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <Input 
+                      label="Número *"
+                      placeholder="100 ou S/N"
+                      value={form.numero}
+                      className="w-full"
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '') {
+                          setForm(prev => ({...prev, numero: val}));
+                          return;
+                        }
+                        if (/^\d+$/.test(val)) {
+                          if (val.length <= 10) setForm(prev => ({...prev, numero: val}));
+                          return;
+                        }
+                        if (/^(s|S)(\/(n|N)?)?$/.test(val)) {
+                          setForm(prev => ({...prev, numero: val}));
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Linha 3 */}
+                  <div className="sm:col-span-5">
+                     <Input 
+                      label="Bairro"
+                      placeholder="Centro"
+                      value={form.bairro}
+                      className="w-full"
+                      onChange={e => setForm(prev => ({...prev, bairro: e.target.value}))}
+                    />
+                  </div>
+                  <div className="sm:col-span-7">
+                    <Input 
+                      label="Coordenadas (Opcional)"
+                      placeholder="-23.561, -46.655"
+                      icon={<Building size={18} />}
+                      value={form.localizacao}
+                      className="w-full"
+                      // Permite números, sinal negativo, ponto, vírgula e espaço
+                      onChange={e => {
+                        const value = e.target.value.replace(/[^0-9.,\-\s]/g, '')
+                        setForm(prev => ({...prev, localizacao: value}))
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-[var(--border-color)]" />
+              
+              {/* Credenciais */}
+              <div className="bg-[var(--surface-nav)] p-5 rounded-lg border border-[var(--border-color)] shadow-sm">
+                <h4 className="text-sm font-bold mb-4 flex items-center gap-2 text-[var(--text-primary)]">
                   <User size={16} /> Credenciais de Admin
                 </h4>
-                <div className="space-y-3">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input 
                     label="Usuário / Login *"
                     placeholder="admin_loja"
                     value={form.usuario}
+                    className="w-full"
                     onChange={e => setForm(prev => ({...prev, usuario: e.target.value}))}
                   />
-                  <Input 
-                    label="Senha Inicial"
-                    type="password"
-                    placeholder="Senha forte"
-                    icon={<Lock size={18} />}
-                    value={form.senha}
-                    onChange={e => setForm(prev => ({...prev, senha: e.target.value}))}
-                  />
+                  
+                  {/* SENHA */}
+                  <div className="w-full">
+                    <span className="text-xs font-medium text-[var(--text-primary)] mb-1.5 block">
+                      Senha Inicial
+                    </span>
+                    <div className="relative">
+                      <Input 
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Senha forte"
+                        icon={<Lock size={18} />}
+                        value={form.senha}
+                        className="w-full pr-10"
+                        onChange={e => setForm(prev => ({...prev, senha: e.target.value}))}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--primary-100)] transition-colors z-10 flex items-center justify-center"
+                        title={showPassword ? "Ocultar senha" : "Ver senha"}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-6 flex justify-end gap-3">
+              <div className="pt-2 flex justify-end gap-3">
                 <Button variant="outline" label="Cancelar" onClick={resetForm} />
                 <Button label="Salvar Loja" onClick={handleSave} />
               </div>
@@ -350,9 +512,9 @@ export default function AdminGerenciarLojas() {
         /* --- MODO DASHBOARD --- */
         <div className="space-y-6 animate-fade-in">
           
-          {/* CARDS DE ESTATÍSTICAS (CORES SÓLIDAS) */}
+          {/* CARDS DE ESTATÍSTICAS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Azul Sólido */}
+            {/* Azul */}
             <div className="bg-blue-600 dark:bg-blue-700 text-white rounded-xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <Store size={24} className="opacity-90" />
@@ -362,7 +524,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs opacity-90 mt-1">{lojasAbertas} abertas agora</p>
             </div>
 
-            {/* Laranja Sólido */}
+            {/* Laranja */}
             <div className="bg-orange-600 dark:bg-orange-700 text-white rounded-xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <Clock size={24} className="opacity-90" />
@@ -372,7 +534,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs opacity-90 mt-1">Todas as lojas</p>
             </div>
 
-            {/* Roxo Sólido */}
+            {/* Roxo */}
             <div className="bg-purple-600 dark:bg-purple-700 text-white rounded-xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <ChefHat size={24} className="opacity-90" />
@@ -384,7 +546,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs opacity-90 mt-1">Todas as lojas</p>
             </div>
 
-            {/* Verde Sólido */}
+            {/* Verde */}
             <div className="bg-green-600 dark:bg-green-700 text-white rounded-xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <Package size={24} className="opacity-90" />
@@ -497,9 +659,12 @@ export default function AdminGerenciarLojas() {
                           <h3 className="text-lg font-bold text-white truncate">
                             {loja.nome}
                           </h3>
-                          <p className="text-xs text-white/80 font-medium">
-                            ID: {loja.id}
-                          </p>
+                          <div className="flex items-center gap-1 text-white/80">
+                             <MapPin size={10} />
+                             <p className="text-xs font-medium truncate">
+                               {formatAddress(loja)}
+                             </p>
+                          </div>
                         </div>
                       </div>
                     </div>
