@@ -6,6 +6,7 @@ import {
   CreditCard,
   CalendarBlank,
   CaretDown,
+  Storefront,
 } from 'phosphor-react'
 
 type PaymentKind = 'cartao_credito' | 'cartao_debito' | 'pix' | 'todos'
@@ -421,6 +422,64 @@ function Treasury() {
   const totalAmount = useMemo(
     () =>
       receiptsFiltrados.reduce((acc, receipt) => acc + receipt.amount, 0),
+    [receiptsFiltrados]
+  )
+
+  const recebimentoMaisFrequente = useMemo<Exclude<PaymentKind, 'todos'> | null>(
+    () => {
+      if (receiptsFiltrados.length === 0) return null
+
+      const contagem: Record<Exclude<PaymentKind, 'todos'>, number> = {
+        cartao_credito: 0,
+        cartao_debito: 0,
+        pix: 0,
+      }
+
+      receiptsFiltrados.forEach((receipt) => {
+        contagem[receipt.kind] += 1
+      })
+
+      let tipoMaisFrequente: Exclude<PaymentKind, 'todos'> | null = null
+      let quantidadeMaisFrequente = 0
+
+      ;(Object.keys(contagem) as Array<Exclude<PaymentKind, 'todos'>>).forEach(
+        (kind) => {
+          if (contagem[kind] > quantidadeMaisFrequente) {
+            quantidadeMaisFrequente = contagem[kind]
+            tipoMaisFrequente = kind
+          }
+        }
+      )
+
+      return tipoMaisFrequente
+    },
+    [receiptsFiltrados]
+  )
+
+  const totalAmountDia = useMemo(() => {
+    if (receiptsFiltrados.length === 0) return 0
+
+    let ultimaData: Date | null = null
+
+    receiptsFiltrados.forEach((receipt) => {
+      const data = parseIsoToDate(receipt.date)
+      if (!data) return
+      if (!ultimaData || data > ultimaData) {
+        ultimaData = data
+      }
+    })
+
+    if (!ultimaData) return 0
+
+    return receiptsFiltrados.reduce((acc, receipt) => {
+      const data = parseIsoToDate(receipt.date)
+      if (!data) return acc
+      return isSameDay(data, ultimaData as Date) ? acc + receipt.amount : acc
+    }, 0)
+  }, [receiptsFiltrados])
+
+  const totalLojasFiltradas = useMemo(
+    () => new Set(receiptsFiltrados.map((receipt) => receipt.store)).size,
     [receiptsFiltrados]
   )
 
@@ -921,7 +980,7 @@ function Treasury() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-1">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
@@ -937,6 +996,58 @@ function Treasury() {
           </p>
           <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
             Soma de todos os recebimentos filtrados
+          </p>
+        </div>
+        <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <CreditCard size={16} className="text-[color:var(--text-primary)]" />
+            </span>
+            <span>Recebimento mais frequente</span>
+          </div>
+          <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
+            {recebimentoMaisFrequente
+              ? paymentKindConfig[recebimentoMaisFrequente].label
+              : '—'}
+          </p>
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
+            Tipo de pagamento mais recorrente nos recebimentos filtrados
+          </p>
+        </div>
+        <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <CalendarBlank
+                size={16}
+                weight="bold"
+                className="text-[color:var(--text-primary)]"
+              />
+            </span>
+            <span>Total recebido no dia</span>
+          </div>
+          <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
+            {formatCurrency(totalAmountDia)}
+          </p>
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
+            Total do dia mais recente dentro do período filtrado
+          </p>
+        </div>
+        <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
+              <Storefront
+                size={16}
+                weight="bold"
+                className="text-[color:var(--text-primary)]"
+              />
+            </span>
+            <span>Total de lojas</span>
+          </div>
+          <p className="mt-2 text-xl font-semibold text-[color:var(--text-primary)]">
+            {totalLojasFiltradas}
+          </p>
+          <p className="mt-1 text-[0.75rem] text-[color:var(--text-primary)]">
+            Lojas com ao menos um recebimento no resultado filtrado
           </p>
         </div>
       </div>
@@ -1177,4 +1288,3 @@ function Treasury() {
 }
 
 export default Treasury
-
