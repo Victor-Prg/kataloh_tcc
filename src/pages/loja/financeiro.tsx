@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   TrendingUp,
   TrendingDown,
@@ -10,7 +10,6 @@ import {
   ArrowUpRight,
   CreditCard,
   ShoppingBag,
-  Users,
   BarChart3,
   Download
 } from 'lucide-react'
@@ -172,7 +171,7 @@ export default function LojaFinanceiro() {
   const vendasPaginadas = vendasFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
 
   // Reset página quando filtro mudar
-  useMemo(() => {
+  useEffect(() => {
     setPaginaAtual(1)
   }, [periodo])
 

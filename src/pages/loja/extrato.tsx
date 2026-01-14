@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -118,7 +118,7 @@ export default function ExtratoLoja() {
     const hoje = new Date()
     hoje.setHours(0, 0, 0, 0)
 
-    let filtradas = movimentacoesMock.filter(mov => {
+    const filtradas = movimentacoesMock.filter(mov => {
       const dataMov = new Date(mov.data)
       dataMov.setHours(0, 0, 0, 0)
 
@@ -188,7 +188,7 @@ export default function ExtratoLoja() {
   const movimentacoesPaginadas = movimentacoesFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
 
   // Reset página quando filtro mudar
-  useMemo(() => {
+  useEffect(() => {
     setPaginaAtual(1)
   }, [periodo, tipoMovimentacao, busca])
 
