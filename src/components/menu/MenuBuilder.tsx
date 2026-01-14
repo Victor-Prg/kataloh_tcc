@@ -45,6 +45,8 @@ export const MenuBuilder = ({
       return;
     }
 
+    console.log('🎯 Drag End:', active.id, '→', over.id);
+
     const isCategoryDrag = categories.some((category) => category.id === active.id);
 
     if (isCategoryDrag) {
@@ -57,48 +59,56 @@ export const MenuBuilder = ({
         order: index,
       }));
 
+      console.log('📁 Categorias reordenadas:', reordered.map(c => c.name));
       onChangeCategories(reordered);
       return;
     }
 
-    const activeProductIndex = products.findIndex((product) => product.id === active.id);
-    const overProductIndex = products.findIndex((product) => product.id === over.id);
+    const activeProduct = products.find((p) => p.id === active.id);
+    const overProduct = products.find((p) => p.id === over.id);
 
-    if (activeProductIndex === -1 || overProductIndex === -1) {
+    if (!activeProduct || !overProduct) {
+      console.log('❌ Produto não encontrado');
       return;
     }
-
-    const activeProduct = products[activeProductIndex];
-    const overProduct = products[overProductIndex];
 
     if (activeProduct.categoryId !== overProduct.categoryId) {
+      console.log('⚠️ Categorias diferentes - não permite mover');
       return;
     }
 
-    const categoryProducts = products.filter(
-      (product) => product.categoryId === activeProduct.categoryId,
-    );
+    console.log('📦 Movendo produto:', activeProduct.name, '→', overProduct.name);
 
-    const orderedIds = categoryProducts.map((product) => product.id);
-    const oldIndex = orderedIds.indexOf(active.id as string);
-    const newIndex = orderedIds.indexOf(over.id as string);
+    // Filtra e ordena produtos da mesma categoria
+    const categoryProducts = products
+      .filter((product) => product.categoryId === activeProduct.categoryId)
+      .sort((a, b) => a.order - b.order);
+
+    const oldIndex = categoryProducts.findIndex((p) => p.id === active.id);
+    const newIndex = categoryProducts.findIndex((p) => p.id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) {
+      console.log('❌ Índices inválidos');
       return;
     }
 
-    const reorderedIds = arrayMove(orderedIds, oldIndex, newIndex);
+    console.log('📍 Movendo de', oldIndex, 'para', newIndex);
 
-    const updatedProducts = products.map((product) => {
-      if (product.categoryId !== activeProduct.categoryId) {
-        return product;
-      }
+    // Reordena usando arrayMove
+    const reorderedCategoryProducts = arrayMove(categoryProducts, oldIndex, newIndex).map(
+      (product, idx) => ({
+        ...product,
+        order: idx,
+      }),
+    );
 
-      const newOrder = reorderedIds.indexOf(product.id);
-      return { ...product, order: newOrder };
-    });
+    console.log('✅ Nova ordem:', reorderedCategoryProducts.map(p => p.name));
 
-    onChangeProducts(updatedProducts);
+    // Mescla com produtos de outras categorias
+    const otherProducts = products.filter((p) => p.categoryId !== activeProduct.categoryId);
+    const allProducts = [...otherProducts, ...reorderedCategoryProducts];
+
+    onChangeProducts(allProducts);
   };
 
   const handleToggleProduct = (productId: string) => {
@@ -115,6 +125,58 @@ export const MenuBuilder = ({
     );
 
     onChangeProducts(updated);
+  };
+
+  const handleMoveProduct = (productId: string, direction: 'up' | 'down') => {
+    console.log('🔄 Movendo produto:', productId, direction);
+    
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+      console.log('❌ Produto não encontrado');
+      return;
+    }
+
+    // Filtra produtos da mesma categoria e ordena
+    const categoryProducts = products
+      .filter((p) => p.categoryId === product.categoryId)
+      .sort((a, b) => a.order - b.order);
+
+    console.log('📦 Produtos da categoria:', categoryProducts.map(p => p.name));
+
+    const indexInCategory = categoryProducts.findIndex((p) => p.id === productId);
+    console.log('📍 Índice atual:', indexInCategory);
+
+    // Verifica se pode mover
+    if (direction === 'up' && indexInCategory === 0) {
+      console.log('⚠️ Já está no topo');
+      return;
+    }
+    if (direction === 'down' && indexInCategory === categoryProducts.length - 1) {
+      console.log('⚠️ Já está no final');
+      return;
+    }
+
+    // Calcula novo índice
+    const newIndex = direction === 'up' ? indexInCategory - 1 : indexInCategory + 1;
+    console.log('📍 Novo índice:', newIndex);
+
+    // Troca as posições no array
+    const reordered = [...categoryProducts];
+    [reordered[indexInCategory], reordered[newIndex]] = [reordered[newIndex], reordered[indexInCategory]];
+
+    // Atualiza os valores de order
+    const updatedCategoryProducts = reordered.map((p, idx) => ({
+      ...p,
+      order: idx,
+    }));
+
+    console.log('✅ Nova ordem:', updatedCategoryProducts.map(p => p.name));
+
+    // Mescla com produtos de outras categorias
+    const otherProducts = products.filter((p) => p.categoryId !== product.categoryId);
+    const allProducts = [...otherProducts, ...updatedCategoryProducts];
+
+    onChangeProducts(allProducts);
   };
 
   if (!categories.length) {
@@ -153,7 +215,7 @@ export const MenuBuilder = ({
           items={categories.map((category) => category.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {categories.map((category) => (
               <CategoryBlock
                 key={category.id}
@@ -164,6 +226,7 @@ export const MenuBuilder = ({
                   .sort((a, b) => a.order - b.order)}
                 onToggleProduct={handleToggleProduct}
                 onChangeProductMaxQuantity={handleChangeMaxQuantity}
+                onMoveProduct={handleMoveProduct}
               />
             ))}
           </div>

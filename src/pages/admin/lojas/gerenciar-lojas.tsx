@@ -69,7 +69,9 @@ const LOJAS_ATIVAS_MOCK: LojaAtiva[] = [
     pedidosEmPreparo: 3,
     pedidosFinalizadosHoje: 12,
     totalPedidosHoje: 23,
-    endereco: 'Av. Paulista, 1000'
+    endereco: 'Av. Paulista, 1000',
+    logo: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=200&fit=crop',
+    banner: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=300&fit=crop'
   },
   {
     id: 'loja-shopping',
@@ -79,7 +81,9 @@ const LOJAS_ATIVAS_MOCK: LojaAtiva[] = [
     pedidosEmPreparo: 2,
     pedidosFinalizadosHoje: 7,
     totalPedidosHoje: 12,
-    endereco: 'Shopping Center, Piso 2'
+    endereco: 'Shopping Center, Piso 2',
+    logo: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=200&h=200&fit=crop',
+    banner: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=300&fit=crop'
   },
 ]
 
@@ -514,46 +518,64 @@ export default function AdminGerenciarLojas() {
           
           {/* CARDS DE ESTATÍSTICAS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Azul */}
-            <div className="bg-blue-600 dark:bg-blue-700 text-white rounded-xl p-4 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Store size={24} className="opacity-90" />
-                <span className="text-2xl font-bold">{totalLojas}</span>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <Store size={20} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                  Total de Lojas
+                </h3>
               </div>
-              <p className="text-sm font-medium">Total de Lojas</p>
-              <p className="text-xs opacity-90 mt-1">{lojasAbertas} abertas agora</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {totalLojas}
+              </p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">{lojasAbertas} abertas agora</p>
             </div>
 
-            {/* Laranja */}
-            <div className="bg-orange-600 dark:bg-orange-700 text-white rounded-xl p-4 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Clock size={24} className="opacity-90" />
-                <span className="text-2xl font-bold">{totalPedidosPendentes}</span>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                  <Clock size={20} className="text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                  Pendentes
+                </h3>
               </div>
-              <p className="text-sm font-medium">Pendentes</p>
-              <p className="text-xs opacity-90 mt-1">Todas as lojas</p>
+              <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {totalPedidosPendentes}
+              </p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">Todas as lojas</p>
             </div>
 
-            {/* Roxo */}
-            <div className="bg-purple-600 dark:bg-purple-700 text-white rounded-xl p-4 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <ChefHat size={24} className="opacity-90" />
-                <span className="text-2xl font-bold">
-                  {lojasOrdenadas.reduce((acc, l) => acc + l.pedidosEmPreparo, 0)}
-                </span>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                  <ChefHat size={20} className="text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                  Em Preparo
+                </h3>
               </div>
-              <p className="text-sm font-medium">Em Preparo</p>
-              <p className="text-xs opacity-90 mt-1">Todas as lojas</p>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {lojasOrdenadas.reduce((acc, l) => acc + l.pedidosEmPreparo, 0)}
+              </p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">Todas as lojas</p>
             </div>
 
-            {/* Verde */}
-            <div className="bg-green-600 dark:bg-green-700 text-white rounded-xl p-4 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Package size={24} className="opacity-90" />
-                <span className="text-2xl font-bold">{totalPedidosHoje}</span>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                  <Package size={20} className="text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                  Hoje
+                </h3>
               </div>
-              <p className="text-sm font-medium">Hoje</p>
-              <p className="text-xs opacity-90 mt-1">Total do dia</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {totalPedidosHoje}
+              </p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">Total do dia</p>
             </div>
           </div>
 

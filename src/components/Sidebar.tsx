@@ -78,6 +78,8 @@ const navigation: NavigationItem[] = [
       { name: 'Dashboard', href: '/loja/dashboard', icon: HomeIcon },
       { name: 'Recepção', href: '/loja/recepcao', icon: ListBulletIcon },
       { name: 'Novo Pedido', href: '/loja/newpedido', icon: PencilSquareIcon },
+      { name: 'Financeiro', href: '/loja/financeiro', icon: BanknotesIcon },
+      { name: 'Extrato', href: '/loja/extrato', icon: DocumentTextIcon },
       {
         name: 'Cadastros',
         icon: QueueListIcon,
@@ -130,11 +132,11 @@ const SidebarItem = ({
           aria-hidden="true"
           className={classNames(
             isActive ? 'text-[color:var(--primary-100)]' : 'text-gray-400 group-hover:text-[color:var(--text-primary)]',
-            'h-8 w-8 shrink-0'
+            'h-5 w-5 shrink-0'
           )}
         />
       )}
-      {!collapsed && <span>{item.name}</span>}
+      {!collapsed && <span className="text-sm">{item.name}</span>}
     </>
   );
   if (!item.children || collapsed) {
@@ -193,10 +195,10 @@ const SidebarItem = ({
             {item.icon && (
               <item.icon
                 aria-hidden="true"
-                className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-[color:var(--text-primary)]"
+                className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-[color:var(--text-primary)]"
               />
             )}
-            <span className="flex-1">{item.name}</span>
+            <span className="flex-1 text-sm">{item.name}</span>
             <ChevronRightIcon
               aria-hidden="true"
               className={classNames(
@@ -288,17 +290,17 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="relative"
+              className="relative w-full flex items-center justify-center"
             >
               <img
-                alt="Your Company"
+                alt="Kataloh Logo"
                 src={logo}
-                className="h-16 w-auto dark:hidden transition-all"
+                className="h-[120px] w-auto max-w-full dark:hidden transition-all"
               />
               <img
-                alt="Your Company"
+                alt="Kataloh Logo"
                 src={logo}
-                className="h-16 w-auto hidden dark:block transition-all"
+                className="h-[120px] w-auto max-w-full hidden dark:block transition-all"
               />
             </button>
           )}

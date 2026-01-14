@@ -293,40 +293,64 @@ export default function RecepcaoLoja() {
 
         {/* CARDS DE ESTATÍSTICAS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-orange-600 to-orange-700 dark:from-orange-500 dark:to-orange-600 text-white rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <Clock size={24} className="opacity-90" />
-              <span className="text-2xl font-bold">{totalPendentes}</span>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                <Clock size={20} className="text-orange-600 dark:text-orange-400" />
+              </div>
+              <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                Aguardando
+              </h3>
             </div>
-            <p className="text-sm font-medium">Aguardando</p>
-            <p className="text-xs opacity-90 mt-1">Novos pedidos</p>
+            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+              {totalPendentes}
+            </p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Novos pedidos</p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <ChefHat size={24} className="opacity-90" />
-              <span className="text-2xl font-bold">{totalEmPreparo}</span>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <ChefHat size={20} className="text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                Em Preparo
+              </h3>
             </div>
-            <p className="text-sm font-medium">Em Preparo</p>
-            <p className="text-xs opacity-90 mt-1">Na cozinha</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {totalEmPreparo}
+            </p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Na cozinha</p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <Truck size={24} className="opacity-90" />
-              <span className="text-2xl font-bold">{totalEmRota}</span>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                <Truck size={20} className="text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                Em Entrega
+              </h3>
             </div>
-            <p className="text-sm font-medium">Em Entrega</p>
-            <p className="text-xs opacity-90 mt-1">A caminho</p>
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              {totalEmRota}
+            </p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">A caminho</p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600 to-green-700 dark:from-green-500 dark:to-green-600 text-white rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <CheckCircle2 size={24} className="opacity-90" />
-              <span className="text-2xl font-bold">{totalEntregues}</span>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-xs font-medium text-[var(--text-secondary)]">
+                Concluídos
+              </h3>
             </div>
-            <p className="text-sm font-medium">Concluídos</p>
-            <p className="text-xs opacity-90 mt-1">Hoje</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {totalEntregues}
+            </p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Hoje</p>
           </div>
         </div>
 

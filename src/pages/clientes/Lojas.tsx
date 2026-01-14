@@ -14,14 +14,14 @@ interface Store {
 
 // Dados Mockados
 const MOCK_STORES: Store[] = [
-  { id: 1, name: "Burger King", category: "Lanches", rating: 4.8, time: "30-40 min", image: "https://placehold.co/100x100/orange/white?text=BK" },
-  { id: 2, name: "Sushi House", category: "Japonesa", rating: 4.5, time: "40-50 min", image: "https://placehold.co/100x100/red/white?text=SH" },
-  { id: 3, name: "Pizza Hut", category: "Pizza", rating: 4.2, time: "25-35 min", image: "https://placehold.co/100x100/red/white?text=PH" },
-  { id: 4, name: "Açaí do Bom", category: "Sobremesa", rating: 4.9, time: "15-25 min", image: "https://placehold.co/100x100/purple/white?text=AB" },
-  { id: 5, name: "McDonalds", category: "Lanches", rating: 4.7, time: "20-30 min", image: "https://placehold.co/100x100/red/white?text=MC" },
-  { id: 6, name: "Subway", category: "Lanches", rating: 4.6, time: "15-25 min", image: "https://placehold.co/100x100/green/white?text=SUB" },
-  { id: 7, name: "Coco Bambu", category: "Frutos do Mar", rating: 4.8, time: "50-60 min", image: "https://placehold.co/100x100/brown/white?text=CB" },
-  { id: 8, name: "Habibs", category: "Árabe", rating: 4.3, time: "20-30 min", image: "https://placehold.co/100x100/red/white?text=HB" },
+  { id: 1, name: "Burger King", category: "Lanches", rating: 4.8, time: "30-40 min", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop" },
+  { id: 2, name: "Sushi House", category: "Japonesa", rating: 4.5, time: "40-50 min", image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=400&fit=crop" },
+  { id: 3, name: "Pizza Hut", category: "Pizza", rating: 4.2, time: "25-35 min", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop" },
+  { id: 4, name: "Açaí do Bom", category: "Sobremesa", rating: 4.9, time: "15-25 min", image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop" },
+  { id: 5, name: "McDonalds", category: "Lanches", rating: 4.7, time: "20-30 min", image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&h=400&fit=crop" },
+  { id: 6, name: "Subway", category: "Lanches", rating: 4.6, time: "15-25 min", image: "https://images.unsplash.com/photo-1607532941433-304659e8198a?w=400&h=400&fit=crop" },
+  { id: 7, name: "Coco Bambu", category: "Frutos do Mar", rating: 4.8, time: "50-60 min", image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=400&fit=crop" },
+  { id: 8, name: "Habibs", category: "Árabe", rating: 4.3, time: "20-30 min", image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&h=400&fit=crop" },
 ];
 
 export const Lojas = () => {

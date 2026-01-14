@@ -9,6 +9,7 @@ type Produto = {
   categoriaId: string
   disponivel?: boolean
   tempo?: string
+  imagem?: string
 }
 
 type ItemPedido = {
@@ -37,6 +38,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'destaques',
     disponivel: true,
     tempo: '25-30 min',
+    imagem: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop',
   },
   {
     id: 'trio-cheddar',
@@ -46,6 +48,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'destaques',
     disponivel: true,
     tempo: '20-25 min',
+    imagem: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
   },
   {
     id: 'x-bacon',
@@ -55,6 +58,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'hamburgueres',
     disponivel: true,
     tempo: '15-20 min',
+    imagem: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=300&fit=crop',
   },
   {
     id: 'x-salada',
@@ -64,6 +68,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'hamburgueres',
     disponivel: true,
     tempo: '15-20 min',
+    imagem: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=400&h=300&fit=crop',
   },
   {
     id: 'x-veggie',
@@ -73,6 +78,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'hamburgueres',
     disponivel: true,
     tempo: '15-20 min',
+    imagem: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&h=300&fit=crop',
   },
   {
     id: 'refrigerante',
@@ -82,6 +88,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'bebidas',
     disponivel: true,
     tempo: 'Imediato',
+    imagem: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=300&fit=crop',
   },
   {
     id: 'suco-laranja',
@@ -91,6 +98,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'bebidas',
     disponivel: true,
     tempo: '5 min',
+    imagem: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop',
   },
   {
     id: 'agua',
@@ -100,6 +108,7 @@ const produtosMock: Produto[] = [
     categoriaId: 'bebidas',
     disponivel: true,
     tempo: 'Imediato',
+    imagem: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop',
   },
 ]
 
@@ -280,7 +289,7 @@ export default function NewPedido() {
               >
                 <div className="relative h-40 mb-3 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
                   <img
-                    src={`https://placehold.co/400x300/ea580c/ffffff?text=${encodeURIComponent(produto.nome)}`}
+                    src={produto.imagem || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop`}
                     alt={produto.nome}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
@@ -452,7 +461,7 @@ export default function NewPedido() {
 
             <div className="h-48 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
               <img
-                src={`https://placehold.co/400x300/ea580c/ffffff?text=${encodeURIComponent(produtoSelecionado.nome)}`}
+                src={produtoSelecionado.imagem || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop`}
                 alt={produtoSelecionado.nome}
                 className="w-full h-full object-cover"
               />

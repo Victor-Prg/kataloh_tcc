@@ -18,6 +18,8 @@ import AdminGerenciarLojas from './pages/admin/lojas/gerenciar-lojas';
 import AdminPedidosLoja from './pages/admin/lojas/pedidos-loja';
 import RecepcaoLoja from './pages/loja/recepcao';
 import NewPedido from './pages/loja/new-pedido';
+import LojaFinanceiro from './pages/loja/financeiro';
+import ExtratoLoja from './pages/loja/extrato';
 import MenuCadastro from './pages/loja/cadastros/menu';
 import ProdutosCadastro from './pages/loja/cadastros/produtos';
 import EntregadoresCadastro from './pages/loja/cadastros/entregadores';
@@ -52,6 +54,8 @@ function App() {
               <Route path="/loja/dashboard" element={<LojaDashboard />} />
               <Route path="/loja/recepcao" element={<RecepcaoLoja />} />
               <Route path="/loja/newpedido" element={<NewPedido />} />
+              <Route path="/loja/financeiro" element={<LojaFinanceiro />} />
+              <Route path="/loja/extrato" element={<ExtratoLoja />} />
               <Route path="/loja/cadastros/menu" element={<MenuCadastro />} />
               <Route path="/loja/cadastros/produtos" element={<ProdutosCadastro />} />
               <Route path="/loja/cadastros/entregadores" element={<EntregadoresCadastro />} />

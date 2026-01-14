@@ -1,9 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems, Popover } from '@headlessui/react'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { BellIcon, Bars3Icon, SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline' 
-import logo from '../assets/logo.svg'
-// Se o arquivo navbar.css não existir, comente a linha abaixo para evitar erros
-// import '../assets/navbar.css' 
 import { useTheme } from '../composables/useTheme'
 
 const user = {
@@ -47,8 +44,8 @@ export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCol
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
 
-          {/* TOGGLE SIDEBAR + LOGO */}
-          <div className="flex shrink-0 items-center gap-2">
+          {/* TOGGLE SIDEBAR */}
+          <div className="flex shrink-0 items-center">
             <button
               type="button"
               onClick={(event) => {
@@ -63,13 +60,6 @@ export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCol
                 <ChevronLeftIcon className="h-4 w-4" />
               )}
             </button>
-            <a href="#">
-              <img
-                alt="Kataloh"
-                src={logo}
-                className="h-26 w-auto" // Ajustei altura para ficar proporcional
-              />
-            </a>
           </div>
         </div>
 

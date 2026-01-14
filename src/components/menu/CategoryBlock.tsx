@@ -16,6 +16,7 @@ interface CategoryBlockProps {
   products: Product[];
   onToggleProduct: (id: string) => void;
   onChangeProductMaxQuantity: (id: string, value: number | undefined) => void;
+  onMoveProduct: (productId: string, direction: 'up' | 'down') => void;
 }
 
 export const CategoryBlock = ({
@@ -24,6 +25,7 @@ export const CategoryBlock = ({
   products,
   onToggleProduct,
   onChangeProductMaxQuantity,
+  onMoveProduct,
 }: CategoryBlockProps) => {
   const {
     attributes,
@@ -47,24 +49,24 @@ export const CategoryBlock = ({
     <div
       ref={setSortableRef}
       style={style}
-      className={`rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3 ${
+      className={`rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 ${
         isDragging ? 'ring-2 ring-[var(--primary-100)] shadow-lg' : ''
       }`}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            {...attributes}
-            {...listeners}
-            className="cursor-grab text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          >
-            <GripVertical size={18} />
-          </button>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">{name}</h3>
-        </div>
+      {/* Header da categoria */}
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+        >
+          <GripVertical size={18} />
+        </button>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">{name}</h3>
       </div>
 
+      {/* Lista de produtos */}
       <div ref={setDroppableRef} className="space-y-2">
         <SortableContext
           items={products.map((product) => product.id)}
@@ -75,12 +77,15 @@ export const CategoryBlock = ({
               Nenhum produto disponível nesta categoria.
             </div>
           ) : (
-            products.map((product) => (
+            products.map((product, index) => (
               <SortableProductRow
                 key={product.id}
                 product={product}
                 onToggleProduct={onToggleProduct}
                 onChangeProductMaxQuantity={onChangeProductMaxQuantity}
+                onMoveProduct={onMoveProduct}
+                canMoveUp={index > 0}
+                canMoveDown={index < products.length - 1}
               />
             ))
           )}
@@ -94,12 +99,18 @@ interface SortableProductRowProps {
   product: Product;
   onToggleProduct: (id: string) => void;
   onChangeProductMaxQuantity: (id: string, value: number | undefined) => void;
+  onMoveProduct: (productId: string, direction: 'up' | 'down') => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 }
 
 const SortableProductRow = ({
   product,
   onToggleProduct,
   onChangeProductMaxQuantity,
+  onMoveProduct,
+  canMoveUp,
+  canMoveDown,
 }: SortableProductRowProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: product.id,
@@ -120,6 +131,10 @@ const SortableProductRow = ({
         product={product}
         onToggleActive={onToggleProduct}
         onChangeMaxQuantity={onChangeProductMaxQuantity}
+        onMoveUp={() => onMoveProduct(product.id, 'up')}
+        onMoveDown={() => onMoveProduct(product.id, 'down')}
+        canMoveUp={canMoveUp}
+        canMoveDown={canMoveDown}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>

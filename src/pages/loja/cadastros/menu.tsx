@@ -20,6 +20,7 @@ const ALL_PRODUCTS: Product[] = [
     active: true,
     categoryId: 'lanches',
     order: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
   },
   {
     id: '2',
@@ -27,6 +28,7 @@ const ALL_PRODUCTS: Product[] = [
     active: true,
     categoryId: 'lanches',
     order: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=200&h=200&fit=crop',
   },
   {
     id: '3',
@@ -34,6 +36,7 @@ const ALL_PRODUCTS: Product[] = [
     active: true,
     categoryId: 'bebidas',
     order: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&h=200&fit=crop',
   },
   {
     id: '4',
@@ -41,6 +44,7 @@ const ALL_PRODUCTS: Product[] = [
     active: false,
     categoryId: 'bebidas',
     order: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200&h=200&fit=crop',
   },
   {
     id: '5',
@@ -48,6 +52,7 @@ const ALL_PRODUCTS: Product[] = [
     active: true,
     categoryId: 'sobremesas',
     order: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=200&h=200&fit=crop',
   },
   {
     id: '6',
@@ -55,6 +60,7 @@ const ALL_PRODUCTS: Product[] = [
     active: true,
     categoryId: 'combos',
     order: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
   },
 ];
 
@@ -87,6 +93,7 @@ export default function MenuCadastro() {
         maxQuantity: product.maxQuantity,
         categoryId: product.categoryId,
         order: index,
+        imageUrl: product.imageUrl,
       })),
     }),
     [categories, products],
@@ -121,7 +128,7 @@ export default function MenuCadastro() {
         onChangeProducts={setProducts}
       />
 
-      <div className="sticky bottom-0 border-t border-[var(--border)] bg-[var(--surface-nav)] mt-4 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-0 border-t border-[var(--border)] bg-[var(--surface-nav)] mt-4 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6 z-20">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
             {hasChanges ? (
