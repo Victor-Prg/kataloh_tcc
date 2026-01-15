@@ -5,7 +5,7 @@ import { ThemeProvider } from './composables/ThemeProvider';
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
-
+import Checkout from './pages/clientes/checkout/Checkout';
 // Dashboards
 import Dashboard from './pages/admin/home';
 import LojaDashboard from './pages/loja/dashboard';
@@ -51,11 +51,13 @@ function App() {
 
             {/* Rotas Protegidas (DashboardLayout) */}
             <Route element={<DashboardLayout />}>
+              <Route path="/delivery/lojas" element={<DeliveryLojas />} />
               <Route path="/dashboard" element={<Dashboard />} />
               
               {/* Cliente */}
               <Route path="/cliente/lojas" element={<Lojas />} />
               <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
+              <Route path="/cliente/checkout" element={<Checkout />} />
               
               {/* Delivery */}
               <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
