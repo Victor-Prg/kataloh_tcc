@@ -181,7 +181,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* AQUI ENTRA O CONTEÚDO DAS PÁGINAS (Histórico, Dashboard, etc) */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 dashboard-main-scroll">
           <div className="mx-auto max-w-7xl">
             <Outlet /> 
           </div>

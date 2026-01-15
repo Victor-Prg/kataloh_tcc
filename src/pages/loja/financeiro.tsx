@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   TrendingUp,
   TrendingDown,
@@ -14,9 +14,7 @@ import {
   Download
 } from 'lucide-react'
 import { Button, Card } from '../../components'
-
-// --- TIPOS ---
-type PeriodoFiltro = 'hoje' | 'semana' | 'mes'
+import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
 
 type Venda = {
   id: string
@@ -124,27 +122,8 @@ export default function LojaFinanceiro() {
   const [paginaAtual, setPaginaAtual] = useState(1)
   const itensPorPagina = 10
 
-  // Filtrar vendas por período
   const vendasFiltradas = useMemo(() => {
-    const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
-
-    return vendasMock.filter(venda => {
-      const dataVenda = new Date(venda.data)
-      dataVenda.setHours(0, 0, 0, 0)
-
-      if (periodo === 'hoje') {
-        return dataVenda.getTime() === hoje.getTime()
-      } else if (periodo === 'semana') {
-        const semanaAtras = new Date(hoje)
-        semanaAtras.setDate(hoje.getDate() - 7)
-        return dataVenda >= semanaAtras && dataVenda <= hoje
-      } else {
-        const mesAtras = new Date(hoje)
-        mesAtras.setDate(hoje.getDate() - 30)
-        return dataVenda >= mesAtras && dataVenda <= hoje
-      }
-    })
+    return filtrarPorPeriodo(vendasMock, venda => new Date(venda.data), periodo)
   }, [periodo])
 
   // Calcular métricas
@@ -165,15 +144,9 @@ export default function LojaFinanceiro() {
     }
   }, [vendasFiltradas])
 
-  // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / itensPorPagina)
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const vendasPaginadas = vendasFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
-
-  // Reset página quando filtro mudar
-  useEffect(() => {
-    setPaginaAtual(1)
-  }, [periodo])
 
   const handleSolicitarRepasse = () => {
     const valor = parseFloat(valorSolicitacao.replace(',', '.'))

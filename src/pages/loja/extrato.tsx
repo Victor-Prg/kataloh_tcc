@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -187,11 +187,6 @@ export default function ExtratoLoja() {
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const movimentacoesPaginadas = movimentacoesFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
 
-  // Reset página quando filtro mudar
-  useEffect(() => {
-    setPaginaAtual(1)
-  }, [periodo, tipoMovimentacao, busca])
-
   const handleExportarCsv = () => {
     if (movimentacoesFiltradas.length === 0) return
 
@@ -264,7 +259,10 @@ export default function ExtratoLoja() {
           ].map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setPeriodo(opt.value)}
+              onClick={() => {
+                setPeriodo(opt.value)
+                setPaginaAtual(1)
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                 periodo === opt.value
                   ? 'bg-[var(--primary-100)] text-white'
@@ -280,7 +278,10 @@ export default function ExtratoLoja() {
         <div className="relative">
           <select
             value={tipoMovimentacao}
-            onChange={(e) => setTipoMovimentacao(e.target.value as TipoMovimentacao)}
+            onChange={(e) => {
+              setTipoMovimentacao(e.target.value as TipoMovimentacao)
+              setPaginaAtual(1)
+            }}
             className="appearance-none rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 pr-10 text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
           >
             <option value="todos">Todos os tipos</option>
@@ -296,7 +297,10 @@ export default function ExtratoLoja() {
           <input
             type="text"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => {
+              setBusca(e.target.value)
+              setPaginaAtual(1)
+            }}
             placeholder="Buscar por descrição..."
             className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-sm"
           />

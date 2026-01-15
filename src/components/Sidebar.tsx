@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
@@ -19,7 +19,8 @@ import {
   QueueListIcon,
   MapIcon,
   ChartBarIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  TicketIcon,
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg'
@@ -81,6 +82,7 @@ const navigation: NavigationItem[] = [
       { name: 'Dashboard', href: '/delivery/dashboard', icon: ChartBarIcon },
       { name: 'Lojas', href: '/delivery/lojas', icon: BuildingStorefrontIcon },
       { name: 'Entregadores', href: '/delivery/entregadores', icon: UserGroupIcon },
+      { name: 'Financeiro', href: '/delivery/financeiro', icon: BanknotesIcon },
       { name: 'Histórico', href: '/delivery/historico', icon: ClockIcon },
       { name: 'Pedidos', href: '/delivery/orders', icon: MapIcon },
     ],
@@ -104,6 +106,7 @@ const navigation: NavigationItem[] = [
           { name: 'Menu', href: '/loja/cadastros/menu', icon: DocumentTextIcon },
           { name: 'Produtos', href: '/loja/cadastros/produtos', icon: CubeIcon },
           { name: 'Entregadores', href: '/loja/cadastros/entregadores', icon: TruckIcon },
+          { name: 'Cupons', href: '/loja/cadastros/cupons', icon: TicketIcon },
         ],
       },
     ],
@@ -122,6 +125,7 @@ type SidebarItemProps = {
   onToggle?: () => void
   onCollapsedItemClick?: (item: NavigationItem) => void
   autoOpenItemName?: string | null
+  onRootGroupToggle?: (name: string) => void
 }
 
 const SidebarItem = ({
@@ -131,6 +135,7 @@ const SidebarItem = ({
   onToggle,
   onCollapsedItemClick,
   autoOpenItemName,
+  onRootGroupToggle,
 }: SidebarItemProps) => {
   const location = useLocation();
   const paddingLeftClass = depth === 0 ? 'px-2' : depth === 1 ? 'pl-9 pr-2' : 'pl-14 pr-2'
@@ -142,7 +147,7 @@ const SidebarItem = ({
     ? location.pathname === item.href || (item.href !== '/dashboard' && location.pathname.startsWith(item.href!))
     : false;
 
-  const ButtonContent = () => (
+  const renderButtonContent = () => (
     <>
       {item.icon && (
         <item.icon
@@ -156,6 +161,7 @@ const SidebarItem = ({
       {!collapsed && <span className="text-sm">{item.name}</span>}
     </>
   );
+
   if (!item.children || collapsed) {
     const commonClasses = classNames(
       isActive
@@ -173,7 +179,7 @@ const SidebarItem = ({
           className={commonClasses}
           title={item.name}
         >
-          <ButtonContent />
+          {renderButtonContent()}
         </button>
       );
     }
@@ -181,7 +187,7 @@ const SidebarItem = ({
     if (isRealLink) {
       return (
         <Link to={item.href!} className={commonClasses} title={collapsed ? item.name : undefined}>
-          <ButtonContent />
+          {renderButtonContent()}
         </Link>
       );
     }
@@ -193,13 +199,65 @@ const SidebarItem = ({
         className={commonClasses} 
         title={collapsed ? item.name : undefined}
       >
-        <ButtonContent />
+        {renderButtonContent()}
       </a>
     );
   }
 
+  if (depth === 0) {
+    return (
+      <div className="w-full">
+        <button
+          type="button"
+          className={classNames(
+            'hover:bg-gray-50 dark:hover:bg-white/5',
+            'group flex w-full items-center gap-x-3 rounded-md py-2 text-left text-sm font-semibold leading-6 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]',
+            paddingLeftClass
+          )}
+          onClick={() => {
+            if (onRootGroupToggle) {
+              onRootGroupToggle(item.name)
+            }
+          }}
+        >
+          {item.icon && (
+            <item.icon
+              aria-hidden="true"
+              className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-[color:var(--text-primary)]"
+            />
+          )}
+          <span className="flex-1 text-sm">{item.name}</span>
+          <ChevronRightIcon
+            aria-hidden="true"
+            className={classNames(
+              autoOpenItemName === item.name ? 'rotate-90 text-gray-500' : 'text-gray-400',
+              'h-5 w-5 shrink-0 transition-transform'
+            )}
+          />
+        </button>
+        {autoOpenItemName === item.name && (
+          <ul className="mt-1 space-y-1">
+            {item.children!.map((subItem) => (
+              <li key={subItem.name}>
+                <SidebarItem
+                  item={subItem}
+                  collapsed={collapsed}
+                  depth={depth + 1}
+                  onToggle={onToggle}
+                  onCollapsedItemClick={onCollapsedItemClick}
+                  autoOpenItemName={autoOpenItemName}
+                  onRootGroupToggle={onRootGroupToggle}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
   return (
-    <Disclosure as="div" className="w-full" defaultOpen={item.name === autoOpenItemName}>
+    <Disclosure as="div" className="w-full">
       {({ open }) => (
         <>
           <DisclosureButton
@@ -234,6 +292,7 @@ const SidebarItem = ({
                   onToggle={onToggle}
                   onCollapsedItemClick={onCollapsedItemClick}
                   autoOpenItemName={autoOpenItemName}
+                  onRootGroupToggle={onRootGroupToggle}
                 />
               </li>
             ))}
@@ -254,12 +313,6 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const navigate = useNavigate()
   const [autoOpenItemName, setAutoOpenItemName] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (collapsed) {
-      setAutoOpenItemName(null)
-    }
-  }, [collapsed])
-
   const handleCollapsedItemClick = (item: NavigationItem) => {
     if (item.children && item.children.length > 0) {
       setAutoOpenItemName(item.name)
@@ -270,6 +323,10 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
     if (onToggle) {
       onToggle()
     }
+  }
+
+  const handleRootGroupToggle = (name: string) => {
+    setAutoOpenItemName((prev) => (prev === name ? null : name))
   }
 
   return (
@@ -334,7 +391,8 @@ export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                 collapsed={Boolean(collapsed)}
                 onToggle={onToggle}
                 onCollapsedItemClick={handleCollapsedItemClick}
-                autoOpenItemName={autoOpenItemName}
+                autoOpenItemName={collapsed ? null : autoOpenItemName}
+                onRootGroupToggle={handleRootGroupToggle}
               />
             </li>
           ))}
