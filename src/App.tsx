@@ -23,6 +23,7 @@ import ExtratoLoja from './pages/loja/extrato';
 import MenuCadastro from './pages/loja/cadastros/menu';
 import ProdutosCadastro from './pages/loja/cadastros/produtos';
 import EntregadoresCadastro from './pages/loja/cadastros/entregadores';
+import CuponsCadastro from './pages/loja/cadastros/cupons';
 
 // Delivery
 import DeliveryDashboard from './pages/delivery/dashboard';
@@ -75,6 +76,7 @@ function App() {
               <Route path="/loja/cadastros/menu" element={<MenuCadastro />} />
               <Route path="/loja/cadastros/produtos" element={<ProdutosCadastro />} />
               <Route path="/loja/cadastros/entregadores" element={<EntregadoresCadastro />} />
+              <Route path="/loja/cadastros/cupons" element={<CuponsCadastro />} />
               
               {/* Financeiro */}
               <Route path="/financeiro/repasses" element={<FinanceiroRepasses />} />
