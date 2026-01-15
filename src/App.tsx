@@ -30,6 +30,7 @@ import DeliveryLojas from './pages/delivery/lojas';
 import DeliveryEntregadores from './pages/delivery/entregadores';
 import DeliveryHistorico from './pages/delivery/historico';
 import DeliveryOrders from './pages/delivery/orders';
+import DeliveryFinanceiro from './pages/delivery/financeiro';
 
 // --- IMPORTAÇÕES DE CLIENTES ---
 // Verifique se o caminho da pasta é 'clientes' (plural) mesmo
@@ -61,6 +62,7 @@ function App() {
               <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
               <Route path="/delivery/lojas" element={<DeliveryLojas />} />
               <Route path="/delivery/entregadores" element={<DeliveryEntregadores />} />
+              <Route path="/delivery/financeiro" element={<DeliveryFinanceiro />} />
               <Route path="/delivery/historico" element={<DeliveryHistorico />} />
               <Route path="/delivery/orders" element={<DeliveryOrders />} />
               

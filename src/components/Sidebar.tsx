@@ -81,6 +81,7 @@ const navigation: NavigationItem[] = [
       { name: 'Dashboard', href: '/delivery/dashboard', icon: ChartBarIcon },
       { name: 'Lojas', href: '/delivery/lojas', icon: BuildingStorefrontIcon },
       { name: 'Entregadores', href: '/delivery/entregadores', icon: UserGroupIcon },
+      { name: 'Financeiro', href: '/delivery/financeiro', icon: BanknotesIcon },
       { name: 'Histórico', href: '/delivery/historico', icon: ClockIcon },
       { name: 'Pedidos', href: '/delivery/orders', icon: MapIcon },
     ],
