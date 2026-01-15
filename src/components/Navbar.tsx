@@ -5,14 +5,45 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { BellIcon, Bars3Icon, SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { Modal } from './Modal'
 import { useTheme } from '../composables/useTheme'
+import { Button } from './Button'
+import { Input } from './Input'
 
-const user = {
+type UserProfile = {
+  name: string
+  email: string
+  imageUrl: string
+  birthDate: string
+  address: string
+  phone: string
+  addressLabel?: string
+  addressStreet?: string
+  addressNumber?: string
+  addressDistrict?: string
+  addressComplement?: string
+}
+
+type ProfileErrors = {
+  email?: string
+  birthDate?: string
+  phone?: string
+  addressStreet?: string
+  addressNumber?: string
+}
+
+const STORAGE_KEY = 'kataloh:userProfile'
+
+const initialUser: UserProfile = {
   name: 'usuário',
   email: 'usuario@example.com',
   imageUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
   birthDate: '01/01/1990',
   address: 'Rua Exemplo, 123 - Centro, São Paulo - SP',
   phone: '(11) 99999-9999',
+  addressLabel: 'Casa',
+  addressStreet: 'Rua Exemplo',
+  addressNumber: '123',
+  addressDistrict: 'Centro',
+  addressComplement: 'São Paulo - SP',
 }
 
 const userNavigation = [
@@ -29,17 +60,142 @@ type NavbarProps = {
 
 export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCollapsed }: NavbarProps) {
   const { isDark, toggleTheme } = useTheme()
+  const [user, setUser] = useState<UserProfile>(() => {
+    if (typeof window === 'undefined') {
+      return initialUser
+    }
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (!raw) {
+        return initialUser
+      }
+      const parsed = JSON.parse(raw) as Partial<UserProfile>
+      return { ...initialUser, ...parsed }
+    } catch {
+      return initialUser
+    }
+  })
+  const [editableUser, setEditableUser] = useState<UserProfile>(initialUser)
+  const [profileErrors, setProfileErrors] = useState<ProfileErrors>({})
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const navigate = useNavigate()
 
+  const formatBirthDate = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 8)
+    if (digits.length <= 2) {
+      return digits
+    }
+    if (digits.length <= 4) {
+      return `${digits.slice(0, 2)}/${digits.slice(2)}`
+    }
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+  }
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11)
+    if (digits.length === 0) {
+      return ''
+    }
+    if (digits.length <= 2) {
+      return `(${digits}`
+    }
+    if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+    }
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+  }
+
+  const validateProfile = () => {
+    const nextErrors: ProfileErrors = {}
+    const email = editableUser.email.trim()
+    if (!email.includes('@') || !email.includes('.')) {
+      nextErrors.email = 'Informe um e-mail válido'
+    }
+    const birthDigits = editableUser.birthDate.replace(/\D/g, '')
+    if (birthDigits.length !== 8) {
+      nextErrors.birthDate = 'Informe a data no formato DD/MM/AAAA'
+    }
+    const phoneDigits = editableUser.phone.replace(/\D/g, '')
+    if (phoneDigits.length < 10) {
+      nextErrors.phone = 'Informe um telefone válido'
+    }
+    if (!editableUser.addressStreet || editableUser.addressStreet.trim() === '') {
+      nextErrors.addressStreet = 'Informe a rua'
+    }
+    if (!editableUser.addressNumber || editableUser.addressNumber.trim() === '') {
+      nextErrors.addressNumber = 'Informe o número'
+    }
+    setProfileErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  const handleOpenProfile = () => {
+    setEditableUser(user)
+    setProfileErrors({})
+    setIsEditingProfile(false)
+    setIsProfileOpen(true)
+  }
+
+  const handleCloseProfile = () => {
+    setIsProfileOpen(false)
+    setIsEditingProfile(false)
+    setEditableUser(user)
+    setProfileErrors({})
+  }
+
   const handleUserMenuClick = (itemName: string) => {
     if (itemName === 'Seu perfil') {
-      setIsProfileOpen(true)
+      handleOpenProfile()
     }
     if (itemName === 'Sair') {
       navigate('/')
     }
+  }
+
+  const handleStartEditProfile = () => {
+    setEditableUser(user)
+    setProfileErrors({})
+    setIsEditingProfile(true)
+  }
+
+  const handleCancelEditProfile = () => {
+    setEditableUser(user)
+    setProfileErrors({})
+    setIsEditingProfile(false)
+  }
+
+  const handleSaveProfile = () => {
+    if (!validateProfile()) {
+      return
+    }
+    const addressParts: string[] = []
+    if (editableUser.addressStreet || editableUser.addressNumber) {
+      if (editableUser.addressStreet && editableUser.addressNumber) {
+        addressParts.push(`${editableUser.addressStreet}, ${editableUser.addressNumber}`)
+      } else if (editableUser.addressStreet) {
+        addressParts.push(editableUser.addressStreet)
+      } else if (editableUser.addressNumber) {
+        addressParts.push(editableUser.addressNumber)
+      }
+    }
+    if (editableUser.addressDistrict) {
+      addressParts.push(editableUser.addressDistrict)
+    }
+    if (editableUser.addressComplement) {
+      addressParts.push(editableUser.addressComplement)
+    }
+    const formattedAddress = addressParts.join(' - ')
+    const nextProfile: UserProfile = {
+      ...editableUser,
+      address: formattedAddress || editableUser.address || user.address,
+    }
+    setUser(nextProfile)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextProfile))
+    }
+    setIsEditingProfile(false)
   }
 
   return (
@@ -164,7 +320,7 @@ export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCol
 
       <Modal
         isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
+        onClose={handleCloseProfile}
         title="Seu perfil"
       >
         <div className="flex flex-col gap-4">
@@ -184,20 +340,180 @@ export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCol
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs text-[color:var(--text-secondary)]">Data de nascimento</p>
-              <p className="text-sm font-medium text-[color:var(--text-primary)]">{user.birthDate}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[color:var(--text-secondary)]">Telefone</p>
-              <p className="text-sm font-medium text-[color:var(--text-primary)]">{user.phone}</p>
-            </div>
-            <div className="sm:col-span-2">
-              <p className="text-xs text-[color:var(--text-secondary)]">Endereço</p>
-              <p className="text-sm font-medium text-[color:var(--text-primary)]">{user.address}</p>
-            </div>
-          </div>
+          {isEditingProfile ? (
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(event) => {
+                event.preventDefault()
+                handleSaveProfile()
+              }}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="Nome"
+                  maxLength={40}
+                  placeholder="Ex: João Silva"
+                  value={editableUser.name}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({ ...previous, name: event.target.value }))
+                  }
+                />
+                <Input
+                  label="Data de nascimento"
+                  placeholder="Ex: 01/01/1990"
+                  value={editableUser.birthDate}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({
+                      ...previous,
+                      birthDate: formatBirthDate(event.target.value),
+                    }))
+                  }
+                  error={profileErrors.birthDate}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="E-mail"
+                  type="email"
+                  maxLength={20}
+                  placeholder="Ex: usuario@exemplo.com"
+                  value={editableUser.email}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({ ...previous, email: event.target.value }))
+                  }
+                  error={profileErrors.email}
+                />
+                <Input
+                  label="Telefone"
+                  placeholder="Ex: (11) 99999-9999"
+                  value={editableUser.phone}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({
+                      ...previous,
+                      phone: formatPhone(event.target.value),
+                    }))
+                  }
+                  error={profileErrors.phone}
+                />
+              </div>
+              <Input
+                label="Rótulo"
+                maxLength={20}
+                placeholder="Ex: Casa"
+                value={editableUser.addressLabel ?? ''}
+                onChange={(event) =>
+                  setEditableUser((previous) => ({
+                    ...previous,
+                    addressLabel: event.target.value,
+                  }))
+                }
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="Rua"
+                  maxLength={50}
+                  placeholder="Ex: Rua Exemplo"
+                  value={editableUser.addressStreet ?? ''}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({
+                      ...previous,
+                      addressStreet: event.target.value,
+                    }))
+                  }
+                  error={profileErrors.addressStreet}
+                />
+                <Input
+                  label="Número"
+                  value={editableUser.addressNumber ?? ''}
+                  placeholder="Ex: 123 ou S/N"
+                  onChange={(event) => {
+                    let value = event.target.value
+                    if (value.length > 4) {
+                      value = value.slice(0, 4)
+                    }
+                    const normalized = value.toLowerCase()
+                    const isDigits = /^[0-9]*$/.test(value)
+                    const isPrefixSn = 's/n'.startsWith(normalized)
+                    if (isDigits || isPrefixSn) {
+                      setEditableUser((previous) => ({
+                        ...previous,
+                        addressNumber: value,
+                      }))
+                    }
+                  }}
+                  error={profileErrors.addressNumber}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="Bairro"
+                  maxLength={40}
+                  placeholder="Ex: Centro"
+                  value={editableUser.addressDistrict ?? ''}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({
+                      ...previous,
+                      addressDistrict: event.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  label="Complemento"
+                  maxLength={40}
+                  placeholder="Ex: Apto 101, Bloco B"
+                  value={editableUser.addressComplement ?? ''}
+                  onChange={(event) =>
+                    setEditableUser((previous) => ({
+                      ...previous,
+                      addressComplement: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="mt-2 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  label="Cancelar"
+                  onClick={handleCancelEditProfile}
+                />
+                <Button type="submit" variant="primary" size="sm" label="Salvar" />
+              </div>
+            </form>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-[color:var(--text-secondary)]">Data de nascimento</p>
+                  <p className="text-sm font-medium text-[color:var(--text-primary)]">
+                    {user.birthDate}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-[color:var(--text-secondary)]">Telefone</p>
+                  <p className="text-sm font-medium text-[color:var(--text-primary)]">
+                    {user.phone}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[color:var(--text-secondary)]">Endereço</p>
+                  <p className="text-sm font-medium text-[color:var(--text-primary)]">
+                    {user.address}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  label="Editar informações"
+                  onClick={handleStartEditProfile}
+                />
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </>

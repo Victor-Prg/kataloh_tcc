@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Text } from './Text';
 import { X } from 'phosphor-react';
 
@@ -12,7 +13,7 @@ interface ModalProps {
 export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     // 1. O Overlay (Fundo escuro atrás do modal)
     <div 
       style={{
@@ -25,7 +26,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        zIndex: 9999,
+        zIndex: 2147483647,
         backdropFilter: 'blur(3px)'
       }} 
       onClick={onClose}
@@ -42,8 +43,11 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           borderRadius: '12px',
           width: '500px',
           maxWidth: '90%',
+          maxHeight: '90vh',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
           position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
           border: '1px solid var(--border-color)', // Borda sutil para contraste no dark mode
           transition: 'background-color 0.3s ease, border-color 0.3s ease'
         }}
@@ -82,11 +86,18 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         </div>
         
         {/* CORPO */}
-        <div>
+        <div
+          style={{
+            overflowY: 'auto',
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
           {children}
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

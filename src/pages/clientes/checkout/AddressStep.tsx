@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { Button, Text, Input, Modal } from '../../../components';
 
-// Mock de endereços
-const MOCK_ADDRESSES = [
-  { id: '1', label: 'Casa', street: 'Rua das Flores, 123', district: 'Centro' },
-  { id: '2', label: 'Trabalho', street: 'Av. Paulista, 1000', district: 'Bela Vista' },
+type AddressItem = {
+  id: string;
+  label: string;
+  street: string;
+  district: string;
+};
+
+const MOCK_ADDRESSES: AddressItem[] = [
+  { id: 'mock-1', label: 'Casa (exemplo)', street: 'Rua das Flores, 123', district: 'Centro' },
+  { id: 'mock-2', label: 'Trabalho (exemplo)', street: 'Av. Paulista, 1000', district: 'Bela Vista' },
 ];
 
 interface AddressStepProps {
@@ -16,8 +22,60 @@ interface AddressStepProps {
 
 export const AddressStep = ({ onSelectAddress, selectedId, onNext }: AddressStepProps) => {
   const [showNewAddress, setShowNewAddress] = useState(false);
-  const [addresses] = useState(MOCK_ADDRESSES);
   const [numero, setNumero] = useState('');
+
+  const buildAddresses = (): AddressItem[] => {
+    const baseAddresses: AddressItem[] = [...MOCK_ADDRESSES];
+
+    if (typeof window === 'undefined') {
+      return baseAddresses;
+    }
+
+    try {
+      const raw = window.localStorage.getItem('kataloh:userProfile');
+      if (!raw) {
+        return baseAddresses;
+      }
+
+      const data = JSON.parse(raw) as {
+        address?: string;
+        addressLabel?: string;
+        addressStreet?: string;
+        addressNumber?: string;
+        addressDistrict?: string;
+      };
+
+      const label = data.addressLabel || 'Endereço principal';
+      const street =
+        data.addressStreet && data.addressNumber
+          ? `${data.addressStreet}, ${data.addressNumber}`
+          : data.address || '';
+      const district = data.addressDistrict || '';
+
+      if (street) {
+        baseAddresses.unshift({
+          id: 'profile',
+          label,
+          street,
+          district,
+        });
+      }
+
+      return baseAddresses;
+    } catch {
+      return baseAddresses;
+    }
+  };
+
+  const addresses = buildAddresses();
+
+  const hasProfileAddress = addresses.some((address) => address.id === 'profile');
+
+  useEffect(() => {
+    if (hasProfileAddress && !selectedId) {
+      onSelectAddress('profile');
+    }
+  }, [hasProfileAddress, onSelectAddress, selectedId]);
 
   return (
     <div className="flex flex-col gap-4">
