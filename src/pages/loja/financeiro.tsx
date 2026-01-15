@@ -11,7 +11,8 @@ import {
   CreditCard,
   ShoppingBag,
   BarChart3,
-  Download
+  Download,
+  ChevronDown
 } from 'lucide-react'
 import { Button, Card } from '../../components'
 import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
@@ -116,15 +117,24 @@ function formatDate(dateString: string) {
 }
 
 export default function LojaFinanceiro() {
-  const [periodo, setPeriodo] = useState<PeriodoFiltro>('hoje')
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('tudo')
+  const [statusFiltro, setStatusFiltro] = useState<'todos' | 'concluido' | 'cancelado'>('todos')
   const [mostrarModalRepasse, setMostrarModalRepasse] = useState(false)
   const [valorSolicitacao, setValorSolicitacao] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
+  const [mostrarMenuPeriodo, setMostrarMenuPeriodo] = useState(false)
+  const [mostrarMenuStatus, setMostrarMenuStatus] = useState(false)
   const itensPorPagina = 10
 
   const vendasFiltradas = useMemo(() => {
-    return filtrarPorPeriodo(vendasMock, venda => new Date(venda.data), periodo)
-  }, [periodo])
+    const porPeriodo = filtrarPorPeriodo(vendasMock, venda => new Date(venda.data), periodo)
+
+    if (statusFiltro === 'todos') {
+      return porPeriodo
+    }
+
+    return porPeriodo.filter(venda => venda.status === statusFiltro)
+  }, [periodo, statusFiltro])
 
   // Calcular métricas
   const metricas = useMemo(() => {
@@ -144,9 +154,58 @@ export default function LojaFinanceiro() {
     }
   }, [vendasFiltradas])
 
+  const getPeriodoLabel = () => {
+    if (periodo === 'hoje') return 'Hoje'
+    if (periodo === 'semana') return 'Últimos 7 dias'
+    if (periodo === 'mes') return 'Últimos 30 dias'
+    return 'Tudo'
+  }
+
+  const getStatusLabel = () => {
+    if (statusFiltro === 'concluido') return 'Concluídos'
+    if (statusFiltro === 'cancelado') return 'Cancelados'
+    return 'Todos os status'
+  }
+
   const totalPaginas = Math.ceil(vendasFiltradas.length / itensPorPagina)
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const vendasPaginadas = vendasFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
+
+  const handleExportarCsv = () => {
+    if (vendasFiltradas.length === 0) return
+
+    const headers = ['Data', 'Hora', 'Pedido', 'Forma de pagamento', 'Valor', 'Status']
+    const linhas = vendasFiltradas.map((venda) => [
+      formatDate(venda.data),
+      venda.hora,
+      venda.pedidoId,
+      venda.formaPagamento,
+      venda.valor.toFixed(2).replace('.', ','),
+      venda.status === 'concluido' ? 'Concluído' : 'Cancelado',
+    ])
+
+    const todasLinhas = [headers, ...linhas]
+    const csv = todasLinhas
+      .map((linha) =>
+        linha
+          .map((campo) => {
+            const valor = String(campo ?? '')
+            const precisaAspas = valor.includes(';') || valor.includes('"') || valor.includes('\n')
+            const valorEscapado = valor.replace(/"/g, '""')
+            return precisaAspas ? `"${valorEscapado}"` : valorEscapado
+          })
+          .join(';')
+      )
+      .join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'financeiro-loja.csv'
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   const handleSolicitarRepasse = () => {
     const valor = parseFloat(valorSolicitacao.replace(',', '.'))
@@ -172,44 +231,117 @@ export default function LojaFinanceiro() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Download size={18} />
-            Exportar
-          </Button>
+        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap justify-end gap-2">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMostrarMenuPeriodo(prev => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+              >
+                <Calendar size={16} />
+                <span>{getPeriodoLabel()}</span>
+                <ChevronDown size={14} />
+              </button>
+
+              {mostrarMenuPeriodo && (
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
+                  {([
+                    { value: 'tudo' as PeriodoFiltro, label: 'Tudo' },
+                    { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
+                    { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
+                    { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setPeriodo(opt.value)
+                        setPaginaAtual(1)
+                        setMostrarMenuPeriodo(false)
+                      }}
+                      className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
+                        periodo === opt.value
+                          ? 'bg-[var(--primary-100)] text-white'
+                          : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMostrarMenuStatus(prev => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+              >
+                <span>{getStatusLabel()}</span>
+                <ChevronDown size={14} />
+              </button>
+
+              {mostrarMenuStatus && (
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
+                  {([
+                    { value: 'todos' as const, label: 'Todos os status' },
+                    { value: 'concluido' as const, label: 'Concluídos' },
+                    { value: 'cancelado' as const, label: 'Cancelados' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setStatusFiltro(opt.value)
+                        setPaginaAtual(1)
+                        setMostrarMenuStatus(false)
+                      }}
+                      className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
+                        statusFiltro === opt.value
+                          ? 'bg-[var(--primary-100)] text-white'
+                          : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPeriodo('tudo')
+                setStatusFiltro('todos')
+                setPaginaAtual(1)
+                setMostrarMenuPeriodo(false)
+                setMostrarMenuStatus(false)
+              }}
+              className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            >
+              Limpar filtros
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportarCsv}
+              disabled={vendasFiltradas.length === 0}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={16} />
+              <span>Exportar CSV</span>
+            </button>
+          </div>
           <Button
             variant="primary"
             onClick={() => setMostrarModalRepasse(true)}
-            className="flex items-center gap-2"
-          >
-            <CreditCard size={18} />
-            Solicitar Repasse
-          </Button>
+            icon={<CreditCard size={18} />}
+            label="Solicitar Repasse"
+          />
         </div>
-      </div>
-
-      {/* FILTRO DE PERÍODO */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {[
-          { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
-          { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
-          { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
-        ].map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setPeriodo(opt.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-              periodo === opt.value
-                ? 'bg-[var(--primary-100)] text-white'
-                : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
       </div>
 
       {/* CARDS DE MÉTRICAS */}

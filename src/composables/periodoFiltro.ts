@@ -1,10 +1,14 @@
-export type PeriodoFiltro = 'hoje' | 'semana' | 'mes'
+export type PeriodoFiltro = 'hoje' | 'semana' | 'mes' | 'tudo'
 
 export const filtrarPorPeriodo = <T>(
   items: T[],
   getDate: (item: T) => Date,
   periodo: PeriodoFiltro,
 ): T[] => {
+  if (periodo === 'tudo') {
+    return items
+  }
+
   const hoje = new Date()
   hoje.setHours(0, 0, 0, 0)
 
@@ -27,4 +31,3 @@ export const filtrarPorPeriodo = <T>(
     return data >= mesAtras && data <= hoje
   })
 }
-
