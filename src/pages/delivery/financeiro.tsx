@@ -331,13 +331,88 @@ export default function DeliveryFinanceiro() {
 
           {estadoTela !== 'sem_historico' && (
             <>
-              <Table
-                columns={columns}
-                data={repassesPaginados}
-                loading={loading}
-                emptyTitle="Nenhum repasse encontrado"
-                emptyDescription="Ajuste os filtros ou solicite um novo repasse."
-              />
+              <div className="block sm:hidden space-y-3">
+                {loading && repassesPaginados.length === 0 && (
+                  <>
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="rounded-lg border border-[var(--border)] bg-[var(--bg-body)] p-4 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <Skeleton variant="text" width="40%" />
+                          <Skeleton variant="rectangular" width="80px" height="20px" />
+                        </div>
+                        <Skeleton variant="text" width="60%" />
+                        <Skeleton variant="text" width="50%" />
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {!loading && repassesFiltrados.length === 0 && (
+                  <EmptyState
+                    title="Nenhum repasse encontrado"
+                    description="Ajuste os filtros ou solicite um novo repasse."
+                  />
+                )}
+
+                {!loading &&
+                  repassesFiltrados.length > 0 &&
+                  repassesPaginados.map((repasse) => (
+                    <button
+                      key={repasse.id}
+                      type="button"
+                      onClick={() => setRepasseSelecionado(repasse)}
+                      className="w-full text-left rounded-lg border border-[var(--border)] bg-[var(--bg-body)] p-4 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-[var(--text-primary)]">
+                            {formatDate(repasse.data)}
+                          </span>
+                          <span className="text-xs text-[var(--text-secondary)]">
+                            Agendado
+                          </span>
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${statusColor[repasse.status]}`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                          {statusLabel[repasse.status]}
+                        </span>
+                      </div>
+
+                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(repasse.valor)}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                        <span className="inline-flex items-center gap-1">
+                          {repasse.metodo === 'pix' && <CreditCard size={14} />}
+                          {repasse.metodo === 'dinheiro' && <DollarSign size={14} />}
+                          {repasse.metodo === 'cartao' && <CreditCard size={14} />}
+                          {repasse.metodo === 'pix' && 'PIX'}
+                          {repasse.metodo === 'dinheiro' && 'Dinheiro'}
+                          {repasse.metodo === 'cartao' && 'Cartão'}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[var(--primary-100)] font-medium">
+                          Ver detalhes
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+
+              <div className="hidden sm:block">
+                <Table
+                  columns={columns}
+                  data={repassesPaginados}
+                  loading={loading}
+                  emptyTitle="Nenhum repasse encontrado"
+                  emptyDescription="Ajuste os filtros ou solicite um novo repasse."
+                />
+              </div>
 
               {!loading && repassesFiltrados.length > 0 && (
                 <Pagination

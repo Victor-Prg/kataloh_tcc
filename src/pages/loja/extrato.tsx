@@ -5,9 +5,10 @@ import {
   Calendar,
   Download,
   Filter,
-  Search
+  Search,
+  ChevronDown
 } from 'lucide-react'
-import { Button, Card } from '../../components'
+import { Card } from '../../components'
 
 // --- TIPOS ---
 type TipoMovimentacao = 'entrada' | 'saida' | 'todos'
@@ -107,10 +108,12 @@ function formatDate(dateString: string) {
 }
 
 export default function ExtratoLoja() {
-  const [periodo, setPeriodo] = useState<PeriodoFiltro>('semana')
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('customizado')
   const [tipoMovimentacao, setTipoMovimentacao] = useState<TipoMovimentacao>('todos')
   const [busca, setBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
+  const [mostrarMenuPeriodo, setMostrarMenuPeriodo] = useState(false)
+  const [mostrarMenuTipo, setMostrarMenuTipo] = useState(false)
   const itensPorPagina = 15
 
   // Filtrar movimentações
@@ -187,6 +190,19 @@ export default function ExtratoLoja() {
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const movimentacoesPaginadas = movimentacoesFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
 
+  const getPeriodoLabel = () => {
+    if (periodo === 'hoje') return 'Hoje'
+    if (periodo === 'semana') return 'Últimos 7 dias'
+    if (periodo === 'mes') return 'Últimos 30 dias'
+    return 'Tudo'
+  }
+
+  const getTipoLabel = () => {
+    if (tipoMovimentacao === 'entrada') return 'Entradas'
+    if (tipoMovimentacao === 'saida') return 'Saídas'
+    return 'Todos os status'
+  }
+
   const handleExportarCsv = () => {
     if (movimentacoesFiltradas.length === 0) return
 
@@ -237,73 +253,125 @@ export default function ExtratoLoja() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={handleExportarCsv}
-          className="flex items-center gap-2"
-          disabled={movimentacoesFiltradas.length === 0}
-        >
-          <Download size={18} />
-          Exportar CSV
-        </Button>
-      </div>
+        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap justify-end gap-2">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMostrarMenuPeriodo(prev => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+              >
+                <Calendar size={16} />
+                <span>{getPeriodoLabel()}</span>
+                <ChevronDown size={14} />
+              </button>
 
-      {/* FILTROS */}
-      <div className="flex flex-col md:flex-row gap-3">
-        {/* Período */}
-        <div className="flex gap-2 overflow-x-auto pb-2 flex-1">
-          {[
-            { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
-            { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
-            { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
-          ].map((opt) => (
+              {mostrarMenuPeriodo && (
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
+                  {([
+                    { value: 'customizado' as PeriodoFiltro, label: 'Tudo' },
+                    { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
+                    { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
+                    { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setPeriodo(opt.value)
+                        setPaginaAtual(1)
+                        setMostrarMenuPeriodo(false)
+                      }}
+                      className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
+                        periodo === opt.value
+                          ? 'bg-[var(--primary-100)] text-white'
+                          : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMostrarMenuTipo(prev => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+              >
+                <span>{getTipoLabel()}</span>
+                <ChevronDown size={14} />
+              </button>
+
+              {mostrarMenuTipo && (
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
+                  {([
+                    { value: 'todos' as TipoMovimentacao, label: 'Todos os status' },
+                    { value: 'entrada' as TipoMovimentacao, label: 'Entradas' },
+                    { value: 'saida' as TipoMovimentacao, label: 'Saídas' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setTipoMovimentacao(opt.value)
+                        setPaginaAtual(1)
+                        setMostrarMenuTipo(false)
+                      }}
+                      className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
+                        tipoMovimentacao === opt.value
+                          ? 'bg-[var(--primary-100)] text-white'
+                          : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
-              key={opt.value}
+              type="button"
               onClick={() => {
-                setPeriodo(opt.value)
+                setPeriodo('customizado')
+                setTipoMovimentacao('todos')
+                setBusca('')
+                setPaginaAtual(1)
+                setMostrarMenuPeriodo(false)
+                setMostrarMenuTipo(false)
+              }}
+              className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            >
+              Limpar filtros
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportarCsv}
+              disabled={movimentacoesFiltradas.length === 0}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={16} />
+              <span>Exportar CSV</span>
+            </button>
+          </div>
+
+          <div className="relative w-full sm:w-64">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => {
+                setBusca(e.target.value)
                 setPaginaAtual(1)
               }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                periodo === opt.value
-                  ? 'bg-[var(--primary-100)] text-white'
-                  : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tipo de movimentação */}
-        <div className="relative">
-          <select
-            value={tipoMovimentacao}
-            onChange={(e) => {
-              setTipoMovimentacao(e.target.value as TipoMovimentacao)
-              setPaginaAtual(1)
-            }}
-            className="appearance-none rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 pr-10 text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
-          >
-            <option value="todos">Todos os tipos</option>
-            <option value="entrada">Entradas</option>
-            <option value="saida">Saídas</option>
-          </select>
-          <Filter size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
-        </div>
-
-        {/* Busca */}
-        <div className="relative flex-1 md:max-w-xs">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => {
-              setBusca(e.target.value)
-              setPaginaAtual(1)
-            }}
-            placeholder="Buscar por descrição..."
-            className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-sm"
-          />
+              placeholder="Buscar por descrição..."
+              className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-full bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-sm"
+            />
+          </div>
         </div>
       </div>
 
