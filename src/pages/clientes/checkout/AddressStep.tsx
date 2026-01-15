@@ -69,7 +69,7 @@ export const AddressStep = ({ onSelectAddress, selectedId, onNext }: AddressStep
       </div>
 
       <Modal isOpen={showNewAddress} onClose={() => setShowNewAddress(false)} title="Novo Endereço">
-        <div className="space-y-4">
+        <div className="space-y-2 px-2 md:px-0">
           <Input label="Rótulo (ex: Casa)" placeholder="Casa" maxLength={20} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Input label="Rua" placeholder="Rua..." maxLength={80} />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, useRef, type ReactNode, type CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   FileCsv,
@@ -384,6 +384,8 @@ function Treasury() {
   const [tempEndDate, setTempEndDate] = useState<string>('')
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const datePickerRef = useRef<HTMLDivElement>(null)
+  const datePickerButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [datePickerStyle, setDatePickerStyle] = useState<CSSProperties>()
   const [pageSize, setPageSize] = useState(getInitialPageSize)
 
   const lojas = useMemo(
@@ -774,12 +776,43 @@ function Treasury() {
           <div className="relative" ref={datePickerRef}>
             <button
               type="button"
+              ref={datePickerButtonRef}
               onClick={() => {
-                setShowDatePicker(!showDatePicker)
-                if (!showDatePicker) {
+                const willOpen = !showDatePicker
+                if (willOpen) {
                   setTempStartDate(customStartDate)
                   setTempEndDate(customEndDate)
+
+                  if (datePickerButtonRef.current) {
+                    const rect = datePickerButtonRef.current.getBoundingClientRect()
+                    const viewportWidth = window.innerWidth
+                    const viewportHeight = window.innerHeight
+
+                    const pickerWidth = Math.min(320, viewportWidth - 32)
+                    const centerX = rect.left + rect.width / 2
+                    const minLeft = 16
+                    const maxLeft = viewportWidth - pickerWidth - 16
+                    const left = Math.min(Math.max(centerX - pickerWidth / 2, minLeft), maxLeft)
+
+                    const estimatedHeight = 420
+                    const spaceBelow = viewportHeight - rect.bottom - 16
+                    const top =
+                      spaceBelow >= estimatedHeight
+                        ? rect.bottom + 8
+                        : Math.max(16, viewportHeight - estimatedHeight - 16)
+
+                    setDatePickerStyle({
+                      position: 'fixed',
+                      top,
+                      left,
+                      width: pickerWidth,
+                      zIndex: 50,
+                    })
+                  }
+                } else {
+                  setDatePickerStyle(undefined)
                 }
+                setShowDatePicker(willOpen)
               }}
               className="inline-flex items-center gap-2 rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
             >
@@ -789,7 +822,10 @@ function Treasury() {
             </button>
 
             {showDatePicker && (
-              <div className="absolute top-full right-0 mt-2 w-80 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-xl shadow-xl z-50 p-4">
+              <div
+                className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-xl shadow-xl z-50 p-4"
+                style={datePickerStyle}
+              >
                 <div className="mb-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
                     Filtros Rápidos

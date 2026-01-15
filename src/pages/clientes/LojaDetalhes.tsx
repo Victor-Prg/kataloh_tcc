@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 // Importamos o contexto global
-import { useCart } from '../../composables/CartContext'; 
+import { useCart, type CartItem } from '../../composables/CartContext'; 
 
 // --- TIPAGENS ---
 interface Product {
@@ -125,6 +125,23 @@ export const LojaDetalhes = () => {
       )
     })).filter(cat => cat.items.length > 0 && (selectedCategory === 'todos' || cat.id === selectedCategory));
   }, [searchTerm, selectedCategory]);
+
+  const groupedCartItems = useMemo(() => {
+    const groups: { storeId: string; storeName: string; items: CartItem[] }[] = [];
+    const map = new Map<string, { storeId: string; storeName: string; items: CartItem[] }>();
+
+    cartItems.forEach((item) => {
+      let group = map.get(item.storeId);
+      if (!group) {
+        group = { storeId: item.storeId, storeName: item.storeName, items: [] };
+        map.set(item.storeId, group);
+        groups.push(group);
+      }
+      group.items.push(item);
+    });
+
+    return groups;
+  }, [cartItems]);
 
   const handleAddToCart = (product: Product) => {
     addToCart({
@@ -329,7 +346,7 @@ export const LojaDetalhes = () => {
               </div>
 
               {/* LISTA DE ITENS */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
                 {cartItems.length === 0 ? (
                   <div className="py-8 flex flex-col items-center justify-center text-center opacity-50">
                     <ShoppingBag size={48} className="mb-2 text-gray-300" />
@@ -337,47 +354,57 @@ export const LojaDetalhes = () => {
                     <p className="text-xs text-[var(--text-muted)]">Adicione itens deliciosos!</p>
                   </div>
                 ) : (
-                  cartItems.map((item) => (
-                    <div key={item.id} className="flex gap-3 animate-fadeIn">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  groupedCartItems.map(group => (
+                    <div key={group.storeId} className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                          {group.storeName}
+                        </h3>
+                        <span className="text-xs text-[var(--text-secondary)]">
+                          {group.items.reduce((acc, it) => acc + it.quantity, 0)} itens
+                        </span>
                       </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className="text-sm font-medium text-[var(--text-primary)] line-clamp-1">{item.name}</h4>
-                          <span className="text-xs font-bold text-[var(--text-primary)]">
-                            {formatCurrency(item.price * item.quantity)}
-                          </span>
-                        </div>
-                        {item.storeName && (
-                          <p className="text-[10px] text-[var(--text-muted)] mb-2 truncate">
-                            Loja: {item.storeName}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center border border-[var(--border)] rounded-lg">
-                            <button 
-                              onClick={() => updateQuantity(String(item.id), -1)}
-                              className="p-1 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="text-xs font-medium w-6 text-center text-[var(--text-primary)]">{item.quantity}</span>
-                            <button 
-                              onClick={() => updateQuantity(String(item.id), 1)}
-                              className="p-1 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
-                            >
-                              <Plus size={14} />
-                            </button>
+                      <div className="space-y-3">
+                        {group.items.map((item) => (
+                          <div key={item.id} className="flex gap-3 animate-fadeIn">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]">
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-1">
+                                <h4 className="text-sm font-medium text-[var(--text-primary)] line-clamp-1">{item.name}</h4>
+                                <span className="text-xs font-bold text-[var(--text-primary)]">
+                                  {formatCurrency(item.price * item.quantity)}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center border border-[var(--border)] rounded-lg">
+                                  <button 
+                                    onClick={() => updateQuantity(String(item.id), -1)}
+                                    className="p-1 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+                                  >
+                                    <Minus size={14} />
+                                  </button>
+                                  <span className="text-xs font-medium w-6 text-center text-[var(--text-primary)]">{item.quantity}</span>
+                                  <button 
+                                    onClick={() => updateQuantity(String(item.id), 1)}
+                                    className="p-1 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
+                                  >
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
+                                <button 
+                                  onClick={() => removeFromCart(String(item.id))}
+                                  className="text-[var(--danger)] hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <button 
-                            onClick={() => removeFromCart(String(item.id))}
-                            className="text-[var(--danger)] hover:bg-red-50 p-1.5 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+                        ))}
                       </div>
+                      <div className="border-t border-[var(--border)] pt-2" />
                     </div>
                   ))
                 )}
