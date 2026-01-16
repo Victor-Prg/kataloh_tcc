@@ -71,7 +71,7 @@ const navigation: NavigationItem[] = [
     current: false,
     children: [
       { name: 'Lojas Disponíveis', href: '/cliente/lojas', icon: ShoppingBagIcon },
-      { name: 'Meus Pedidos', href: '/cliente/pedidos', icon: DocumentTextIcon },      { name: 'Conversas', href: '/cliente/conversas', icon: ChatBubbleLeftRightIcon },
+      { name: 'Conversas', href: '/cliente/conversas', icon: ChatBubbleLeftRightIcon },
     ],
   },
 
