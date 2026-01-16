@@ -12,10 +12,26 @@ import {
   X,
   Package,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageCircle
 } from 'lucide-react'
 
 type StatusPedido = 'pendente' | 'preparacao' | 'rota' | 'entregue'
+
+type ChatRemetente = 'cliente' | 'loja'
+
+type ChatMessage = {
+  id: string
+  remetente: ChatRemetente
+  texto: string
+  hora: string
+}
+
+type ClienteChat = {
+  nome: string
+  ultimoPedidoId: string
+  avatarUrl: string
+}
 
 type Pedido = {
   id: string
@@ -30,7 +46,7 @@ type Pedido = {
 const pedidosMock: Pedido[] = [
   {
     id: 'PED-001',
-    cliente: 'João Silva',
+    cliente: 'João',
     endereco: 'Rua das Flores, 123 - Centro',
     observacao: 'Entregar na portaria',
     valor: 54.9,
@@ -39,7 +55,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-004',
-    cliente: 'Ana Paula',
+    cliente: 'Ana',
     endereco: 'Rua Horizonte, 321 - Bela Vista',
     observacao: 'Apartamento 502',
     valor: 67.8,
@@ -48,7 +64,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-002',
-    cliente: 'Maria Santos',
+    cliente: 'Maria',
     endereco: 'Av. Principal, 456 - Jardim',
     valor: 89.5,
     status: 'preparacao',
@@ -56,7 +72,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-005',
-    cliente: 'Carlos Eduardo',
+    cliente: 'Carlos',
     endereco: 'Rua São José, 890 - Centro',
     valor: 45.0,
     status: 'preparacao',
@@ -64,7 +80,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-003',
-    cliente: 'Pedro Costa',
+    cliente: 'Pedro',
     endereco: 'Rua do Comércio, 789 - Vila Nova',
     observacao: 'Entregar para Ana Souza',
     valor: 125,
@@ -73,7 +89,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-006',
-    cliente: 'Juliana Mendes',
+    cliente: 'Juliana',
     endereco: 'Av. Brasil, 234 - Jardim América',
     valor: 78.9,
     status: 'entregue',
@@ -81,7 +97,7 @@ const pedidosMock: Pedido[] = [
   },
   {
     id: 'PED-007',
-    cliente: 'Roberto Lima',
+    cliente: 'Roberto',
     endereco: 'Rua das Acácias, 567 - Vila Rosa',
     valor: 92.5,
     status: 'entregue',
@@ -162,6 +178,10 @@ export default function RecepcaoLoja() {
   const [pedidoSelecionado, setPedidoSelecionado] = useState<Pedido | null>(null)
   const [pedidoArrastando, setPedidoArrastando] = useState<string | null>(null)
   const [colunaHover, setColunaHover] = useState<StatusPedido | null>(null)
+  const [chatAberto, setChatAberto] = useState(false)
+  const [clienteSelecionadoChat, setClienteSelecionadoChat] = useState<string | null>(null)
+  const [mensagensPorCliente, setMensagensPorCliente] = useState<Record<string, ChatMessage[]>>({})
+  const [mensagemAtual, setMensagemAtual] = useState('')
 
   const pedidosPorStatus = useMemo(
     () => ({
@@ -183,6 +203,26 @@ export default function RecepcaoLoja() {
     () => pedidos.reduce((acc, p) => acc + p.valor, 0),
     [pedidos]
   )
+
+  const clientesChat: ClienteChat[] = useMemo(() => {
+    const mapa = new Map<string, { ultimoPedidoId: string }>()
+
+    pedidos.forEach(pedido => {
+      if (!mapa.has(pedido.cliente)) {
+        mapa.set(pedido.cliente, { ultimoPedidoId: pedido.id })
+      }
+    })
+
+    return Array.from(mapa.entries()).map(([nome, info]) => {
+      const avatarUrl = `https://i.pravatar.cc/80?u=${encodeURIComponent(nome)}`
+
+      return {
+        nome,
+        ultimoPedidoId: info.ultimoPedidoId,
+        avatarUrl,
+      }
+    })
+  }, [pedidos])
 
   const handleAvancarStatus = (pedidoId: string) => {
     setPedidos(prev => prev.map(p => {
@@ -267,6 +307,56 @@ export default function RecepcaoLoja() {
       return p
     }))
   }
+
+  const selecionarClienteChat = (nome: string) => {
+    setClienteSelecionadoChat(nome)
+  }
+
+  const abrirOuFecharChat = () => {
+    if (!chatAberto) {
+      if (!clienteSelecionadoChat && clientesChat.length > 0) {
+        setClienteSelecionadoChat(clientesChat[0].nome)
+      }
+      setChatAberto(true)
+      return
+    }
+
+    setChatAberto(false)
+  }
+
+  const handleEnviarMensagem = () => {
+    if (!clienteSelecionadoChat) return
+
+    const texto = mensagemAtual.trim()
+    if (!texto) return
+
+    const hora = new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+
+    const novaMensagem: ChatMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      remetente: 'loja',
+      texto,
+      hora,
+    }
+
+    setMensagensPorCliente(prev => ({
+      ...prev,
+      [clienteSelecionadoChat]: [...(prev[clienteSelecionadoChat] ?? []), novaMensagem],
+    }))
+
+    setMensagemAtual('')
+  }
+
+  const mensagensClienteSelecionado = clienteSelecionadoChat
+    ? mensagensPorCliente[clienteSelecionadoChat] ?? []
+    : []
+
+  const clienteSelecionadoInfo = clienteSelecionadoChat
+    ? clientesChat.find(cliente => cliente.nome === clienteSelecionadoChat) ?? null
+    : null
 
   return (
     <>
@@ -597,6 +687,15 @@ export default function RecepcaoLoja() {
         </div>
       </div>
 
+      <button
+        type="button"
+        onClick={abrirOuFecharChat}
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 inline-flex items-center gap-2 rounded-full bg-[var(--primary-100)] px-4 py-3 sm:px-5 sm:py-3 text-sm font-semibold text-white shadow-lg hover:opacity-90 transition-all"
+      >
+        <MessageCircle size={20} />
+        <span className="hidden sm:inline">Chat com clientes</span>
+      </button>
+
       {/* MODAL DE DETALHES DO PEDIDO */}
       {pedidoSelecionado && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -667,6 +766,172 @@ export default function RecepcaoLoja() {
             >
               Fechar
             </button>
+          </div>
+        </div>
+      )}
+
+      {chatAberto && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:justify-end sm:items-end bg-black/40 sm:bg-transparent">
+          <div className="w-full sm:w-[420px] max-w-full p-0 sm:p-4">
+            <div className="bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-[var(--border)] flex flex-col sm:flex-row h-[75vh] sm:h-[520px] overflow-hidden">
+              <div className="hidden sm:flex w-60 flex-col border-r border-[var(--border)] bg-[var(--surface-nav)]">
+                <div className="px-3 py-3 text-xs font-semibold text-[var(--text-secondary)] border-b border-[var(--border)]">
+                  Clientes
+                </div>
+                <div className="flex-1">
+                  {clientesChat.length === 0 && (
+                    <div className="px-3 py-4 text-[11px] text-[var(--text-secondary)]">
+                      Nenhum cliente com pedido no momento.
+                    </div>
+                  )}
+                  {clientesChat.map(cliente => (
+                    <button
+                      key={cliente.nome}
+                      type="button"
+                      onClick={() => selecionarClienteChat(cliente.nome)}
+                      className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs border-l-4 ${
+                        clienteSelecionadoChat === cliente.nome
+                          ? 'bg-gray-50 dark:bg-white/5 border-[var(--primary-100)] text-[var(--text-primary)]'
+                          : 'border-transparent text-[var(--text-secondary)] hover:bg-gray-50 dark:hover:bg-white/5'
+                      }`}
+                    >
+                      <img
+                        src={cliente.avatarUrl}
+                        alt={cliente.nome}
+                        className="h-8 w-8 rounded-full object-cover border border-[var(--border)] bg-[var(--bg-body)]"
+                      />
+                      <div className="flex flex-col items-start gap-0.5 w-full">
+                        <span className="font-semibold text-xs text-[var(--text-primary)] truncate w-full">
+                          {cliente.nome}
+                        </span>
+                        <span className="text-[11px] text-[var(--text-muted)] whitespace-nowrap">
+                          {cliente.ultimoPedidoId}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col bg-[var(--bg-body)]">
+                <div className="flex items-center justify-between gap-2 px-3 py-3 border-b border-[var(--border)] bg-[var(--surface)]">
+                  <div className="flex items-center gap-2">
+                    {clienteSelecionadoInfo ? (
+                      <img
+                        src={clienteSelecionadoInfo.avatarUrl}
+                        alt={clienteSelecionadoInfo.nome}
+                        className="h-8 w-8 rounded-full object-cover border border-[var(--border)] bg-[var(--bg-body)]"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary-100)] text-white">
+                        <MessageCircle size={18} />
+                      </div>
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        {clienteSelecionadoChat || 'Selecione um cliente'}
+                      </span>
+                      <span className="text-[11px] text-[var(--text-secondary)]">
+                        Atendimento da loja
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={clienteSelecionadoChat || ''}
+                      onChange={event => selecionarClienteChat(event.target.value)}
+                      className="sm:hidden rounded-lg border border-[var(--border)] bg-[var(--bg-body)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                    >
+                      <option value="" disabled>
+                        Clientes
+                      </option>
+                      {clientesChat.map(cliente => (
+                        <option key={cliente.nome} value={cliente.nome}>
+                          {cliente.nome}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setChatAberto(false)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-secondary)] hover:bg-[var(--bg-body)]"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+                  {clienteSelecionadoChat && mensagensClienteSelecionado.length === 0 && (
+                    <div className="flex h-full items-center justify-center">
+                      <p className="max-w-[220px] text-center text-xs text-[var(--text-secondary)]">
+                        Nenhuma mensagem ainda com este cliente. Envie uma mensagem para iniciar a
+                        conversa.
+                      </p>
+                    </div>
+                  )}
+
+                  {!clienteSelecionadoChat && (
+                    <div className="flex h-full items-center justify-center">
+                      <p className="max-w-[240px] text-center text-xs text-[var(--text-secondary)]">
+                        Selecione um cliente para visualizar e enviar mensagens.
+                      </p>
+                    </div>
+                  )}
+
+                  {clienteSelecionadoChat &&
+                    mensagensClienteSelecionado.map(mensagem => {
+                      const alinhamento =
+                        mensagem.remetente === 'loja' ? 'justify-end' : 'justify-start'
+                      const bubbleClasses =
+                        mensagem.remetente === 'loja'
+                          ? 'bg-[var(--primary-100)] text-white rounded-2xl rounded-br-sm'
+                          : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] rounded-2xl rounded-bl-sm'
+
+                      return (
+                        <div key={mensagem.id} className={`flex ${alinhamento}`}>
+                          <div className={`max-w-[80%] px-3 py-2 text-xs ${bubbleClasses}`}>
+                            <p className="whitespace-pre-wrap break-words">{mensagem.texto}</p>
+                            <span className="mt-1 inline-block text-[10px] opacity-80">
+                              {mensagem.hora}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                </div>
+
+                <div className="border-t border-[var(--border)] bg-[var(--surface)] p-3">
+                  <form
+                    onSubmit={event => {
+                      event.preventDefault()
+                      handleEnviarMensagem()
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={mensagemAtual}
+                      onChange={event => setMensagemAtual(event.target.value)}
+                      placeholder={
+                        clienteSelecionadoChat
+                          ? 'Digite uma mensagem'
+                          : 'Selecione um cliente para enviar mensagens'
+                      }
+                      className="flex-1 rounded-full border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!clienteSelecionadoChat || !mensagemAtual.trim()}
+                      className="inline-flex items-center justify-center rounded-full bg-[var(--primary-100)] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-all"
+                    >
+                      Enviar
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
