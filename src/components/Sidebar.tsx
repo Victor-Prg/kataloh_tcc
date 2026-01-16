@@ -21,6 +21,7 @@ import {
   ChartBarIcon,
   UserGroupIcon,
   TicketIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
 import logo from '../assets/logo.svg'
 import iconKataloh from '../assets/icon kataloh.svg'
@@ -70,7 +71,11 @@ const navigation: NavigationItem[] = [
     current: false,
     children: [
       { name: 'Lojas Disponíveis', href: '/cliente/lojas', icon: ShoppingBagIcon },
+<<<<<<< HEAD
       { name: 'Meus Pedidos', href: '/cliente/pedidos', icon: DocumentTextIcon },
+=======
+      { name: 'Conversas', href: '/cliente/conversas', icon: ChatBubbleLeftRightIcon },
+>>>>>>> 07ef2d0 (add chat)
     ],
   },
 

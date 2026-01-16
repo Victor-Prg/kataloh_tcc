@@ -6,13 +6,13 @@ import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import ForgotPassword from './pages/auth/forgot';
 import Checkout from './pages/clientes/checkout/Checkout';
-// Dashboards
 import Dashboard from './pages/admin/home';
 import LojaDashboard from './pages/loja/dashboard';
 import Tesouraria from './pages/admin/financeiro/tesouraria';
 import { Lojas } from './pages/clientes/Lojas';
 import { LojaDetalhes } from './pages/clientes/LojaDetalhes';
 import { MeusPedidos } from './pages/clientes/MeusPedidos';
+import { Conversas } from './pages/clientes/Conversas';
 import FinanceiroRepasses from './pages/admin/financeiro/repasses';
 import HistoricoRepasses from './pages/admin/financeiro/HistoricoRepasses';
 import AdminGerenciarLojas from './pages/admin/lojas/gerenciar-lojas';
@@ -57,11 +57,12 @@ function App() {
               <Route path="/delivery/lojas" element={<DeliveryLojas />} />
               <Route path="/dashboard" element={<Dashboard />} />
               
-              {/* Cliente */}
               <Route path="/cliente/lojas" element={<Lojas />} />
               <Route path="/cliente/lojas/:id" element={<LojaDetalhes />} />
               <Route path="/cliente/checkout" element={<Checkout />} />
               <Route path="/cliente/pedidos" element={<MeusPedidos />} />
+=======
+              <Route path="/cliente/conversas" element={<Conversas />} />
               
               {/* Delivery */}
               <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
