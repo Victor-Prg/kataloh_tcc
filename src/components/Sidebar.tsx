@@ -70,6 +70,7 @@ const navigation: NavigationItem[] = [
     current: false,
     children: [
       { name: 'Lojas Disponíveis', href: '/cliente/lojas', icon: ShoppingBagIcon },
+      { name: 'Meus Pedidos', href: '/cliente/pedidos', icon: DocumentTextIcon },
     ],
   },
 
