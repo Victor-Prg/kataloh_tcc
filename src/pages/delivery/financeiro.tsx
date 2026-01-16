@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Wallet, TrendingUp, Clock, CreditCard, DollarSign, AlertCircle, CheckCircle2, Info } from 'lucide-react'
-import { Button, Card, Table, type TableColumn, Pagination, Tooltip, Skeleton, EmptyState } from '../../components'
+import { Button, Card, Table, type TableColumn, Pagination, Tooltip, EmptyState, Skeleton } from '../../components'
 import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
 
 type MetodoRecebimento = 'pix' | 'dinheiro' | 'cartao'
@@ -211,11 +211,10 @@ export default function DeliveryFinanceiro() {
               variant="primary"
               disabled={bloqueado}
               onClick={() => setModalAberto(true)}
-              className="flex items-center gap-2 justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Wallet size={18} />
-              Solicitar Repasse
-            </Button>
+              className="disabled:opacity-40 disabled:cursor-not-allowed"
+              icon={<Wallet size={18} />}
+              label="Solicitar Repasse"
+            />
           </div>
         </div>
 
@@ -642,12 +641,10 @@ export default function DeliveryFinanceiro() {
                 variant="primary"
                 disabled={carregandoAcao}
                 onClick={handleSolicitarRepasse}
-                className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                isLoading={carregandoAcao}
+                icon={!carregandoAcao ? <CheckCircle2 size={16} /> : undefined}
               >
-                {carregandoAcao && (
-                  <Skeleton variant="circular" width="16px" height="16px" />
-                )}
-                {!carregandoAcao && <CheckCircle2 size={16} />}
                 Confirmar Solicitação
               </Button>
             </div>

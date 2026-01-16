@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MapPin, CheckCircle, Package, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
@@ -19,7 +19,6 @@ interface Order {
 }
 
 export default function DeliveryOrders() {
-  const [filterStatus, setFilterStatus] = useState<OrderStatus | 'todos'>('disponivel');
   const [orders, setOrders] = useState<Order[]>([
     {
       id: '1',
@@ -80,6 +79,26 @@ export default function DeliveryOrders() {
     },
   ]);
 
+  const statusOrder: Record<OrderStatus, number> = {
+    disponivel: 0,
+    em_entrega: 1,
+    entregue: 2,
+  };
+
+  const sortedOrders = useMemo(
+    () => [...orders].sort((a, b) => statusOrder[a.status] - statusOrder[b.status]),
+    [orders],
+  );
+
+  const ordersByStatus = useMemo(
+    () => ({
+      disponivel: orders.filter((order) => order.status === 'disponivel'),
+      em_entrega: orders.filter((order) => order.status === 'em_entrega'),
+      entregue: orders.filter((order) => order.status === 'entregue'),
+    }),
+    [orders],
+  );
+
   const updateOrderStatus = (id: string, newStatus: OrderStatus) => {
     setOrders(orders.map((order) => (order.id === id ? { ...order, status: newStatus } : order)));
   };
@@ -95,7 +114,7 @@ export default function DeliveryOrders() {
         };
       case 'em_entrega':
         return {
-          label: 'Em Entrega',
+          label: 'Em Rota',
           color: 'text-blue-600 dark:text-blue-400',
           bg: 'bg-blue-100 dark:bg-blue-900/20',
           icon: TrendingUp,
@@ -110,193 +129,230 @@ export default function DeliveryOrders() {
     }
   };
 
-  const filterOrdersByStatus = (status: OrderStatus) => {
-    return orders.filter((order) => order.status === status);
-  };
-
-  const getFilteredOrders = () => {
-    if (filterStatus === 'todos') return orders;
-    return orders.filter((order) => order.status === filterStatus);
-  };
-
   return (
-    <div className="min-h-screen bg-[var(--bg-body)]">
-      <div className="p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Pedidos</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Aceite pedidos e comece a entregar</p>
-        </div>
+    <div className="p-4 sm:p-6 lg:p-8">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)] mb-2">
+          Pedidos
+        </h1>
+        <p className="text-[20px] leading-[24px] text-[var(--text-secondary)]">
+          Aceite pedidos e comece a entregar
+        </p>
+      </div>
 
-        {/* Filtros */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          <button
-            onClick={() => setFilterStatus('disponivel')}
-            className={`px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all flex items-center gap-2 ${
-              filterStatus === 'disponivel'
-                ? 'bg-[var(--primary-100)] text-white shadow-lg'
-                : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
-            }`}
-          >
-            <Package size={16} />
-            Disponíveis ({filterOrdersByStatus('disponivel').length})
-          </button>
+      {/* Lista mobile (cards) */}
+      <div className="space-y-4 md:hidden">
+        {sortedOrders.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Package size={48} className="mx-auto mb-4 text-[var(--text-muted)]" />
+            <p className="font-semibold text-[var(--text-secondary)]">Nenhum pedido encontrado</p>
+          </Card>
+        ) : (
+          sortedOrders.map((order) => {
+            const statusConfig = getStatusConfig(order.status);
+            const StatusIcon = statusConfig.icon;
 
-          <button
-            onClick={() => setFilterStatus('em_entrega')}
-            className={`px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all flex items-center gap-2 ${
-              filterStatus === 'em_entrega'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
-            }`}
-          >
-            <TrendingUp size={16} />
-            Em Entrega ({filterOrdersByStatus('em_entrega').length})
-          </button>
+            return (
+              <Card
+                key={order.id}
+                className={`p-5 transition-all ${
+                  order.status === 'em_entrega'
+                    ? 'border-2 border-blue-400 dark:border-blue-600 shadow-lg'
+                    : order.status === 'entregue'
+                    ? 'opacity-75'
+                    : ''
+                }`}
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary-100)] to-[var(--primary-90)] rounded-lg flex items-center justify-center text-white font-bold">
+                      {order.empresa.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">{order.cliente}</h3>
+                      <p className="text-xs text-[var(--primary-100)] font-semibold">{order.empresa}</p>
+                      <p className="text-xs text-[var(--text-secondary)]">
+                        {order.data} às {order.hora}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.color} flex items-center gap-1.5`}
+                  >
+                    {order.status === 'em_entrega' && (
+                      <span className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-pulse" />
+                    )}
+                    <StatusIcon size={14} />
+                    {statusConfig.label}
+                  </span>
+                </div>
 
-          <button
-            onClick={() => setFilterStatus('entregue')}
-            className={`px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all flex items-center gap-2 ${
-              filterStatus === 'entregue'
-                ? 'bg-green-600 text-white shadow-lg'
-                : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
-            }`}
-          >
-            <CheckCircle size={16} />
-            Entregues ({filterOrdersByStatus('entregue').length})
-          </button>
+                <div className="p-3 bg-[var(--surface-nav)] rounded-lg mb-3">
+                  <p className="text-sm text-[var(--text-secondary)] mb-2 flex items-start gap-2">
+                    <MapPin size={14} className="mt-0.5 flex-shrink-0" />
+                    <span>{order.endereco}</span>
+                  </p>
+                  {order.distancia && (
+                    <p
+                      className={`text-xs font-semibold flex items-center gap-1.5 ${
+                        order.status === 'entregue'
+                          ? 'text-green-600 dark:text-green-400'
+                          : order.status === 'em_entrega'
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-[var(--primary-100)]'
+                      }`}
+                    >
+                      <TrendingUp size={14} />
+                      {order.status === 'entregue' ? `Entregue • ${order.distancia}` : `${order.distancia} de distância`}
+                    </p>
+                  )}
+                </div>
 
-          <button
-            onClick={() => setFilterStatus('todos')}
-            className={`px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition-all flex items-center gap-2 ${
-              filterStatus === 'todos'
-                ? 'bg-gray-600 text-white shadow-lg'
-                : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
-            }`}
-          >
-            Todos ({orders.length})
-          </button>
-        </div>
+                {order.observacoes && (
+                  <div className="p-3 bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-3">
+                    <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
+                      <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                      <span>
+                        <strong>Obs:</strong> {order.observacoes}
+                      </span>
+                    </p>
+                  </div>
+                )}
 
-        {/* Orders List */}
-        <div className="space-y-4">
-          {getFilteredOrders().length === 0 ? (
-            <Card className="p-12 text-center">
-              <Package size={48} className="mx-auto mb-4 text-[var(--text-muted)]" />
-              <p className="font-semibold text-[var(--text-secondary)]">Nenhum pedido encontrado</p>
-            </Card>
-          ) : (
-            getFilteredOrders().map((order) => {
-              const statusConfig = getStatusConfig(order.status);
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    R$ {order.valor.toFixed(2)}
+                  </span>
+
+                  {order.status === 'disponivel' && (
+                    <Button onClick={() => updateOrderStatus(order.id, 'em_entrega')} icon={<CheckCircle size={16} />}>
+                      Aceitar
+                    </Button>
+                  )}
+
+                  {order.status === 'em_entrega' && (
+                    <Button
+                      onClick={() => updateOrderStatus(order.id, 'entregue')}
+                      className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                      icon={<CheckCircle size={16} />}
+                    >
+                      Marcar Entregue
+                    </Button>
+                  )}
+
+                  {order.status === 'entregue' && (
+                    <div className="px-4 py-2 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-sm font-semibold flex items-center gap-2">
+                      <CheckCircle size={16} />
+                      Completo
+                    </div>
+                  )}
+                </div>
+              </Card>
+            );
+          })
+        )}
+      </div>
+
+      <div className="mt-4 hidden md:block">
+        {orders.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Package size={48} className="mx-auto mb-4 text-[var(--text-muted)]" />
+            <p className="font-semibold text-[var(--text-secondary)]">Nenhum pedido encontrado</p>
+          </Card>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-5">
+            {(['disponivel', 'em_entrega', 'entregue'] as OrderStatus[]).map((status) => {
+              const statusOrders = ordersByStatus[status];
+              const statusConfig = getStatusConfig(status);
               const StatusIcon = statusConfig.icon;
 
               return (
-                <Card
-                  key={order.id}
-                  className={`p-5 transition-all ${
-                    order.status === 'em_entrega'
-                      ? 'border-2 border-blue-400 dark:border-blue-600 shadow-lg'
-                      : order.status === 'entregue'
-                      ? 'opacity-75'
-                      : ''
-                  }`}
+                <div
+                  key={status}
+                  className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary-100)] to-[var(--primary-90)] rounded-lg flex items-center justify-center text-white font-bold">
-                        {order.empresa.charAt(0)}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-[var(--text-primary)]">{order.cliente}</h3>
-                        <p className="text-xs text-[var(--primary-100)] font-semibold">{order.empresa}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">
-                          {order.data} às {order.hora}
-                        </p>
-                      </div>
+                  <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
+                    <div className={`flex items-center gap-2 ${statusConfig.color}`}>
+                      <StatusIcon size={18} />
+                      <span className="font-semibold text-sm">{statusConfig.label}</span>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.color} flex items-center gap-1.5`}
-                    >
-                      {order.status === 'em_entrega' && (
-                        <span className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-pulse" />
-                      )}
-                      <StatusIcon size={14} />
-                      {statusConfig.label}
+                    <span className="text-xs font-semibold text-[var(--text-secondary)]">
+                      {statusOrders.length}
                     </span>
                   </div>
-
-                  {/* Endereço e Distância */}
-                  <div className="p-3 bg-[var(--surface-nav)] rounded-lg mb-3">
-                    <p className="text-sm text-[var(--text-secondary)] mb-2 flex items-start gap-2">
-                      <MapPin size={14} className="mt-0.5 flex-shrink-0" />
-                      <span>{order.endereco}</span>
-                    </p>
-                    {order.distancia && (
-                      <p
-                        className={`text-xs font-semibold flex items-center gap-1.5 ${
-                          order.status === 'entregue'
-                            ? 'text-green-600 dark:text-green-400'
-                            : order.status === 'em_entrega'
-                            ? 'text-blue-600 dark:text-blue-400'
-                            : 'text-[var(--primary-100)]'
-                        }`}
-                      >
-                        <TrendingUp size={14} />
-                        {order.status === 'entregue' ? `Entregue • ${order.distancia}` : `${order.distancia} de distância`}
-                      </p>
+                  <div className="p-4 space-y-3 min-h-[260px]">
+                    {statusOrders.length === 0 ? (
+                      <p className="text-xs text-[var(--text-muted)]">Nenhum pedido</p>
+                    ) : (
+                      statusOrders.map((order) => (
+                        <div
+                          key={order.id}
+                          className="rounded-xl border border-[var(--border)] bg-[var(--surface-nav)] px-4 py-5 flex flex-col gap-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary-100)] to-[var(--primary-90)] rounded-lg flex items-center justify-center text-white font-bold">
+                              {order.empresa.charAt(0)}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-[var(--text-primary)] text-sm">
+                                {order.cliente}
+                              </h3>
+                              <p className="text-xs text-[var(--primary-100)] font-semibold">
+                                {order.empresa}
+                              </p>
+                              <p className="text-xs text-[var(--text-secondary)]">
+                                {order.data} às {order.hora}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-[var(--text-secondary)] flex items-start gap-2">
+                            <MapPin size={14} className="mt-0.5 flex-shrink-0" />
+                            <span>{order.endereco}</span>
+                          </p>
+                          {order.observacoes && (
+                            <p className="text-xs text-amber-400 flex items-start gap-2">
+                              <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                              <span>{order.observacoes}</span>
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between gap-2 mt-1">
+                            <span className="text-base font-bold text-green-500">
+                              R$ {order.valor.toFixed(2)}
+                            </span>
+                            {order.status === 'disponivel' && (
+                              <Button
+                                onClick={() => updateOrderStatus(order.id, 'em_entrega')}
+                                icon={<CheckCircle size={16} />}
+                              >
+                                Aceitar
+                              </Button>
+                            )}
+                            {order.status === 'em_entrega' && (
+                              <Button
+                                onClick={() => updateOrderStatus(order.id, 'entregue')}
+                                className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                                icon={<CheckCircle size={16} />}
+                              >
+                                Marcar Entregue
+                              </Button>
+                            )}
+                            {order.status === 'entregue' && (
+                              <div className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-xs font-semibold flex items-center gap-2">
+                                <CheckCircle size={16} />
+                                Completo
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
-
-                  {/* Observações */}
-                  {order.observacoes && (
-                    <div className="p-3 bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-3">
-                      <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
-                        <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
-                        <span>
-                          <strong>Obs:</strong> {order.observacoes}
-                        </span>
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Valor e Ações */}
-                  <div className="flex justify-between items-center gap-3">
-                    <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                      R$ {order.valor.toFixed(2)}
-                    </span>
-
-                    {order.status === 'disponivel' && (
-                      <Button
-                        onClick={() => updateOrderStatus(order.id, 'em_entrega')}
-                        className="flex items-center gap-2"
-                      >
-                        <CheckCircle size={16} />
-                        Aceitar
-                      </Button>
-                    )}
-
-                    {order.status === 'em_entrega' && (
-                      <Button
-                        onClick={() => updateOrderStatus(order.id, 'entregue')}
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
-                      >
-                        <CheckCircle size={16} />
-                        Marcar Entregue
-                      </Button>
-                    )}
-
-                    {order.status === 'entregue' && (
-                      <div className="px-4 py-2 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-sm font-semibold flex items-center gap-2">
-                        <CheckCircle size={16} />
-                        Completo
-                      </div>
-                    )}
-                  </div>
-                </Card>
+                </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
