@@ -16,6 +16,7 @@ import FinanceiroRepasses from './pages/admin/financeiro/repasses';
 import HistoricoRepasses from './pages/admin/financeiro/HistoricoRepasses';
 import AdminGerenciarLojas from './pages/admin/lojas/gerenciar-lojas';
 import AdminPedidosLoja from './pages/admin/lojas/pedidos-loja';
+import ChatFirebase from './pages/admin/ChatFirebase';
 import RecepcaoLoja from './pages/loja/recepcao';
 import NewPedido from './pages/loja/new-pedido';
 import LojaFinanceiro from './pages/loja/financeiro';
@@ -88,6 +89,7 @@ function App() {
               {/* Admin */}
               <Route path="/admin/gerenciar-lojas" element={<AdminGerenciarLojas />} />
               <Route path="/admin/pedidos-loja/:lojaId" element={<AdminPedidosLoja />} />
+              <Route path="/admin/chat" element={<ChatFirebase />} />
             </Route>
 
             {/* Fallback: Se a rota não existir, volta pro Login */}

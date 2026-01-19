@@ -357,7 +357,7 @@ export function MeusPedidos() {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Meus Pedidos</h1>
+            <h1 className="text-[28px] font-bold text-[var(--text-primary)]">Meus Pedidos</h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
               Acompanhe seu histórico de pedidos e avalie suas experiências.
             </p>
@@ -403,7 +403,7 @@ export function MeusPedidos() {
                 <Card
                   key={pedido.id}
                   variant="flat"
-                  className="border border-[var(--border)] rounded-xl bg-[var(--surface)] cursor-pointer hover:border-[var(--primary-100)] hover:shadow-md transition-all"
+                  className="border border-[var(--border)] rounded-[12px] bg-[var(--surface)] cursor-pointer hover:border-[var(--primary-100)] hover:shadow-md transition-all"
                   onClick={() => handleAbrirDetalhes(pedido)}
                 >
                   <div className="flex gap-3 sm:gap-4">
@@ -513,7 +513,7 @@ export function MeusPedidos() {
                     type="button"
                     onClick={() => setPaginaAtual((prev) => Math.max(1, prev - 1))}
                     disabled={paginaAtual === 1}
-                    className="px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Anterior
                   </button>
@@ -533,7 +533,7 @@ export function MeusPedidos() {
                       setPaginaAtual((prev) => Math.min(totalPaginas, prev + 1))
                     }
                     disabled={paginaAtual === totalPaginas}
-                    className="px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Próxima
                   </button>
@@ -546,7 +546,7 @@ export function MeusPedidos() {
 
       {pedidoSelecionado && (
         <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full sm:max-w-lg bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl border border-[var(--border)] shadow-xl p-4 sm:p-6">
+          <div className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--surface)] rounded-t-[12px] sm:rounded-[12px] border border-[var(--border)] shadow-xl p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--border)] bg-[var(--bg-body)] flex items-center justify-center">
@@ -587,7 +587,7 @@ export function MeusPedidos() {
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-2 border border-[var(--border)] rounded-lg px-3 py-2 bg-[var(--bg-body)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 border border-[var(--border)] rounded-[12px] px-3 py-2 bg-[var(--bg-body)]">
                 <div className="flex flex-col">
                   <span className="text-xs text-[var(--text-secondary)]">
                     Total pago
@@ -605,7 +605,7 @@ export function MeusPedidos() {
               </div>
 
               {pedidoSelecionado.avaliado && pedidoSelecionado.nota && (
-                <div className="border border-[var(--border)] rounded-lg px-3 py-2 bg-[var(--bg-body)] flex items-center justify-between gap-3">
+                <div className="border border-[var(--border)] rounded-[12px] px-3 py-2 bg-[var(--bg-body)] flex items-center justify-between gap-3">
                   <div>
                     <p className="text-xs text-[var(--text-secondary)]">Sua avaliação</p>
                     <div className="mt-1">{renderStars(pedidoSelecionado.nota)}</div>
@@ -624,7 +624,7 @@ export function MeusPedidos() {
 
       {ratingAberto && (
         <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full sm:max-w-md bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl border border-[var(--border)] shadow-xl p-4 sm:p-6">
+          <div className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto bg-[var(--surface)] rounded-t-[12px] sm:rounded-[12px] border border-[var(--border)] shadow-xl p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -692,7 +692,7 @@ export function MeusPedidos() {
                     }))
                   }
                   placeholder="Conte como foi o pedido, tempo de entrega, qualidade, etc."
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+                  className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
                 />
               </div>
             </div>

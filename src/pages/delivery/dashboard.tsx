@@ -31,7 +31,7 @@ export default function DeliveryDashboard() {
       <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)]">
+          <h1 className="text-[24px] sm:text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)]">
             Delivery Dashboard
           </h1>
           <p className="mt-1 text-[20px] leading-[24px] text-[var(--text-primary)]">

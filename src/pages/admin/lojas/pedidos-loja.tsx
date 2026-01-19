@@ -446,7 +446,7 @@ export default function AdminPedidosLoja() {
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-[28px] font-bold text-[var(--text-primary)]">
               Admin – Pedidos da Loja
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -658,12 +658,18 @@ export default function AdminPedidosLoja() {
 
       {/* MODAL DE DETALHES DO PEDIDO */}
       {pedidoSelecionado && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={handleFecharDetalhes}
+        >
+          <div
+            className="bg-[var(--surface)] rounded-[12px] max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">Detalhes do Pedido</h3>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">{pedidoSelecionado.codigo}</p>
+                <h3 className="text-[28px] font-bold text-[var(--text-primary)]">Detalhes do Pedido</h3>
+                <p className="text-[20px] font-medium text-[var(--text-secondary)] mt-1">{pedidoSelecionado.codigo}</p>
               </div>
               <button
                 onClick={handleFecharDetalhes}

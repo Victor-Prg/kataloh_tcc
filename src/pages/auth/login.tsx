@@ -68,7 +68,7 @@ export default function Example() {
                             onChange={toggleTheme}
                             className="peer absolute inset-0 size-full cursor-pointer appearance-none focus:outline-none"
                         />
-                        <span className="pointer-events-none inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-slate-900 shadow-xs ring-1 ring-gray-900/10 transition-transform duration-200 ease-in-out peer-checked:translate-x-6">
+                        <span className="pointer-events-none inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface)] text-[var(--text-primary)] shadow-xs ring-1 ring-[color:var(--border)] transition-transform duration-200 ease-in-out peer-checked:translate-x-6">
                             {isDark ? (
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" className="text-[var(--surface)]">
                                     <path
@@ -103,9 +103,9 @@ export default function Example() {
                     </label>
                 </div>
                 <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-[480px]">
-                    <div className="bg-[var(--surface)] px-6 pt-2 pb-8 outline -outline-offset-1 outline-[color:var(--border)] sm:rounded-lg sm:px-12 shadow-md">
-                        <img alt="Your Company" src={Logo} className="mx-auto mb-0 h-auto w-[200px]" />
-                        <h2 className="mb-8 text-center text-2xl/9 font-bold tracking-tight text-[var(--text-primary)]">Acesse a sua conta</h2>
+                    <div className="bg-[var(--surface)] p-6 sm:p-10 outline -outline-offset-1 outline-[color:var(--border)] rounded-[12px] shadow-md">
+                        <img alt="Your Company" src={Logo} className="mx-auto mb-4 h-auto w-[200px]" />
+                        <h2 className="mb-8 text-center text-[28px] font-bold tracking-tight text-[var(--text-primary)]">Acesse a sua conta</h2>
                         <form
                             action="#"
                             method="POST"

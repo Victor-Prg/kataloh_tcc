@@ -360,11 +360,11 @@ export default function RecepcaoLoja() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-[28px] font-bold text-[var(--text-primary)]">
               Recepção de Pedidos
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -374,7 +374,7 @@ export default function RecepcaoLoja() {
           
           <button
             onClick={() => navigate('/loja/newpedido')}
-            className="inline-flex items-center gap-2 bg-[var(--primary-100)] hover:opacity-90 text-white font-semibold px-4 py-2.5 rounded-lg transition-all"
+            className="inline-flex items-center gap-2 bg-[var(--primary-100)] hover:opacity-90 text-white font-semibold px-4 py-2.5 rounded-[12px] transition-all"
           >
             <Plus size={20} />
             <span>Novo Pedido</span>
@@ -383,7 +383,7 @@ export default function RecepcaoLoja() {
 
         {/* CARDS DE ESTATÍSTICAS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
                 <Clock size={20} className="text-orange-600 dark:text-orange-400" />
@@ -398,7 +398,7 @@ export default function RecepcaoLoja() {
             <p className="text-xs text-[var(--text-muted)] mt-1">Novos pedidos</p>
           </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                 <ChefHat size={20} className="text-blue-600 dark:text-blue-400" />
@@ -413,7 +413,7 @@ export default function RecepcaoLoja() {
             <p className="text-xs text-[var(--text-muted)] mt-1">Na cozinha</p>
           </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
                 <Truck size={20} className="text-purple-600 dark:text-purple-400" />
@@ -428,7 +428,7 @@ export default function RecepcaoLoja() {
             <p className="text-xs text-[var(--text-muted)] mt-1">A caminho</p>
           </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
                 <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
@@ -445,7 +445,7 @@ export default function RecepcaoLoja() {
         </div>
 
         {/* RESUMO */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Package size={20} className="text-[var(--text-secondary)]" />
@@ -469,7 +469,7 @@ export default function RecepcaoLoja() {
             const Icon = config.icon
 
             return (
-              <div key={status} className="flex flex-col overflow-hidden rounded-xl border border-[var(--border)]">
+              <div key={status} className="flex flex-col overflow-hidden rounded-[12px] border border-[var(--border)]">
                 {/* HEADER DA COLUNA */}
                 <style>{`
                   .kanban-header-${status} {
@@ -534,7 +534,7 @@ export default function RecepcaoLoja() {
                         draggable
                         onDragStart={(e) => handleDragStart(e, pedido.id)}
                         onDragEnd={handleDragEnd}
-                        className={`bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-3 hover:shadow-md transition-all cursor-move ${
+                        className={`bg-[var(--bg-body)] border border-[var(--border)] rounded-[12px] p-3 hover:shadow-md transition-all cursor-move ${
                           pedidoArrastando === pedido.id ? 'opacity-50 scale-95' : ''
                         }`}
                         onClick={() => setPedidoSelecionado(pedido)}
@@ -589,7 +589,7 @@ export default function RecepcaoLoja() {
                                       e.stopPropagation()
                                       handleAvancarStatus(pedido.id)
                                     }}
-                                    className="text-xs bg-[var(--primary-100)] hover:opacity-90 text-white font-medium px-3 py-1.5 rounded"
+                                    className="text-xs bg-[var(--primary-100)] hover:opacity-90 text-white font-medium px-3 py-1.5 rounded-[12px]"
                                   >
                                     Iniciar
                                   </button>
@@ -598,7 +598,7 @@ export default function RecepcaoLoja() {
                                       e.stopPropagation()
                                       handleCancelarPedido(pedido.id)
                                     }}
-                                    className="text-xs bg-red-500 hover:bg-red-600 text-white font-medium px-2 py-1.5 rounded"
+                                    className="text-xs bg-red-500 hover:bg-red-600 text-white font-medium px-2 py-1.5 rounded-[12px]"
                                   >
                                     <X size={14} />
                                   </button>
@@ -611,7 +611,7 @@ export default function RecepcaoLoja() {
                                     e.stopPropagation()
                                     handleAvancarStatus(pedido.id)
                                   }}
-                                  className="text-xs bg-[var(--primary-100)] hover:opacity-90 text-white font-medium px-3 py-1.5 rounded"
+                                  className="text-xs bg-[var(--primary-100)] hover:opacity-90 text-white font-medium px-3 py-1.5 rounded-[12px]"
                                 >
                                   Enviar
                                 </button>
@@ -623,7 +623,7 @@ export default function RecepcaoLoja() {
                                     e.stopPropagation()
                                     handleAvancarStatus(pedido.id)
                                   }}
-                                  className="text-xs bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-1.5 rounded"
+                                  className="text-xs bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-1.5 rounded-[12px]"
                                 >
                                   Concluir
                                 </button>
@@ -646,7 +646,7 @@ export default function RecepcaoLoja() {
                                 handleMoverStatus(pedido.id, 'anterior')
                               }}
                               disabled={status === 'pendente'}
-                              className="flex-1 flex items-center justify-center gap-1 bg-gray-500 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed text-white font-medium px-3 py-2 rounded text-xs"
+                              className="flex-1 flex items-center justify-center gap-1 bg-[var(--surface-nav)] hover:bg-[var(--bg-hover)] disabled:opacity-30 disabled:cursor-not-allowed text-[var(--text-primary)] font-medium px-3 py-2 rounded-[12px] text-xs"
                             >
                               <ChevronLeft size={16} />
                               Voltar
@@ -658,7 +658,7 @@ export default function RecepcaoLoja() {
                                   e.stopPropagation()
                                   handleCancelarPedido(pedido.id)
                                 }}
-                                className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded text-xs"
+                                className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded-[12px] text-xs"
                               >
                                 <X size={16} />
                               </button>
@@ -670,7 +670,7 @@ export default function RecepcaoLoja() {
                                 handleMoverStatus(pedido.id, 'proximo')
                               }}
                               disabled={status === 'entregue'}
-                              className="flex-1 flex items-center justify-center gap-1 bg-[var(--primary-100)] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed text-white font-medium px-3 py-2 rounded text-xs"
+                              className="flex-1 flex items-center justify-center gap-1 bg-[var(--primary-100)] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed text-white font-medium px-3 py-2 rounded-[12px] text-xs"
                             >
                               Avançar
                               <ChevronRight size={16} />
@@ -699,7 +699,7 @@ export default function RecepcaoLoja() {
       {/* MODAL DE DETALHES DO PEDIDO */}
       {pedidoSelecionado && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
+          <div className="bg-[var(--surface)] rounded-[12px] max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">
@@ -728,10 +728,10 @@ export default function RecepcaoLoja() {
                 <p className="text-sm text-[var(--text-primary)] mt-1">{pedidoSelecionado.endereco}</p>
               </div>
 
-              {pedidoSelecionado.observacao && (
+                {pedidoSelecionado.observacao && (
                 <div>
                   <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Observações</label>
-                  <p className="text-sm text-[var(--text-primary)] bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3 mt-1">
+                  <p className="text-sm text-[var(--text-primary)] bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-[12px] p-3 mt-1">
                     {pedidoSelecionado.observacao}
                   </p>
                 </div>
@@ -762,7 +762,7 @@ export default function RecepcaoLoja() {
 
             <button
               onClick={() => setPedidoSelecionado(null)}
-              className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all"
+              className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-[12px] transition-all"
             >
               Fechar
             </button>
@@ -773,7 +773,7 @@ export default function RecepcaoLoja() {
       {chatAberto && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:justify-end sm:items-end bg-black/40 sm:bg-transparent">
           <div className="w-full sm:w-[420px] max-w-full p-0 sm:p-4">
-            <div className="bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-[var(--border)] flex flex-col sm:flex-row h-[75vh] sm:h-[520px] overflow-hidden">
+            <div className="bg-[var(--surface)] rounded-t-[12px] sm:rounded-[12px] shadow-2xl border border-[var(--border)] flex flex-col sm:flex-row h-[75vh] sm:h-[520px] overflow-hidden">
               <div className="hidden sm:flex w-60 flex-col border-r border-[var(--border)] bg-[var(--surface-nav)]">
                 <div className="px-3 py-3 text-xs font-semibold text-[var(--text-secondary)] border-b border-[var(--border)]">
                   Clientes
@@ -791,8 +791,8 @@ export default function RecepcaoLoja() {
                       onClick={() => selecionarClienteChat(cliente.nome)}
                       className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs border-l-4 ${
                         clienteSelecionadoChat === cliente.nome
-                          ? 'bg-gray-50 dark:bg-white/5 border-[var(--primary-100)] text-[var(--text-primary)]'
-                          : 'border-transparent text-[var(--text-secondary)] hover:bg-gray-50 dark:hover:bg-white/5'
+                          ? 'bg-[var(--bg-hover)] border-[var(--primary-100)] text-[var(--text-primary)]'
+                          : 'border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
                       }`}
                     >
                       <img
@@ -841,7 +841,7 @@ export default function RecepcaoLoja() {
                     <select
                       value={clienteSelecionadoChat || ''}
                       onChange={event => selecionarClienteChat(event.target.value)}
-                      className="sm:hidden rounded-lg border border-[var(--border)] bg-[var(--bg-body)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                      className="sm:hidden rounded-[12px] border border-[var(--border)] bg-[var(--bg-body)] px-2 py-1 text-xs text-[var(--text-primary)]"
                     >
                       <option value="" disabled>
                         Clientes
@@ -886,8 +886,8 @@ export default function RecepcaoLoja() {
                         mensagem.remetente === 'loja' ? 'justify-end' : 'justify-start'
                       const bubbleClasses =
                         mensagem.remetente === 'loja'
-                          ? 'bg-[var(--primary-100)] text-white rounded-2xl rounded-br-sm'
-                          : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] rounded-2xl rounded-bl-sm'
+                          ? 'bg-[var(--primary-100)] text-white rounded-[12px] rounded-br-sm'
+                          : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] rounded-[12px] rounded-bl-sm'
 
                       return (
                         <div key={mensagem.id} className={`flex ${alinhamento}`}>

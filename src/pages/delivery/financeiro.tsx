@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Wallet, TrendingUp, Clock, CreditCard, DollarSign, AlertCircle, CheckCircle2, Info } from 'lucide-react'
+import { Wallet, TrendingUp, Clock, CreditCard, DollarSign, AlertCircle, CheckCircle2, Info, Calendar, ChevronDown } from 'lucide-react'
 import { Button, Card, Table, type TableColumn, Pagination, Tooltip, EmptyState, Skeleton } from '../../components'
 import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
 
@@ -57,6 +57,7 @@ const statusColor: Record<RepasseStatus, string> = {
 
 export default function DeliveryFinanceiro() {
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('semana')
+  const [mostrarMenuPeriodo, setMostrarMenuPeriodo] = useState(false)
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [modalAberto, setModalAberto] = useState(false)
   const [valorSolicitacao, setValorSolicitacao] = useState('')
@@ -93,6 +94,13 @@ export default function DeliveryFinanceiro() {
   const totalPaginas = Math.ceil(repassesFiltrados.length / itensPorPagina)
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const repassesPaginados = repassesFiltrados.slice(indexInicio, indexInicio + itensPorPagina)
+
+  const getPeriodoLabel = () => {
+    if (periodo === 'hoje') return 'Hoje'
+    if (periodo === 'semana') return 'Últimos 7 dias'
+    if (periodo === 'mes') return 'Últimos 30 dias'
+    return 'Tudo'
+  }
 
   const columns: TableColumn<RepasseHistorico>[] = [
     {
@@ -192,7 +200,7 @@ export default function DeliveryFinanceiro() {
       <div className="p-4 sm:p-6 lg:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text-primary)]">
               Financeiro
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -218,25 +226,46 @@ export default function DeliveryFinanceiro() {
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {([
-            { value: 'hoje', label: 'Hoje' },
-            { value: 'semana', label: 'Últimos 7 dias' },
-            { value: 'mes', label: 'Últimos 30 dias' },
-          ] as const).map((opt) => (
+        <div className="flex flex-wrap justify-between gap-2">
+          <div className="relative">
             <button
-              key={opt.value}
               type="button"
-              onClick={() => setPeriodo(opt.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                periodo === opt.value
-                  ? 'bg-[var(--primary-100)] text-white'
-                  : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
-              }`}
+              onClick={() => setMostrarMenuPeriodo(prev => !prev)}
+              className="inline-flex items-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
             >
-              {opt.label}
+              <Calendar size={16} />
+              <span>{getPeriodoLabel()}</span>
+              <ChevronDown size={14} />
             </button>
-          ))}
+
+            {mostrarMenuPeriodo && (
+              <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
+                {([
+                  { value: 'tudo' as PeriodoFiltro, label: 'Tudo' },
+                  { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
+                  { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
+                  { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setPeriodo(opt.value)
+                      setPaginaAtual(1)
+                      setMostrarMenuPeriodo(false)
+                    }}
+                    className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
+                      periodo === opt.value
+                        ? 'bg-[var(--primary-100)] text-white'
+                        : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                    }`}
+                  >
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -427,14 +456,20 @@ export default function DeliveryFinanceiro() {
       </div>
 
       {repasseSelecionado && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full p-6 space-y-6">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setRepasseSelecionado(null)}
+        >
+          <div
+            className="bg-[var(--surface)] rounded-[12px] max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-6"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">
+                <h3 className="text-[28px] font-bold text-[var(--text-primary)]">
                   Detalhes do repasse
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-[20px] font-medium text-[var(--text-secondary)]">
                   Veja as informações completas deste repasse
                 </p>
               </div>
@@ -447,7 +482,7 @@ export default function DeliveryFinanceiro() {
               </button>
             </div>
 
-            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-4 space-y-4">
+            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-[12px] p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-[var(--text-secondary)]">
@@ -512,14 +547,24 @@ export default function DeliveryFinanceiro() {
       )}
 
       {modalAberto && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl max-w-md w-full p-6 space-y-6">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+          onClick={() => {
+            setModalAberto(false)
+            setValorSolicitacao('')
+            setObservacao('')
+          }}
+        >
+          <div
+            className="bg-[var(--surface)] rounded-t-[12px] sm:rounded-[12px] max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-6"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">
+                <h3 className="text-[28px] font-bold text-[var(--text-primary)]">
                   Solicitar Repasse
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-[20px] font-medium text-[var(--text-secondary)]">
                   Confirme o valor e a forma de recebimento
                 </p>
               </div>
@@ -532,7 +577,7 @@ export default function DeliveryFinanceiro() {
               </button>
             </div>
 
-            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-4 space-y-2">
+            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-[12px] p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-[var(--text-secondary)]">
                   Saldo disponível
@@ -572,7 +617,7 @@ export default function DeliveryFinanceiro() {
                       setValorSolicitacao(value)
                     }}
                     placeholder="0,00"
-                    className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-lg font-bold"
+                        className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-lg font-bold"
                   />
                 </div>
               </div>
@@ -591,7 +636,7 @@ export default function DeliveryFinanceiro() {
                       key={opt.value}
                       type="button"
                       onClick={() => setMetodo(opt.value)}
-                      className={`px-3 py-2 text-xs font-medium rounded-lg border ${
+                      className={`px-3 py-2 text-xs font-medium rounded-[12px] border ${
                         metodo === opt.value
                           ? 'bg-[var(--primary-100)] text-white border-[var(--primary-100)]'
                           : 'bg-[var(--surface)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--bg-hover)]'
@@ -611,12 +656,12 @@ export default function DeliveryFinanceiro() {
                   value={observacao}
                   onChange={(event) => setObservacao(event.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
+                  className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
                   placeholder="Ex: repasse referente às entregas do final de semana"
                 />
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-start gap-2">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-[12px] p-3 flex items-start gap-2">
                 <AlertCircle size={16} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-blue-800 dark:text-blue-200">
                   O repasse será analisado e, após aprovação, será depositado no método

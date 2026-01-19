@@ -287,7 +287,7 @@ export default function Navbar({ onOpenMobileMenu, onToggleSidebar, isSidebarCol
               </MenuButton>
               <MenuItems
                 transition
-                className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-[color:var(--surface)] py-2 shadow-lg ring-1 ring-[color:var(--border)] focus:outline-none"
+                className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-[12px] bg-[color:var(--surface)] py-2 shadow-lg ring-1 ring-[color:var(--border)] focus:outline-none"
               >
                 {userNavigation.map((item) => (
                   <MenuItem key={item.name}>

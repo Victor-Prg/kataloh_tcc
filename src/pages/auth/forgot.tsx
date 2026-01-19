@@ -91,11 +91,11 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-[480px]">
-                    <div className="bg-[var(--surface)] px-6 pt-6 pb-12 outline -outline-offset-1 outline-[color:var(--border)] sm:rounded-lg sm:px-12 shadow-md">
+                    <div className="bg-[var(--surface)] p-6 sm:p-10 outline -outline-offset-1 outline-[color:var(--border)] rounded-[12px] shadow-md">
                         <form className="space-y-6" noValidate onSubmit={handleSubmit}>
                             <div>
-                                <img alt="Simples" src={SimplesLogo} className="mx-auto h-[200px] w-auto" />
-                                <h2 className="mt-2 text-center text-2xl/9 font-bold tracking-tight text-[var(--text-primary)]">
+                                <img alt="Simples" src={SimplesLogo} className="mx-auto h-[120px] w-auto" />
+                                <h2 className="mt-2 text-center text-[28px] font-bold tracking-tight text-[var(--text-primary)]">
                                     Recuperar senha
                                 </h2>
                             </div>

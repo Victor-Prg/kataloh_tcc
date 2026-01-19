@@ -29,10 +29,10 @@ export const Lojas = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   return (
-    <div className="w-full">
+    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
       {/* CABEÇALHO */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Lojas Disponíveis</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text-primary)]">Lojas Disponíveis</h1>
         
         <div className="flex bg-[var(--surface-nav)] p-1 rounded-lg border border-[var(--border)]">
           <button 

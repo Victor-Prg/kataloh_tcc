@@ -216,7 +216,7 @@ export default function NewPedido() {
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-[28px] font-bold text-[var(--text-primary)]">
               Novo Pedido
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -231,7 +231,7 @@ export default function NewPedido() {
               value={numeroMesa}
               onChange={(e) => setNumeroMesa(e.target.value)}
               placeholder="Nº"
-              className="w-20 px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+              className="w-20 px-3 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--surface)] text-[var(--text-primary)] text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
             />
           </div>
         </div>
@@ -244,7 +244,7 @@ export default function NewPedido() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar produtos..."
-            className="w-full pl-11 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+            className="w-full pl-11 pr-4 py-3 border border-[var(--border)] rounded-[12px] bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
           />
         </div>
 
@@ -252,7 +252,7 @@ export default function NewPedido() {
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
           <button
             onClick={() => setCategoriaAtiva('todos')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-[12px] text-sm font-medium whitespace-nowrap transition-all ${
               categoriaAtiva === 'todos'
                 ? 'bg-[var(--primary-100)] text-white'
                 : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
@@ -264,7 +264,7 @@ export default function NewPedido() {
             <button
               key={cat.id}
               onClick={() => setCategoriaAtiva(cat.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-[12px] text-sm font-medium whitespace-nowrap transition-all ${
                 categoriaAtiva === cat.id
                   ? 'bg-[var(--primary-100)] text-white'
                   : 'bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-hover)]'
@@ -283,11 +283,11 @@ export default function NewPedido() {
                 key={produto.id}
                 onClick={() => handleAdicionarAoCarrinho(produto)}
                 disabled={!produto.disponivel}
-                className={`bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
+                className={`bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
                   !produto.disponivel ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                <div className="relative h-40 mb-3 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
+                <div className="relative h-40 mb-3 rounded-[12px] overflow-hidden bg-[var(--surface-nav)]">
                   <img
                     src={produto.imagem || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop`}
                     alt={produto.nome}
@@ -330,7 +330,7 @@ export default function NewPedido() {
       </div>
 
       {/* COLUNA DIREITA - CARRINHO */}
-      <div className="lg:w-96 flex flex-col bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-8rem)]">
+      <div className="lg:w-96 flex flex-col bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-8rem)]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart size={24} className="text-[var(--primary-100)]" />
@@ -359,7 +359,7 @@ export default function NewPedido() {
             carrinho.map((item, index) => (
               <div
                 key={index}
-                className="bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-3 space-y-2"
+                className="bg-[var(--bg-body)] border border-[var(--border)] rounded-[12px] p-3 space-y-2"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
@@ -386,7 +386,7 @@ export default function NewPedido() {
                 )}
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center border border-[var(--border)] rounded-lg overflow-hidden">
+                  <div className="flex items-center border border-[var(--border)] rounded-[12px] overflow-hidden">
                     <button
                       onClick={() => handleAlterarQuantidade(index, -1)}
                       className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
@@ -431,7 +431,7 @@ export default function NewPedido() {
           <button
             onClick={handleFinalizarPedido}
             disabled={carrinho.length === 0 || !numeroMesa}
-            className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Enviar para Cozinha
           </button>
@@ -441,7 +441,7 @@ export default function NewPedido() {
       {/* MODAL DE ADICIONAR ITEM COM OBSERVAÇÃO */}
       {produtoSelecionado && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-xl max-w-md w-full p-6 space-y-4">
+          <div className="bg-[var(--surface)] rounded-[12px] max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">
@@ -458,8 +458,7 @@ export default function NewPedido() {
                 <X size={24} />
               </button>
             </div>
-
-            <div className="h-48 rounded-lg overflow-hidden bg-[var(--surface-nav)]">
+            <div className="h-48 rounded-[12px] overflow-hidden bg-[var(--surface-nav)]">
               <img
                 src={produtoSelecionado.imagem || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop`}
                 alt={produtoSelecionado.nome}
@@ -476,13 +475,13 @@ export default function NewPedido() {
                 onChange={(e) => setObservacaoTemp(e.target.value)}
                 placeholder="Ex: Sem cebola, ponto da carne, etc..."
                 rows={3}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
+                className="w-full px-3 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
               />
             </div>
 
             <button
               onClick={handleConfirmarItem}
-              className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all"
+              className="w-full bg-[var(--primary-100)] hover:opacity-90 text-white font-bold py-3 rounded-[12px] transition-all"
             >
               Adicionar ao Pedido
             </button>

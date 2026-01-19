@@ -218,7 +218,7 @@ export default function EntregadoresCadastro() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Cadastro de Entregadores</h1>
+          <h1 className="text-[28px] font-bold text-[var(--text-primary)]">Cadastro de Entregadores</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Gerencie a equipe de entregadores da loja
           </p>

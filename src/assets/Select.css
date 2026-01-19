@@ -1,7 +1,7 @@
 .select-modern {
   width: 100%;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
   background-color: var(--bg-input);
   color: var(--text-primary);

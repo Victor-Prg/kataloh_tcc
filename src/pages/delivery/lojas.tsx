@@ -75,7 +75,7 @@ export default function DeliveryLojas() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)]">
+            <h1 className="text-[24px] sm:text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)]">
               Gerenciar Lojas
             </h1>
             <p className="mt-1 text-[20px] leading-[24px] text-[var(--text-primary)]">

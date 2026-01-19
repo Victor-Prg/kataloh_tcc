@@ -28,7 +28,10 @@ export default function Checkout() {
     <div className="max-w-3xl mx-auto p-4 pb-24">
       {/* Header com Botão Voltar */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => step === 1 ? navigate(-1) : setStep(1)} className="p-2 hover:bg-gray-100 rounded-full dark:hover:bg-gray-800">
+        <button
+          onClick={() => (step === 1 ? navigate(-1) : setStep(1))}
+          className="p-2 hover:bg-[var(--bg-hover)] rounded-full"
+        >
           <ChevronLeft />
         </button>
         <Text as="h1" size="heading" style={{ fontWeight: 'bold' }}>Finalizar Pedido</Text>
@@ -36,12 +39,24 @@ export default function Checkout() {
 
       {/* Stepper Visual */}
       <div className="flex items-center justify-center mb-8">
-        <div className={`flex items-center gap-2 ${step >= 1 ? 'text-[var(--primary-100)]' : 'text-gray-400'}`}>
+        <div
+          className={`flex items-center gap-2 ${
+            step >= 1 ? 'text-[var(--primary-100)]' : 'text-[var(--text-muted)]'
+          }`}
+        >
           <div className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-bold">1</div>
           <span className="font-medium">Endereço</span>
         </div>
-        <div className={`w-16 h-0.5 mx-4 ${step >= 2 ? 'bg-[var(--primary-100)]' : 'bg-gray-300'}`} />
-        <div className={`flex items-center gap-2 ${step >= 2 ? 'text-[var(--primary-100)]' : 'text-gray-400'}`}>
+        <div
+          className={`w-16 h-0.5 mx-4 ${
+            step >= 2 ? 'bg-[var(--primary-100)]' : 'bg-[var(--border)]'
+          }`}
+        />
+        <div
+          className={`flex items-center gap-2 ${
+            step >= 2 ? 'text-[var(--primary-100)]' : 'text-[var(--text-muted)]'
+          }`}
+        >
           <div className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-bold">2</div>
           <span className="font-medium">Pagamento</span>
         </div>

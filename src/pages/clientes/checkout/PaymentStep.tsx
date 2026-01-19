@@ -70,7 +70,10 @@ export const PaymentStep = ({ addressId, onBack }: PaymentStepProps) => {
                 : 'border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)]'}
             `}
           >
-            <m.icon size={24} className={method === m.id ? 'text-[var(--primary-100)]' : 'text-gray-500'} />
+            <m.icon
+              size={24}
+              className={method === m.id ? 'text-[var(--primary-100)]' : 'text-[var(--text-secondary)]'}
+            />
             <Text style={{ fontWeight: method === m.id ? '600' : '400' }}>{m.label}</Text>
           </div>
         ))}
@@ -78,16 +81,22 @@ export const PaymentStep = ({ addressId, onBack }: PaymentStepProps) => {
 
       {/* Detalhes do Método Selecionado */}
       <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-        {!method && <Text className="text-center text-gray-500">Selecione uma forma de pagamento acima.</Text>}
+        {!method && (
+          <Text className="text-center text-[var(--text-secondary)]">
+            Selecione uma forma de pagamento acima.
+          </Text>
+        )}
 
         {method === 'pix' && (
           <div className="text-center space-y-4">
-            <Text style={{fontWeight: 'bold'}}>Código Pix Gerado</Text>
-            <div className="w-48 h-48 bg-gray-200 mx-auto flex items-center justify-center rounded-lg">
-              <QrCode size={64} className="text-gray-400" />
+            <Text style={{ fontWeight: 'bold' }}>Código Pix Gerado</Text>
+            <div className="w-48 h-48 bg-[var(--bg-body)] mx-auto flex items-center justify-center rounded-lg">
+              <QrCode size={64} className="text-[var(--text-muted)]" />
             </div>
-            <Text size="sm" color="var(--text-secondary)">Copie e cole no app do seu banco ou escaneie o QR Code.</Text>
-            <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs break-all font-mono">
+            <Text size="sm" color="var(--text-secondary)">
+              Copie e cole no app do seu banco ou escaneie o QR Code.
+            </Text>
+            <div className="bg-[var(--bg-body)] p-2 rounded text-xs break-all font-mono">
               00020126360014BR.GOV.BCB.PIX0114+551199999999520400005303986540510.005802BR5913Kataloh App6008Sao Paulo62070503***63041D3D
             </div>
              <Button variant="outline" size="sm" onClick={() => alert('Copiado!')}>Copiar Código Pix</Button>

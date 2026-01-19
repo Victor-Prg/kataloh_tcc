@@ -136,7 +136,7 @@ export const ConversaDetalhe = () => {
             <ArrowLeft size={20} />
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--bg-body)]">
               <img
                 src={conversation.storeImage}
                 alt={conversation.storeName}

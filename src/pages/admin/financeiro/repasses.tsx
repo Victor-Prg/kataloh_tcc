@@ -1400,14 +1400,20 @@ function FinanceiroRepasses() {
         </div>
       </div>
       {showDetalhes && selectedRepasse && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl">
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4"
+          onClick={handleFecharDetalhes}
+        >
+          <div
+            className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--text-muted)]">
+                <p className="text-[20px] font-bold tracking-tight text-[color:var(--text-primary)]">
                   Detalhes do repasse
                 </p>
-                <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                <p className="text-sm font-semibold text-[color:var(--text-secondary)]">
                   {selectedRepasse.id}
                 </p>
               </div>

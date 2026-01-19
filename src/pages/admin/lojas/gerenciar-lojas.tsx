@@ -241,7 +241,7 @@ export default function AdminGerenciarLojas() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-[24px] sm:text-[28px] leading-[32px] font-semibold tracking-tight text-[var(--text-primary)]">
             Gerenciar Lojas
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -264,8 +264,8 @@ export default function AdminGerenciarLojas() {
       {/* --- MODO FORMULÁRIO --- */}
       {isFormOpen ? (
         <Card className="animate-fade-in">
-           <div className="flex justify-between items-center mb-6 border-b border-[var(--border-color)] pb-4">
-            <h2 className="text-lg font-bold text-[var(--text-primary)]">Cadastrar Nova Loja</h2>
+          <div className="flex justify-between items-center mb-6 border-b border-[var(--border-color)] pb-4">
+            <h2 className="text-[20px] font-medium text-[var(--text-primary)]">Cadastrar Nova Loja</h2>
             <button onClick={resetForm} className="text-[var(--text-secondary)] hover:text-[var(--danger)]">
               <X size={24} />
             </button>
@@ -284,14 +284,14 @@ export default function AdminGerenciarLojas() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <span className="text-xs font-medium text-[var(--text-primary)]">Logo (Quadrada)</span>
-                    <div className="aspect-square border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
-                      {form.logo ? <img src={form.logo} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+                    <div className="aspect-square border-2 border-dashed border-[var(--border-color)] rounded-[12px] flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
+                      {form.logo ? <img src={form.logo} className="w-full h-full object-cover rounded-[12px]" /> : <ImageIcon size={24} className="opacity-50" />}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <span className="text-xs font-medium text-[var(--text-primary)]">Banner (Capa)</span>
-                    <div className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-lg flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
-                       {form.banner ? <img src={form.banner} className="w-full h-full object-cover rounded-lg" /> : <ImageIcon size={24} className="opacity-50" />}
+                    <div className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-[12px] flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors bg-[var(--bg-body)]">
+                       {form.banner ? <img src={form.banner} className="w-full h-full object-cover rounded-[12px]" /> : <ImageIcon size={24} className="opacity-50" />}
                     </div>
                   </div>
                 </div>
@@ -464,7 +464,7 @@ export default function AdminGerenciarLojas() {
               <div className="h-px bg-[var(--border-color)]" />
               
               {/* Credenciais */}
-              <div className="bg-[var(--surface-nav)] p-5 rounded-lg border border-[var(--border-color)] shadow-sm">
+              <div className="bg-[var(--surface-nav)] p-5 rounded-[12px] border border-[var(--border-color)] shadow-sm">
                 <h4 className="text-sm font-bold mb-4 flex items-center gap-2 text-[var(--text-primary)]">
                   <User size={16} /> Credenciais de Admin
                 </h4>
@@ -518,7 +518,7 @@ export default function AdminGerenciarLojas() {
           
           {/* CARDS DE ESTATÍSTICAS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                   <Store size={20} className="text-blue-600 dark:text-blue-400" />
@@ -533,7 +533,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs text-[var(--text-muted)] mt-1">{lojasAbertas} abertas agora</p>
             </div>
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
                   <Clock size={20} className="text-orange-600 dark:text-orange-400" />
@@ -548,7 +548,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs text-[var(--text-muted)] mt-1">Todas as lojas</p>
             </div>
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
                   <ChefHat size={20} className="text-purple-600 dark:text-purple-400" />
@@ -563,7 +563,7 @@ export default function AdminGerenciarLojas() {
               <p className="text-xs text-[var(--text-muted)] mt-1">Todas as lojas</p>
             </div>
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
                   <Package size={20} className="text-green-600 dark:text-green-400" />
@@ -581,7 +581,7 @@ export default function AdminGerenciarLojas() {
 
           {/* ALERTA DE ALTA DEMANDA */}
           {hasLojasAltaDemanda && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-[12px] p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
                   <AlertTriangle size={24} className="text-yellow-500" />
@@ -601,7 +601,7 @@ export default function AdminGerenciarLojas() {
           {/* GRID DE LOJAS */}
           <div className="mt-6">
             {lojasOrdenadas.length === 0 ? (
-              <div className="flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-20">
+              <div className="flex items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-6 py-20">
                 <div className="text-center">
                   <Store size={64} className="mx-auto text-[var(--text-muted)] opacity-30 mb-4" />
                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -651,7 +651,7 @@ export default function AdminGerenciarLojas() {
                     tabIndex={0}
                     onClick={() => handleIrParaPedidosLoja(loja)}
                     onKeyDown={(event) => handleKeyDownCard(event, loja)}
-                    className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-md hover:shadow-xl transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-100)] focus-visible:outline-none flex flex-col"
+                    className="group relative overflow-hidden rounded-[12px] border border-[var(--border)] bg-[var(--surface)] shadow-md hover:shadow-xl transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-100)] focus-visible:outline-none flex flex-col"
                   >
                     {/* HEADER DO CARD (COR SÓLIDA) */}
                     <div className="bg-[var(--primary-100)] p-4 relative">
@@ -662,7 +662,7 @@ export default function AdminGerenciarLojas() {
                             Aberta
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1.5 bg-gray-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="flex items-center gap-1.5 bg-[color:var(--secondary-100)] text-[color:var(--text-primary)] text-xs font-bold px-2.5 py-1 rounded-full">
                             <span className="w-2 h-2 bg-white rounded-full"></span>
                             Fechada
                           </span>
@@ -670,7 +670,7 @@ export default function AdminGerenciarLojas() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <div className="flex size-14 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm text-lg font-bold text-white border-2 border-white/30 overflow-hidden">
+                        <div className="flex size-14 items-center justify-center rounded-[12px] bg-white/20 backdrop-blur-sm text-lg font-bold text-white border-2 border-white/30 overflow-hidden">
                           {loja.logo ? (
                             <img src={loja.logo} alt="Logo" className="w-full h-full object-cover" />
                           ) : (
@@ -692,11 +692,16 @@ export default function AdminGerenciarLojas() {
                     </div>
 
                     {/* BADGES DE STATUS */}
-                    <div className={`px-4 py-2 border-b flex flex-wrap items-center gap-1.5 min-h-[40px] ${
-                      demandaStatus 
-                        ? demandaStatus.bgColor.replace('/20', '/10') + ' border-' + demandaStatus.bgColor.split('-')[1] + '-500/30'
-                        : 'bg-gray-500/10 border-gray-500/30'
-                    }`}>
+                    <div
+                      className={`px-4 py-2 border-b flex flex-wrap items-center gap-1.5 min-h-[40px] ${
+                        demandaStatus
+                          ? demandaStatus.bgColor.replace('/20', '/10') +
+                            ' border-' +
+                            demandaStatus.bgColor.split('-')[1] +
+                            '-500/30'
+                          : 'bg-[color:var(--surface-nav)] border-[color:var(--border)]'
+                      }`}
+                    >
                       {demandaStatus ? (
                         <>
                           <span className={`inline-flex items-center gap-1.5 ${demandaStatus.bgColor} ${demandaStatus.textColor} text-[10px] font-bold px-2 py-1 rounded`}>
@@ -719,7 +724,7 @@ export default function AdminGerenciarLojas() {
                     <div className="p-4 space-y-4 flex-1 flex flex-col">
                       <div className="grid grid-cols-3 gap-3">
                         <div className="text-center">
-                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-lg bg-orange-500/10">
+                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-[12px] bg-orange-500/10">
                             <Clock size={20} className="text-orange-600 dark:text-orange-400" />
                           </div>
                           <p className="text-2xl font-bold text-[var(--text-primary)]">
@@ -731,7 +736,7 @@ export default function AdminGerenciarLojas() {
                         </div>
 
                         <div className="text-center">
-                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-lg bg-blue-500/10">
+                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-[12px] bg-blue-500/10">
                             <ChefHat size={20} className="text-blue-600 dark:text-blue-400" />
                           </div>
                           <p className="text-2xl font-bold text-[var(--text-primary)]">
@@ -743,7 +748,7 @@ export default function AdminGerenciarLojas() {
                         </div>
 
                         <div className="text-center">
-                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-lg bg-green-500/10">
+                          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-[12px] bg-green-500/10">
                             <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
                           </div>
                           <p className="text-2xl font-bold text-[var(--text-primary)]">
@@ -755,7 +760,7 @@ export default function AdminGerenciarLojas() {
                         </div>
                       </div>
 
-                      <div className="bg-[var(--bg-body)] rounded-lg p-3 border border-[var(--border)] mt-auto">
+                      <div className="bg-[var(--bg-body)] rounded-[12px] p-3 border border-[var(--border)] mt-auto">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <TrendingUp size={16} className="text-[var(--text-secondary)]" />
@@ -769,7 +774,7 @@ export default function AdminGerenciarLojas() {
                         </div>
                       </div>
 
-                      <button className="w-full flex items-center justify-center gap-2 bg-[var(--primary-100)] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-all group-hover:gap-3 mt-4">
+                      <button className="w-full flex items-center justify-center gap-2 bg-[var(--primary-100)] hover:opacity-90 text-white font-semibold py-2.5 rounded-[12px] transition-all group-hover:gap-3 mt-4">
                         <Eye size={18} />
                         <span>Ver Pedidos</span>
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

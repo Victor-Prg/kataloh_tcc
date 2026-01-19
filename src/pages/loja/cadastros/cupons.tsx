@@ -90,7 +90,7 @@ const CupomCard = ({ cupom, categoriasLegiveis }: CupomCardProps) => {
             </p>
           </div>
 
-          <div className="w-32 rounded-xl bg-white/95 p-3 text-[11px] text-[#111827] shadow-md flex flex-col justify-between">
+          <div className="w-32 rounded-xl bg-[color:var(--surface)] p-3 text-[11px] text-[color:var(--text-primary)] shadow-md flex flex-col justify-between">
             <div className="flex items-center gap-1.5 text-[color:var(--primary-100)] font-semibold">
               <CalendarDays size={14} />
               <span>Validade</span>
@@ -101,13 +101,13 @@ const CupomCard = ({ cupom, categoriasLegiveis }: CupomCardProps) => {
             <div className="mt-2 border-t border-[var(--border)] pt-1.5 space-y-1">
               <div className="flex items-center gap-1.5">
                 <TicketPercent size={13} className="text-[color:var(--primary-100)]" />
-                <span className="font-semibold text-[12px] text-[#111827]">
+                <span className="font-semibold text-[12px] text-[color:var(--text-primary)]">
                   {desconto.toFixed(0)}% OFF
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Heart size={13} className="text-rose-500" />
-                <span className="truncate text-[#B91C1C]">
+                <span className="truncate text-[color:var(--danger)]">
                   {cupom.quantidade} cupons
                 </span>
               </div>

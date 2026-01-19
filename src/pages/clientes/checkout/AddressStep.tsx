@@ -91,10 +91,14 @@ export const AddressStep = ({ onSelectAddress, selectedId, onNext }: AddressStep
             cursor-pointer border rounded-xl p-4 flex items-start gap-4 transition-all
             ${selectedId === addr.id 
               ? 'border-[var(--primary-100)] bg-[var(--primary-50)]/10 ring-1 ring-[var(--primary-100)]' 
-              : 'border-[var(--border)] hover:border-gray-400 bg-[var(--bg-card)]'}
+              : 'border-[var(--border)] hover:border-[var(--primary-100)] bg-[var(--bg-card)]'}
           `}
         >
-          <div className={`mt-1 ${selectedId === addr.id ? 'text-[var(--primary-100)]' : 'text-gray-400'}`}>
+          <div
+            className={`mt-1 ${
+              selectedId === addr.id ? 'text-[var(--primary-100)]' : 'text-[var(--text-muted)]'
+            }`}
+          >
             {/* CORREÇÃO AQUI: Trocamos 'weight' por 'fill' para funcionar com Lucide React */}
             <MapPin 
               size={24} 

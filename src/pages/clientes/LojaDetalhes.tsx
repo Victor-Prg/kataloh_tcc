@@ -162,7 +162,7 @@ export const LojaDetalhes = () => {
     <div className="min-h-screen bg-[var(--bg-body)] pb-24 md:pb-0">
       
       {/* HEADER / CAPA DA LOJA */}
-      <div className="relative h-48 md:h-64 bg-gray-200">
+      <div className="relative h-48 md:h-64 bg-[var(--bg-body)]">
         <img src={storeMock.image} alt={storeMock.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         
@@ -174,7 +174,7 @@ export const LojaDetalhes = () => {
         </button>
 
         <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full">
-          <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{storeMock.name}</h1>
+          <h1 className="text-[28px] font-bold text-white mb-2">{storeMock.name}</h1>
           <div className="flex flex-wrap items-center gap-3 text-white/90 text-sm md:text-base">
             <span className="flex items-center gap-1 text-yellow-400 font-bold">
               <Star size={16} fill="#FACC15" /> {storeMock.rating}
@@ -191,19 +191,18 @@ export const LojaDetalhes = () => {
       </div>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <div className="max-w-7xl mx-auto px-4 py-6 md:px-8">
-        
+      <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 space-y-6">
         {/* BARRA DE PESQUISA E FILTROS 
             Ajuste: top-[70px] para não esconder atrás do header principal da App.
             z-40 para garantir que o conteúdo role por baixo dela.
         */}
         <div className="bg-[var(--bg-body)] pt-2 pb-4 space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
             <input 
               type="text" 
               placeholder="Buscar no cardápio..." 
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-body)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-100)] outline-none shadow-sm"
+              className="w-full pl-10 pr-4 py-3 rounded-[12px] border border-[var(--border)] bg-[var(--bg-body)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-100)] outline-none shadow-sm"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -212,7 +211,7 @@ export const LojaDetalhes = () => {
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
             <button 
               onClick={() => setSelectedCategory('todos')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-[12px] text-sm font-medium whitespace-nowrap transition-all ${
                 selectedCategory === 'todos' 
                 ? 'bg-[var(--primary-100)] text-white shadow-md' 
                 : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border)]'
@@ -224,7 +223,7 @@ export const LojaDetalhes = () => {
               <button 
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-[12px] text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === cat.id 
                   ? 'bg-[var(--primary-100)] text-white shadow-md' 
                   : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border)]'
@@ -237,7 +236,7 @@ export const LojaDetalhes = () => {
         </div>
 
         {/* LISTAGEM DE PRODUTOS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Coluna Esquerda: Itens */}
           <div className="lg:col-span-2 space-y-8">
             {filteredCatalog.map(category => (
@@ -253,13 +252,13 @@ export const LojaDetalhes = () => {
                       : product.price;
 
                     return (
-                      <div 
-                        key={product.id}
-                        onClick={() => handleAddToCart(product)}
-                        className="group bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-3 flex gap-3 cursor-pointer hover:border-[var(--primary-100)] transition-all hover:shadow-lg relative overflow-hidden"
-                      >
+                        <div 
+                          key={product.id}
+                          onClick={() => handleAddToCart(product)}
+                          className="group bg-[var(--bg-card)] border border-[var(--border)] rounded-[12px] p-3 flex gap-3 cursor-pointer hover:border-[var(--primary-100)] transition-all hover:shadow-lg relative overflow-hidden"
+                        >
                         {product.discount && (
-                          <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10">
+                            <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-[12px] z-10">
                             {product.discount}% OFF
                           </div>
                         )}
@@ -272,7 +271,7 @@ export const LojaDetalhes = () => {
                           <div className="mt-3 flex items-center justify-between">
                             <div className="flex flex-col">
                               {product.discount && (
-                                <span className="text-xs text-gray-400 line-through">
+                                <span className="text-xs text-[var(--text-muted)] line-through">
                                   {formatCurrency(product.price)}
                                 </span>
                               )}
@@ -280,13 +279,13 @@ export const LojaDetalhes = () => {
                                 {formatCurrency(finalPrice)}
                               </span>
                             </div>
-                            <button className="p-1.5 bg-[var(--bg-body)] rounded-lg text-[var(--text-secondary)] group-hover:bg-[var(--primary-100)] group-hover:text-white transition-colors">
+                            <button className="p-1.5 bg-[var(--bg-body)] rounded-[12px] text-[var(--text-secondary)] group-hover:bg-[var(--primary-100)] group-hover:text-white transition-colors">
                               <Plus size={18} />
                             </button>
                           </div>
                         </div>
 
-                        <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                        <div className="w-24 h-24 rounded-[12px] overflow-hidden shrink-0 bg-[var(--bg-body)]">
                           <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         </div>
                       </div>
@@ -321,7 +320,7 @@ export const LojaDetalhes = () => {
               lg:h-fit                      
               /* Ajuste do max-h para descontar o novo top maior */
               lg:max-h-[calc(100vh-250px)]  
-              lg:rounded-2xl 
+              lg:rounded-[12px] 
               lg:border 
               lg:border-[var(--border)]
               
@@ -329,7 +328,7 @@ export const LojaDetalhes = () => {
             `}>
               
               {/* HEADER DO CARRINHO */}
-              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-nav)] lg:rounded-t-2xl shrink-0">
+              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-nav)] lg:rounded-t-[12px] shrink-0">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="text-[var(--primary-100)]" />
                   <span className="font-bold text-lg text-[var(--text-primary)]">Sua Sacola</span>
@@ -349,7 +348,7 @@ export const LojaDetalhes = () => {
               <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
                 {cartItems.length === 0 ? (
                   <div className="py-8 flex flex-col items-center justify-center text-center opacity-50">
-                    <ShoppingBag size={48} className="mb-2 text-gray-300" />
+                    <ShoppingBag size={48} className="mb-2 text-[var(--text-soft)]" />
                     <p className="text-[var(--text-secondary)]">Sua sacola está vazia</p>
                     <p className="text-xs text-[var(--text-muted)]">Adicione itens deliciosos!</p>
                   </div>
@@ -367,7 +366,7 @@ export const LojaDetalhes = () => {
                       <div className="space-y-3">
                         {group.items.map((item) => (
                           <div key={item.id} className="flex gap-3 animate-fadeIn">
-                            <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]">
+                            <div className="w-16 h-16 rounded-[12px] overflow-hidden shrink-0 border border-[var(--border)]">
                               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1">
@@ -378,7 +377,7 @@ export const LojaDetalhes = () => {
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center border border-[var(--border)] rounded-lg">
+                                <div className="flex items-center border border-[var(--border)] rounded-[12px]">
                                   <button 
                                     onClick={() => updateQuantity(String(item.id), -1)}
                                     className="p-1 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
@@ -395,7 +394,7 @@ export const LojaDetalhes = () => {
                                 </div>
                                 <button 
                                   onClick={() => removeFromCart(String(item.id))}
-                                  className="text-[var(--danger)] hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                                  className="text-[var(--danger)] hover:bg-red-50 p-1.5 rounded-[12px] transition-colors"
                                 >
                                   <Trash2 size={14} />
                                 </button>
@@ -412,7 +411,7 @@ export const LojaDetalhes = () => {
 
               {/* FOOTER DO CARRINHO (AÇÕES) */}
               {cartItems.length > 0 && (
-                <div className="p-4 bg-[var(--surface-nav)] border-t border-[var(--border)] md:rounded-b-3xl shrink-0">
+                <div className="p-4 bg-[var(--surface-nav)] border-t border-[var(--border)] md:rounded-b-[12px] shrink-0">
                   <div className="space-y-3 mb-5">
                     <div className="flex justify-between text-[var(--text-secondary)] text-sm">
                       <span>Subtotal</span>
@@ -428,15 +427,15 @@ export const LojaDetalhes = () => {
                   <div className="flex flex-col gap-3">
                     <button 
                       onClick={() => navigate('/cliente/checkout')}
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-[12px] font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
                       <span>Fazer Pedido</span>
-                      <span className="bg-white/20 px-2 py-0.5 rounded text-sm">{formatCurrency(cartTotal)}</span>
+                      <span className="bg-white/20 px-2 py-0.5 rounded-[12px] text-sm">{formatCurrency(cartTotal)}</span>
                     </button>
 
                     <button 
                       onClick={() => navigate('/cliente/lojas')}
-                      className="w-full bg-transparent border border-[var(--primary-100)] text-[var(--primary-100)] hover:bg-[var(--primary-50)] py-3 rounded-xl font-bold text-md transition-colors"
+                      className="w-full bg-transparent border border-[var(--primary-100)] text-[var(--primary-100)] hover:bg-[var(--primary-50)] py-3 rounded-[12px] font-bold text-md transition-colors"
                     >
                       Continuar Comprando
                     </button>
@@ -455,7 +454,7 @@ export const LojaDetalhes = () => {
         <div className="fixed bottom-4 left-4 right-4 z-30 lg:hidden">
           <button 
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-[var(--primary-100)] text-white p-4 rounded-xl shadow-xl flex items-center justify-between font-bold animate-bounce-short"
+            className="w-full bg-[var(--primary-100)] text-white p-4 rounded-[12px] shadow-xl flex items-center justify-between font-bold animate-bounce-short"
           >
             <div className="flex items-center gap-2">
               <span className="bg-white/20 w-8 h-8 flex items-center justify-center rounded-full text-sm">

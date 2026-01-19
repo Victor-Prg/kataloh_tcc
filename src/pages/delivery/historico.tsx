@@ -1,6 +1,65 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, type CSSProperties } from 'react';
 import { Package, TrendingUp } from 'lucide-react';
+import { CalendarBlank, CaretDown } from 'phosphor-react';
 import { Card } from '../../components/Card';
+
+type DateFilter = 'hoje' | 'ontem' | 'periodo';
+
+const toIsoDate = (date: Date) => date.toISOString().slice(0, 10);
+
+const formatDate = (isoDate: string) => {
+  const [year, month, day] = isoDate.split('-');
+  if (!year || !month || !day) return isoDate;
+  return `${day}/${month}/${year}`;
+};
+
+const isSameDay = (dateA: Date, dateB: Date) =>
+  dateA.getFullYear() === dateB.getFullYear() &&
+  dateA.getMonth() === dateB.getMonth() &&
+  dateA.getDate() === dateB.getDate();
+
+const parseIsoToDate = (iso: string) => {
+  const [year, month, day] = iso.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+};
+
+function matchesDateFilter(
+  isoDate: string,
+  dateFilter: DateFilter,
+  customStart?: string,
+  customEnd?: string,
+) {
+  const baseDate = parseIsoToDate(isoDate);
+  if (!baseDate) return false;
+
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (dateFilter === 'hoje') {
+    return isSameDay(baseDate, today);
+  }
+
+  if (dateFilter === 'ontem') {
+    return isSameDay(baseDate, yesterday);
+  }
+
+  if (dateFilter === 'periodo') {
+    if (!customStart || !customEnd) return true;
+    const start = parseIsoToDate(customStart);
+    const end = parseIsoToDate(customEnd);
+    if (!start || !end) return true;
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+    const time = baseDate.getTime();
+
+    return time >= start.getTime() && time <= end.getTime();
+  }
+
+  return true;
+}
 
 interface Entrega {
   id: string;
@@ -14,53 +73,44 @@ interface Entrega {
 }
 
 export default function DeliveryHistorico() {
-  const [periodoFiltro, setPeriodoFiltro] = useState<'hoje' | '7dias' | '30dias' | 'todos'>('7dias');
   const [entregadorFiltro, setEntregadorFiltro] = useState<string>('todos');
   const [buscaFiltro, setBuscaFiltro] = useState('');
 
+  const [dateFilter, setDateFilter] = useState<DateFilter>('periodo');
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState<string>('');
+  const [tempEndDate, setTempEndDate] = useState<string>('');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const datePickerRef = useRef<HTMLDivElement>(null);
+  const datePickerButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [datePickerStyle, setDatePickerStyle] = useState<CSSProperties>();
+
   const [entregas] = useState<Entrega[]>([
-    { id: '1', entregador: 'Carlos Mendes', loja: 'Burger King', valor: 54.90, data: '14/01/2026', hora: '12:30', endereco: 'Rua das Flores, 123', distancia: '2.5 km' },
-    { id: '2', entregador: 'Ana Souza', loja: 'Pizza Hut', valor: 89.50, data: '14/01/2026', hora: '13:15', endereco: 'Av. Principal, 456', distancia: '1.8 km' },
-    { id: '3', entregador: 'Roberto Lima', loja: "McDonald's", valor: 125.00, data: '14/01/2026', hora: '14:20', endereco: 'Rua do Comércio, 789', distancia: '3.2 km' },
-    { id: '4', entregador: 'Carlos Mendes', loja: 'Subway', valor: 78.00, data: '13/01/2026', hora: '11:45', endereco: 'Praça Central, 321', distancia: '1.5 km' },
-    { id: '5', entregador: 'Ana Souza', loja: 'KFC', valor: 95.80, data: '13/01/2026', hora: '15:30', endereco: 'Rua das Palmeiras, 654', distancia: '4.1 km' },
-    { id: '6', entregador: 'Roberto Lima', loja: 'Burger King', valor: 67.40, data: '13/01/2026', hora: '16:10', endereco: 'Av. Paulista, 1000', distancia: '2.8 km' },
-    { id: '7', entregador: 'Carlos Mendes', loja: 'Pizza Hut', valor: 112.30, data: '12/01/2026', hora: '12:00', endereco: 'Rua Augusta, 500', distancia: '3.5 km' },
-    { id: '8', entregador: 'Ana Souza', loja: "McDonald's", valor: 58.90, data: '12/01/2026', hora: '13:25', endereco: 'Av. Ipiranga, 200', distancia: '2.1 km' },
-    { id: '9', entregador: 'Roberto Lima', loja: 'Subway', valor: 82.50, data: '12/01/2026', hora: '14:40', endereco: 'Rua da Consolação, 850', distancia: '3.7 km' },
-    { id: '10', entregador: 'Carlos Mendes', loja: 'KFC', valor: 145.60, data: '11/01/2026', hora: '18:20', endereco: 'Av. Rebouças, 300', distancia: '5.2 km' },
-    { id: '11', entregador: 'Ana Souza', loja: 'Burger King', valor: 73.20, data: '11/01/2026', hora: '19:15', endereco: 'Rua Haddock Lobo, 450', distancia: '2.9 km' },
-    { id: '12', entregador: 'Roberto Lima', loja: 'Pizza Hut', valor: 98.70, data: '11/01/2026', hora: '20:05', endereco: 'Av. Faria Lima, 1500', distancia: '4.3 km' },
-    { id: '13', entregador: 'Carlos Mendes', loja: "McDonald's", valor: 56.80, data: '10/01/2026', hora: '12:35', endereco: 'Rua Oscar Freire, 120', distancia: '1.6 km' },
-    { id: '14', entregador: 'Ana Souza', loja: 'Subway', valor: 91.40, data: '10/01/2026', hora: '13:50', endereco: 'Av. Brigadeiro, 780', distancia: '3.0 km' },
-    { id: '15', entregador: 'Roberto Lima', loja: 'KFC', valor: 105.30, data: '10/01/2026', hora: '15:25', endereco: 'Rua Pamplona, 560', distancia: '2.4 km' },
+    { id: '1', entregador: 'Carlos Mendes', loja: 'Burger King', valor: 54.90, data: '2026-01-14', hora: '12:30', endereco: 'Rua das Flores, 123', distancia: '2.5 km' },
+    { id: '2', entregador: 'Ana Souza', loja: 'Pizza Hut', valor: 89.50, data: '2026-01-14', hora: '13:15', endereco: 'Av. Principal, 456', distancia: '1.8 km' },
+    { id: '3', entregador: 'Roberto Lima', loja: "McDonald's", valor: 125.00, data: '2026-01-14', hora: '14:20', endereco: 'Rua do Comércio, 789', distancia: '3.2 km' },
+    { id: '4', entregador: 'Carlos Mendes', loja: 'Subway', valor: 78.00, data: '2026-01-13', hora: '11:45', endereco: 'Praça Central, 321', distancia: '1.5 km' },
+    { id: '5', entregador: 'Ana Souza', loja: 'KFC', valor: 95.80, data: '2026-01-13', hora: '15:30', endereco: 'Rua das Palmeiras, 654', distancia: '4.1 km' },
+    { id: '6', entregador: 'Roberto Lima', loja: 'Burger King', valor: 67.40, data: '2026-01-13', hora: '16:10', endereco: 'Av. Paulista, 1000', distancia: '2.8 km' },
+    { id: '7', entregador: 'Carlos Mendes', loja: 'Pizza Hut', valor: 112.30, data: '2026-01-12', hora: '12:00', endereco: 'Rua Augusta, 500', distancia: '3.5 km' },
+    { id: '8', entregador: 'Ana Souza', loja: "McDonald's", valor: 58.90, data: '2026-01-12', hora: '13:25', endereco: 'Av. Ipiranga, 200', distancia: '2.1 km' },
+    { id: '9', entregador: 'Roberto Lima', loja: 'Subway', valor: 82.50, data: '2026-01-12', hora: '14:40', endereco: 'Rua da Consolação, 850', distancia: '3.7 km' },
+    { id: '10', entregador: 'Carlos Mendes', loja: 'KFC', valor: 145.60, data: '2026-01-11', hora: '18:20', endereco: 'Av. Rebouças, 300', distancia: '5.2 km' },
+    { id: '11', entregador: 'Ana Souza', loja: 'Burger King', valor: 73.20, data: '2026-01-11', hora: '19:15', endereco: 'Rua Haddock Lobo, 450', distancia: '2.9 km' },
+    { id: '12', entregador: 'Roberto Lima', loja: 'Pizza Hut', valor: 98.70, data: '2026-01-11', hora: '20:05', endereco: 'Av. Faria Lima, 1500', distancia: '4.3 km' },
+    { id: '13', entregador: 'Carlos Mendes', loja: "McDonald's", valor: 56.80, data: '2026-01-10', hora: '12:35', endereco: 'Rua Oscar Freire, 120', distancia: '1.6 km' },
+    { id: '14', entregador: 'Ana Souza', loja: 'Subway', valor: 91.40, data: '2026-01-10', hora: '13:50', endereco: 'Av. Brigadeiro, 780', distancia: '3.0 km' },
+    { id: '15', entregador: 'Roberto Lima', loja: 'KFC', valor: 105.30, data: '2026-01-10', hora: '15:25', endereco: 'Rua Pamplona, 560', distancia: '2.4 km' },
   ]);
 
   const entregadores = ['Carlos Mendes', 'Ana Souza', 'Roberto Lima'];
 
-  const getDaysAgo = (dateString: string) => {
-    const [day, month, year] = dateString.split('/').map(Number);
-    const entregaDate = new Date(year, month - 1, day);
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    entregaDate.setHours(0, 0, 0, 0);
-    const diffTime = hoje.getTime() - entregaDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
   const entregasFiltradas = useMemo(() => {
-    let filtered = [...entregas];
-
-    if (periodoFiltro !== 'todos') {
-      filtered = filtered.filter((entrega) => {
-        const daysAgo = getDaysAgo(entrega.data);
-        if (periodoFiltro === 'hoje') return daysAgo === 0;
-        if (periodoFiltro === '7dias') return daysAgo <= 7;
-        if (periodoFiltro === '30dias') return daysAgo <= 30;
-        return true;
-      });
-    }
+    let filtered = entregas.filter((entrega) =>
+      matchesDateFilter(entrega.data, dateFilter, customStartDate, customEndDate),
+    );
 
     if (entregadorFiltro !== 'todos') {
       filtered = filtered.filter((entrega) => entrega.entregador === entregadorFiltro);
@@ -71,12 +121,137 @@ export default function DeliveryHistorico() {
       filtered = filtered.filter(
         (entrega) =>
           entrega.loja.toLowerCase().includes(busca) ||
-          entrega.endereco.toLowerCase().includes(busca)
+          entrega.endereco.toLowerCase().includes(busca),
       );
     }
 
     return filtered;
-  }, [entregas, periodoFiltro, entregadorFiltro, buscaFiltro]);
+  }, [entregas, dateFilter, customStartDate, customEndDate, entregadorFiltro, buscaFiltro]);
+
+  const handleQuickFilter = (type: 'hoje' | 'semana' | 'mes' | 'tudo') => {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    switch (type) {
+      case 'hoje':
+        setCustomStartDate(toIsoDate(startOfDay));
+        setCustomEndDate(toIsoDate(now));
+        setDateFilter('periodo');
+        setTempStartDate(toIsoDate(startOfDay));
+        setTempEndDate(toIsoDate(now));
+        break;
+      case 'semana': {
+        const weekAgo = new Date(startOfDay);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        setCustomStartDate(toIsoDate(weekAgo));
+        setCustomEndDate(toIsoDate(now));
+        setDateFilter('periodo');
+        setTempStartDate(toIsoDate(weekAgo));
+        setTempEndDate(toIsoDate(now));
+        break;
+      }
+      case 'mes': {
+        const monthAgo = new Date(startOfDay);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        setCustomStartDate(toIsoDate(monthAgo));
+        setCustomEndDate(toIsoDate(now));
+        setDateFilter('periodo');
+        setTempStartDate(toIsoDate(monthAgo));
+        setTempEndDate(toIsoDate(now));
+        break;
+      }
+      case 'tudo':
+        setCustomStartDate('');
+        setCustomEndDate('');
+        setDateFilter('periodo');
+        setTempStartDate('');
+        setTempEndDate('');
+        break;
+    }
+    setShowDatePicker(false);
+  };
+
+  const getDateLabel = () => {
+    if (!customStartDate && !customEndDate) {
+      return 'Tudo';
+    }
+    if (customStartDate && customEndDate) {
+      return `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`;
+    }
+    if (customStartDate) {
+      return `A partir de ${formatDate(customStartDate)}`;
+    }
+    if (customEndDate) {
+      return `Até ${formatDate(customEndDate)}`;
+    }
+    return 'Selecionar período';
+  };
+
+  const handleDateClick = (date: Date) => {
+    const isoDate = toIsoDate(date);
+
+    if (!tempStartDate || (tempStartDate && tempEndDate)) {
+      setTempStartDate(isoDate);
+      setTempEndDate('');
+    } else {
+      const start = parseIsoToDate(tempStartDate);
+      const end = date;
+
+      if (start && end < start) {
+        setTempStartDate(isoDate);
+        setTempEndDate(tempStartDate);
+      } else {
+        setTempEndDate(isoDate);
+      }
+    }
+  };
+
+  const applyDateFilter = () => {
+    setCustomStartDate(tempStartDate);
+    setCustomEndDate(tempEndDate);
+    setDateFilter('periodo');
+    setShowDatePicker(false);
+  };
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    return { daysInMonth, startingDayOfWeek, year, month };
+  };
+
+  const isDateInRange = (date: Date) => {
+    if (!tempStartDate || !tempEndDate) return false;
+    const start = parseIsoToDate(tempStartDate);
+    const end = parseIsoToDate(tempEndDate);
+    if (!start || !end) return false;
+    return date >= start && date <= end;
+  };
+
+  const isDateSelected = (date: Date) => {
+    const isoDate = toIsoDate(date);
+    return isoDate === tempStartDate || isoDate === tempEndDate;
+  };
+
+  const changeMonth = (offset: number) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const metricasHistorico = useMemo(() => {
     const total = entregasFiltradas.reduce((sum, e) => sum + e.valor, 0);
@@ -106,51 +281,211 @@ export default function DeliveryHistorico() {
 
           <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
             {/* Filtro de Período */}
-            <div className="flex gap-2 flex-wrap">
+            <div className="relative" ref={datePickerRef}>
               <button
                 type="button"
-                onClick={() => setPeriodoFiltro('hoje')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-[12px] border transition-colors ${
-                  periodoFiltro === 'hoje'
-                    ? 'bg-[var(--primary-100)] text-white border-[var(--primary-100)]'
-                    : 'bg-[var(--surface-nav)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--bg-hover)]'
-                }`}
+                ref={datePickerButtonRef}
+                onClick={() => {
+                  const willOpen = !showDatePicker;
+                  if (willOpen) {
+                    setTempStartDate(customStartDate);
+                    setTempEndDate(customEndDate);
+
+                    if (datePickerButtonRef.current) {
+                      const rect = datePickerButtonRef.current.getBoundingClientRect();
+                      const viewportWidth = window.innerWidth;
+                      const viewportHeight = window.innerHeight;
+
+                      const pickerWidth = Math.min(320, viewportWidth - 32);
+                      const centerX = rect.left + rect.width / 2;
+                      const minLeft = 16;
+                      const maxLeft = viewportWidth - pickerWidth - 16;
+                      const left = Math.min(Math.max(centerX - pickerWidth / 2, minLeft), maxLeft);
+
+                      const estimatedHeight = 420;
+                      const spaceBelow = viewportHeight - rect.bottom - 16;
+                      const top =
+                        spaceBelow >= estimatedHeight
+                          ? rect.bottom + 8
+                          : Math.max(16, viewportHeight - estimatedHeight - 16);
+
+                      setDatePickerStyle({
+                        position: 'fixed',
+                        top,
+                        left,
+                        width: pickerWidth,
+                        zIndex: 50,
+                      });
+                    }
+                  } else {
+                    setDatePickerStyle(undefined);
+                  }
+                  setShowDatePicker(willOpen);
+                }}
+                className="inline-flex items-center gap-2 rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
               >
-                Hoje
+                <CalendarBlank size={16} weight="bold" />
+                <span>{getDateLabel()}</span>
+                <CaretDown
+                  size={12}
+                  weight="bold"
+                  className={`transition-transform ${showDatePicker ? 'rotate-180' : ''}`}
+                />
               </button>
-              <button
-                type="button"
-                onClick={() => setPeriodoFiltro('7dias')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-[12px] border transition-colors ${
-                  periodoFiltro === '7dias'
-                    ? 'bg-[var(--primary-100)] text-white border-[var(--primary-100)]'
-                    : 'bg-[var(--surface-nav)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--bg-hover)]'
-                }`}
-              >
-                7 dias
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodoFiltro('30dias')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-[12px] border transition-colors ${
-                  periodoFiltro === '30dias'
-                    ? 'bg-[var(--primary-100)] text-white border-[var(--primary-100)]'
-                    : 'bg-[var(--surface-nav)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--bg-hover)]'
-                }`}
-              >
-                30 dias
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodoFiltro('todos')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-[12px] border transition-colors ${
-                  periodoFiltro === 'todos'
-                    ? 'bg-[var(--primary-100)] text-white border-[var(--primary-100)]'
-                    : 'bg-[var(--surface-nav)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--bg-hover)]'
-                }`}
-              >
-                Todos
-              </button>
+
+              {showDatePicker && (
+                <div
+                  className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-xl shadow-xl z-50 p-4"
+                  style={datePickerStyle}
+                >
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
+                      Filtros Rápidos
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('hoje')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Hoje
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('semana')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Última semana
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('mes')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Último mês
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('tudo')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Tudo
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[color:var(--border)] pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <button
+                        type="button"
+                        onClick={() => changeMonth(-1)}
+                        className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                      >
+                        ←
+                      </button>
+                      <p className="text-xs font-semibold text-[color:var(--text-primary)]">
+                        {currentMonth.toLocaleDateString('pt-BR', {
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => changeMonth(1)}
+                        className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                      >
+                        →
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+                        <div
+                          key={day}
+                          className="text-center text-[0.65rem] font-medium text-[color:var(--text-secondary)] py-1"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1">
+                      {(() => {
+                        const {
+                          daysInMonth,
+                          startingDayOfWeek,
+                          year,
+                          month,
+                        } = getDaysInMonth(currentMonth);
+                        const days = [];
+
+                        for (let i = 0; i < startingDayOfWeek; i++) {
+                          days.push(<div key={`empty-${i}`} />);
+                        }
+
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const date = new Date(year, month, day);
+                          const selected = isDateSelected(date);
+                          const inRange = isDateInRange(date);
+                          const today = isSameDay(date, new Date());
+
+                          const baseClasses =
+                            'aspect-square text-xs rounded-lg transition-colors';
+                          const selectedClasses = selected
+                            ? 'bg-[color:var(--primary-100)] text-white font-bold'
+                            : inRange
+                            ? 'bg-[color:var(--primary-100)]/20 text-[color:var(--text-primary)]'
+                            : 'hover:bg-[color:var(--bg-hover)] text-[color:var(--text-primary)]';
+                          const todayClasses =
+                            today && !selected ? 'ring-1 ring-[color:var(--primary-100)]' : '';
+
+                          days.push(
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => handleDateClick(date)}
+                              className={`${baseClasses} ${selectedClasses} ${todayClasses}`}
+                            >
+                              {day}
+                            </button>,
+                          );
+                        }
+
+                        return days;
+                      })()}
+                    </div>
+
+                    {tempStartDate && (
+                      <div className="mt-3 text-xs text-[color:var(--text-secondary)] text-center">
+                        {tempStartDate && !tempEndDate && 'Selecione a data final'}
+                        {tempStartDate &&
+                          tempEndDate &&
+                          `${formatDate(tempStartDate)} - ${formatDate(tempEndDate)}`}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-[color:var(--border)] mt-4 pt-3 flex justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempStartDate('');
+                        setTempEndDate('');
+                      }}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                    >
+                      Limpar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={applyDateFilter}
+                      className="px-4 py-2 text-xs font-medium rounded-lg bg-[color:var(--primary-100)] text-white hover:opacity-90 transition-opacity"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Filtro de Entregador */}
@@ -293,7 +628,7 @@ export default function DeliveryHistorico() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm text-[var(--text-primary)]">
-                          {entrega.data}
+                          {formatDate(entrega.data)}
                         </div>
                         <div className="text-xs text-[var(--text-secondary)]">
                           {entrega.hora}

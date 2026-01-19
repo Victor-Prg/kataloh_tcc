@@ -9,10 +9,10 @@ import {
   ChevronDown
 } from 'lucide-react'
 import { Card } from '../../components'
+import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
 
 // --- TIPOS ---
 type TipoMovimentacao = 'entrada' | 'saida' | 'todos'
-type PeriodoFiltro = 'hoje' | 'semana' | 'mes' | 'customizado'
 
 type Movimentacao = {
   id: string
@@ -108,7 +108,7 @@ function formatDate(dateString: string) {
 }
 
 export default function ExtratoLoja() {
-  const [periodo, setPeriodo] = useState<PeriodoFiltro>('customizado')
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('tudo')
   const [tipoMovimentacao, setTipoMovimentacao] = useState<TipoMovimentacao>('todos')
   const [busca, setBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -118,37 +118,17 @@ export default function ExtratoLoja() {
 
   // Filtrar movimentações
   const movimentacoesFiltradas = useMemo(() => {
-    const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
+    const filtradasPorPeriodo = filtrarPorPeriodo(
+      movimentacoesMock,
+      mov => new Date(mov.data),
+      periodo,
+    )
 
-    const filtradas = movimentacoesMock.filter(mov => {
-      const dataMov = new Date(mov.data)
-      dataMov.setHours(0, 0, 0, 0)
-
-      // Filtro de período
-      let dentroperiodo = false
-      if (periodo === 'hoje') {
-        dentroperiodo = dataMov.getTime() === hoje.getTime()
-      } else if (periodo === 'semana') {
-        const semanaAtras = new Date(hoje)
-        semanaAtras.setDate(hoje.getDate() - 7)
-        dentroperiodo = dataMov >= semanaAtras && dataMov <= hoje
-      } else if (periodo === 'mes') {
-        const mesAtras = new Date(hoje)
-        mesAtras.setDate(hoje.getDate() - 30)
-        dentroperiodo = dataMov >= mesAtras && dataMov <= hoje
-      } else {
-        dentroperiodo = true
-      }
-
-      if (!dentroperiodo) return false
-
-      // Filtro de tipo
+    const filtradasPorTipo = filtradasPorPeriodo.filter(mov => {
       if (tipoMovimentacao !== 'todos' && mov.tipo !== tipoMovimentacao) {
         return false
       }
 
-      // Filtro de busca
       if (busca) {
         const buscaLower = busca.toLowerCase()
         return (
@@ -160,7 +140,7 @@ export default function ExtratoLoja() {
       return true
     })
 
-    return filtradas
+    return filtradasPorTipo
   }, [periodo, tipoMovimentacao, busca])
 
   // Calcular métricas
@@ -242,24 +222,23 @@ export default function ExtratoLoja() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text-primary)]">
             Extrato Financeiro
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-[20px] font-medium text-[var(--text-secondary)] mt-1">
             Visualize todas as movimentações financeiras da sua loja
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+        <div className="flex flex-col items-stretch sm:items-end gap-2 w-full sm:w-auto">
           <div className="flex flex-wrap justify-end gap-2">
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setMostrarMenuPeriodo(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+                className="inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
               >
                 <Calendar size={16} />
                 <span>{getPeriodoLabel()}</span>
@@ -269,7 +248,7 @@ export default function ExtratoLoja() {
               {mostrarMenuPeriodo && (
                 <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
                   {([
-                    { value: 'customizado' as PeriodoFiltro, label: 'Tudo' },
+                    { value: 'tudo' as PeriodoFiltro, label: 'Tudo' },
                     { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
                     { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
                     { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
@@ -299,7 +278,7 @@ export default function ExtratoLoja() {
               <button
                 type="button"
                 onClick={() => setMostrarMenuTipo(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+                className="inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
               >
                 <span>{getTipoLabel()}</span>
                 <ChevronDown size={14} />
@@ -336,14 +315,14 @@ export default function ExtratoLoja() {
             <button
               type="button"
               onClick={() => {
-                setPeriodo('customizado')
+                setPeriodo('tudo')
                 setTipoMovimentacao('todos')
                 setBusca('')
                 setPaginaAtual(1)
                 setMostrarMenuPeriodo(false)
                 setMostrarMenuTipo(false)
               }}
-              className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+              className="w-full sm:w-auto rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             >
               Limpar filtros
             </button>
@@ -352,7 +331,7 @@ export default function ExtratoLoja() {
               type="button"
               onClick={handleExportarCsv}
               disabled={movimentacoesFiltradas.length === 0}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download size={16} />
               <span>Exportar CSV</span>
@@ -369,7 +348,7 @@ export default function ExtratoLoja() {
                 setPaginaAtual(1)
               }}
               placeholder="Buscar por descrição..."
-              className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-full bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-sm"
+              className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--surface)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-sm"
             />
           </div>
         </div>

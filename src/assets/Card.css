@@ -2,7 +2,7 @@
 
 .card {
   background-color: white;
-  border-radius: 16px; /* Borda bem arredondada (moderno) */
+  border-radius: 12px;
   padding: 24px;       /* Espaçamento interno padrão */
   display: flex;
   flex-direction: column;

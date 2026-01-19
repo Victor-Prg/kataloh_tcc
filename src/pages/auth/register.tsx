@@ -238,7 +238,7 @@ export default function Register() {
         }}
       >
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="relative rounded-2xl px-6 py-12 shadow-sm ring-1 ring-[var(--border-color)] bg-[var(--bg-card)] sm:px-12">
+          <div className="relative rounded-[12px] p-6 sm:p-10 shadow-sm ring-1 ring-[var(--border-color)] bg-[var(--bg-card)]">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <img
@@ -246,7 +246,7 @@ export default function Register() {
                   src={LogoSvg}
                   className="h-20 w-auto sm:h-24"
                 />
-                <h2 className="mt-4 text-xl font-bold tracking-tight text-[var(--text-primary)]">
+                <h2 className="mt-4 text-[28px] font-bold tracking-tight text-[var(--text-primary)]">
                   Crie sua conta
                 </h2>
                 <p className="mt-1 text-sm text-[var(--text-muted)]">

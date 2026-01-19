@@ -107,7 +107,7 @@ export const CategorySelector = ({
             {allCategories.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2"
+                className="flex items-center justify-between rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2"
               >
                 <div className="flex items-center gap-3">
                   <Checkbox

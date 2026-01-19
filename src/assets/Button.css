@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 8px; /* Mais moderno que 12px para botões, mas ajustável */
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-in-out;

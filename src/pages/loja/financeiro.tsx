@@ -223,21 +223,21 @@ export default function LojaFinanceiro() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text-primary)]">
             Financeiro
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-[20px] font-medium text-[var(--text-secondary)] mt-1">
             Acompanhe suas vendas e gerencie repasses
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
-          <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-col items-stretch sm:items-end gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setMostrarMenuPeriodo(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+                className="inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
               >
                 <Calendar size={16} />
                 <span>{getPeriodoLabel()}</span>
@@ -277,7 +277,7 @@ export default function LojaFinanceiro() {
               <button
                 type="button"
                 onClick={() => setMostrarMenuStatus(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+                className="inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
               >
                 <span>{getStatusLabel()}</span>
                 <ChevronDown size={14} />
@@ -320,7 +320,7 @@ export default function LojaFinanceiro() {
                 setMostrarMenuPeriodo(false)
                 setMostrarMenuStatus(false)
               }}
-              className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+              className="w-full sm:w-auto rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             >
               Limpar filtros
             </button>
@@ -329,7 +329,7 @@ export default function LojaFinanceiro() {
               type="button"
               onClick={handleExportarCsv}
               disabled={vendasFiltradas.length === 0}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download size={16} />
               <span>Exportar CSV</span>
@@ -340,6 +340,7 @@ export default function LojaFinanceiro() {
             onClick={() => setMostrarModalRepasse(true)}
             icon={<CreditCard size={18} />}
             label="Solicitar Repasse"
+            className="w-full sm:w-auto"
           />
         </div>
       </div>
@@ -584,18 +585,27 @@ export default function LojaFinanceiro() {
 
       {/* MODAL DE SOLICITAÇÃO DE REPASSE */}
       {mostrarModalRepasse && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-xl max-w-md w-full p-6 space-y-6">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setMostrarModalRepasse(false)
+            setValorSolicitacao('')
+          }}
+        >
+          <div
+            className="bg-[var(--surface)] rounded-[12px] max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-6"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">
+              <h3 className="text-[28px] font-bold text-[var(--text-primary)] mb-1">
                 Solicitar Repasse
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-[20px] font-medium text-[var(--text-secondary)]">
                 O valor será creditado em até 24 horas
               </p>
             </div>
 
-            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-lg p-4">
+            <div className="bg-[var(--bg-body)] border border-[var(--border)] rounded-[12px] p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-[var(--text-secondary)]">Saldo Disponível</span>
                 <span className="text-lg font-bold text-green-600 dark:text-green-400">
@@ -623,7 +633,7 @@ export default function LojaFinanceiro() {
                     setValorSolicitacao(value)
                   }}
                   placeholder="0,00"
-                  className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-lg font-bold"
+                  className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] text-lg font-bold"
                 />
               </div>
               
@@ -632,21 +642,21 @@ export default function LojaFinanceiro() {
                 <button
                   type="button"
                   onClick={() => setValorSolicitacao('500,00')}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-[12px] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
                 >
                   R$ 500
                 </button>
                 <button
                   type="button"
                   onClick={() => setValorSolicitacao('1000,00')}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-[12px] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
                 >
                   R$ 1.000
                 </button>
                 <button
                   type="button"
                   onClick={() => setValorSolicitacao('2000,00')}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--surface)] border border-[var(--border)] rounded-[12px] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
                 >
                   R$ 2.000
                 </button>
@@ -656,14 +666,14 @@ export default function LojaFinanceiro() {
                     const valorTotal = metricas.saldoDisponivel.toFixed(2).replace('.', ',')
                     setValorSolicitacao(valorTotal)
                   }}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--primary-100)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-[var(--primary-100)] text-white rounded-[12px] hover:opacity-90 transition-opacity"
                 >
                   Tudo
                 </button>
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-[12px] p-3">
               <div className="flex items-start gap-2">
                 <AlertCircle size={16} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-blue-800 dark:text-blue-200">

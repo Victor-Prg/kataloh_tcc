@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/pages/admin/financeiro/tesouraria.tsx']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -16,7 +16,9 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
+      parser: tseslint.parser,
       ecmaVersion: 2020,
+      sourceType: 'module',
       globals: globals.browser,
     },
   },

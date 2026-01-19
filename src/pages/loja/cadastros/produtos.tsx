@@ -204,7 +204,7 @@ export default function ProdutosCadastro() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Gestão de Cardápio</h1>
+          <h1 className="text-[28px] font-bold text-[var(--text-primary)]">Gestão de Cardápio</h1>
           <p className="text-sm text-[var(--text-secondary)]">Gerencie categorias e produtos da sua loja</p>
         </div>
         {!isFormOpen && (
@@ -228,7 +228,7 @@ export default function ProdutosCadastro() {
       {isFormOpen ? (
         <Card className="animate-fade-in">
           <div className="flex justify-between items-center mb-6 border-b border-[var(--border-color)] pb-4">
-            <h2 className="text-lg font-bold text-[var(--text-primary)]">
+            <h2 className="text-[20px] font-medium text-[var(--text-primary)]">
               {editingId ? 'Editar' : 'Cadastrar'} {activeTab === 'categorias' ? 'Categoria' : 'Produto'}
             </h2>
             <button onClick={resetForms} className="text-[var(--text-secondary)] hover:text-[var(--danger)]">

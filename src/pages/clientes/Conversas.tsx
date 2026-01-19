@@ -533,7 +533,7 @@ export const Conversas = () => {
           >
             <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
               <div>
-                <h1 className="text-lg font-semibold text-[var(--text-primary)]">
+                <h1 className="text-[28px] font-semibold text-[var(--text-primary)]">
                   Conversas
                 </h1>
                 <p className="text-xs text-[var(--text-secondary)]">
@@ -579,7 +579,7 @@ export const Conversas = () => {
                         onClick={() => handleSelectConversation(conversation.id)}
                       >
                         <div className="px-3 py-2.5 md:px-4 md:py-3 flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                          <div className="w-11 h-11 rounded-full overflow-hidden bg-[var(--bg-body)] flex-shrink-0">
                             <img
                               src={conversation.storeImage}
                               alt={conversation.storeName}
@@ -653,7 +653,7 @@ export const Conversas = () => {
                       >
                         <ArrowLeft size={18} />
                       </button>
-                      <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-[var(--bg-body)]">
                         <img
                           src={selectedConversation.storeImage}
                           alt={selectedConversation.storeName}

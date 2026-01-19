@@ -16,6 +16,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
+    "firebase": "^12.8.0",
     "flowbite": "^4.0.1",
     "flowbite-datepicker": "^2.0.0",
     "lucide-react": "^0.562.0",

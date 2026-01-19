@@ -79,14 +79,18 @@ export default function DeliveryOrders() {
     },
   ]);
 
-  const statusOrder: Record<OrderStatus, number> = {
-    disponivel: 0,
-    em_entrega: 1,
-    entregue: 2,
-  };
-
   const sortedOrders = useMemo(
-    () => [...orders].sort((a, b) => statusOrder[a.status] - statusOrder[b.status]),
+    () => {
+      const statusOrder: Record<OrderStatus, number> = {
+        disponivel: 0,
+        em_entrega: 1,
+        entregue: 2,
+      };
+
+      return [...orders].sort(
+        (a, b) => statusOrder[a.status] - statusOrder[b.status],
+      );
+    },
     [orders],
   );
 

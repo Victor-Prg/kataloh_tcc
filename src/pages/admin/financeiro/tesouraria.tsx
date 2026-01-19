@@ -761,7 +761,7 @@ function Treasury() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[color:var(--text-primary)]">
@@ -784,7 +784,8 @@ function Treasury() {
                   setTempEndDate(customEndDate)
 
                   if (datePickerButtonRef.current) {
-                    const rect = datePickerButtonRef.current.getBoundingClientRect()
+                    const rect =
+                      datePickerButtonRef.current.getBoundingClientRect()
                     const viewportWidth = window.innerWidth
                     const viewportHeight = window.innerHeight
 
@@ -792,7 +793,10 @@ function Treasury() {
                     const centerX = rect.left + rect.width / 2
                     const minLeft = 16
                     const maxLeft = viewportWidth - pickerWidth - 16
-                    const left = Math.min(Math.max(centerX - pickerWidth / 2, minLeft), maxLeft)
+                    const left = Math.min(
+                      Math.max(centerX - pickerWidth / 2, minLeft),
+                      maxLeft
+                    )
 
                     const estimatedHeight = 420
                     const spaceBelow = viewportHeight - rect.bottom - 16
@@ -818,7 +822,13 @@ function Treasury() {
             >
               <CalendarBlank size={16} weight="bold" />
               <span>{getDateLabel()}</span>
-              <CaretDown size={12} weight="bold" className={`transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
+              <CaretDown
+                size={12}
+                weight="bold"
+                className={`transition-transform ${
+                  showDatePicker ? 'rotate-180' : ''
+                }`}
+              />
             </button>
 
             {showDatePicker && (
@@ -872,7 +882,10 @@ function Treasury() {
                       ←
                     </button>
                     <p className="text-xs font-semibold text-[color:var(--text-primary)]">
-                      {currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                      {currentMonth.toLocaleDateString('pt-BR', {
+                        month: 'long',
+                        year: 'numeric',
+                      })}
                     </p>
                     <button
                       type="button"
@@ -884,57 +897,76 @@ function Treasury() {
                   </div>
 
                   <div className="grid grid-cols-7 gap-1 mb-2">
-                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
-                      <div key={day} className="text-center text-[0.65rem] font-medium text-[color:var(--text-secondary)] py-1">
-                        {day}
-                      </div>
-                    ))}
+                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(
+                      (day) => (
+                        <div
+                          key={day}
+                          className="text-center text-[0.65rem] font-medium text-[color:var(--text-secondary)] py-1"
+                        >
+                          {day}
+                        </div>
+                      )
+                    )}
                   </div>
 
                   <div className="grid grid-cols-7 gap-1">
                     {(() => {
-                      const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth)
+                      const {
+                        daysInMonth,
+                        startingDayOfWeek,
+                        year,
+                        month,
+                      } = getDaysInMonth(currentMonth)
                       const days = []
-                      
+
                       for (let i = 0; i < startingDayOfWeek; i++) {
                         days.push(<div key={`empty-${i}`} />)
                       }
-                      
+
                       for (let day = 1; day <= daysInMonth; day++) {
                         const date = new Date(year, month, day)
                         const isSelected = isDateSelected(date)
                         const isInRange = isDateInRange(date)
                         const isToday = isSameDay(date, new Date())
-                        
+
+                        const baseClasses =
+                          'aspect-square text-xs rounded-lg transition-colors'
+                        const selectedClasses = isSelected
+                          ? 'bg-[color:var(--primary-100)] text-white font-bold'
+                          : isInRange
+                          ? 'bg-[color:var(--primary-100)]/20 text-[color:var(--text-primary)]'
+                          : 'hover:bg-[color:var(--bg-hover)] text-[color:var(--text-primary)]'
+                        const todayClasses =
+                          isToday && !isSelected
+                            ? 'ring-1 ring-[color:var(--primary-100)]'
+                            : ''
+
                         days.push(
                           <button
                             key={day}
                             type="button"
                             onClick={() => handleDateClick(date)}
-                            className={`
-                              aspect-square text-xs rounded-lg transition-colors
-                              ${isSelected 
-                                ? 'bg-[color:var(--primary-100)] text-white font-bold' 
-                                : isInRange 
-                                ? 'bg-[color:var(--primary-100)]/20 text-[color:var(--text-primary)]'
-                                : 'hover:bg-[color:var(--bg-hover)] text-[color:var(--text-primary)]'
-                              }
-                              ${isToday && !isSelected ? 'ring-1 ring-[color:var(--primary-100)]' : ''}
-                            `}
+                            className={`${baseClasses} ${selectedClasses} ${todayClasses}`}
                           >
                             {day}
                           </button>
                         )
                       }
-                      
+
                       return days
                     })()}
                   </div>
 
                   {tempStartDate && (
                     <div className="mt-3 text-xs text-[color:var(--text-secondary)] text-center">
-                      {tempStartDate && !tempEndDate && 'Selecione a data final'}
-                      {tempStartDate && tempEndDate && `${formatDate(tempStartDate)} - ${formatDate(tempEndDate)}`}
+                      {tempStartDate &&
+                        !tempEndDate &&
+                        'Selecione a data final'}
+                      {tempStartDate &&
+                        tempEndDate &&
+                        `${formatDate(tempStartDate)} - ${formatDate(
+                          tempEndDate
+                        )}`}
                     </div>
                   )}
                 </div>
@@ -1016,7 +1048,7 @@ function Treasury() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--surface-nav)]">
@@ -1088,7 +1120,7 @@ function Treasury() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-sm">
         {errorMessage && (
           <div className="border-b border-[color:var(--border)] bg-[color:var(--surface-nav)] px-4 py-3 text-xs font-medium text-[color:var(--danger)]">
             {errorMessage}
@@ -1100,7 +1132,9 @@ function Treasury() {
               ? 'Nenhum recebimento encontrado para os filtros selecionados'
               : totalRegistros === 1
               ? 'Mostrando 1 de 1 recebimento'
-              : `Mostrando ${startIndex + 1}–${startIndex + receiptsPaginados.length} de ${totalRegistros} recebimentos`}
+              : `Mostrando ${startIndex + 1}–${
+                  startIndex + receiptsPaginados.length
+                } de ${totalRegistros} recebimentos`}
           </p>
         </div>
 
