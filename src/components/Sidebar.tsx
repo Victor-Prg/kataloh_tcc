@@ -59,6 +59,7 @@ const navigation: NavigationItem[] = [
         icon: BuildingStorefrontIcon,
         children: [
           { name: 'Gerenciar Lojas', href: '/admin/gerenciar-lojas', icon: Cog6ToothIcon },
+          { name: 'Chat Firebase', href: '/admin/chat', icon: ChatBubbleLeftRightIcon },
         ],
       },
     ],
