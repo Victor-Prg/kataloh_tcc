@@ -8,18 +8,21 @@ export interface Category {
   id: string;
   name: string;
   order: number;
+  active?: boolean;
 }
 
 interface CategorySelectorProps {
   allCategories: Category[];
   selectedCategories: Category[];
   onConfirm: (categories: Category[]) => void;
+  onPreview?: () => void;
 }
 
 export const CategorySelector = ({
   allCategories,
   selectedCategories,
   onConfirm,
+  onPreview,
 }: CategorySelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -84,8 +87,9 @@ export const CategorySelector = ({
             <Button
               variant={primaryIsSelect ? 'outline' : 'primary'}
               disabled={!hasSelection}
+              onClick={onPreview}
             >
-              Montar Menu
+              Preview do Cardápio
             </Button>
           </div>
 

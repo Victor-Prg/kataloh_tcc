@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapPin, CheckCircle, Package, TrendingUp, AlertCircle } from 'lucide-react';
+import { MapPin, CheckCircle, Package, TrendingUp, AlertCircle, MessageCircle, Send, X } from 'lucide-react';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 
@@ -16,6 +16,17 @@ interface Order {
   distancia?: string;
   observacoes?: string;
   empresa: string;
+}
+
+type ChatSender = 'entregador' | 'operacao';
+
+type ChatDestino = 'loja' | 'cliente';
+
+interface ChatMessage {
+  id: string;
+  remetente: ChatSender;
+  texto: string;
+  hora: string;
 }
 
 export default function DeliveryOrders() {
@@ -78,6 +89,26 @@ export default function DeliveryOrders() {
       empresa: 'KFC',
     },
   ]);
+  const [chatTipo, setChatTipo] = useState<'nenhum' | 'geral' | 'pedido'>('nenhum');
+  const [chatPedidoId, setChatPedidoId] = useState<string | null>(null);
+  const [chatDestino, setChatDestino] = useState<ChatDestino | null>(null);
+  const [pedidoParaEscolherDestino, setPedidoParaEscolherDestino] = useState<string | null>(null);
+  const [mensagensGerais, setMensagensGerais] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      remetente: 'operacao',
+      texto: 'Olá! Este é o chat geral do delivery.',
+      hora: '09:00',
+    },
+    {
+      id: '2',
+      remetente: 'entregador',
+      texto: 'Bom dia, já estou online para as entregas.',
+      hora: '09:05',
+    },
+  ]);
+  const [mensagensPorPedido, setMensagensPorPedido] = useState<Record<string, ChatMessage[]>>({});
+  const [mensagemAtual, setMensagemAtual] = useState('');
 
   const sortedOrders = useMemo(
     () => {
@@ -103,8 +134,95 @@ export default function DeliveryOrders() {
     [orders],
   );
 
+  const pedidoSelecionadoChat = useMemo(
+    () => (chatPedidoId ? orders.find((order) => order.id === chatPedidoId) ?? null : null),
+    [orders, chatPedidoId],
+  );
+
+  const pedidoParaDefinirDestino = useMemo(
+    () =>
+      pedidoParaEscolherDestino
+        ? orders.find((order) => order.id === pedidoParaEscolherDestino) ?? null
+        : null,
+    [orders, pedidoParaEscolherDestino],
+  );
+
+  const mensagensChatAtual: ChatMessage[] =
+    chatTipo === 'geral'
+      ? mensagensGerais
+      : chatTipo === 'pedido' && chatPedidoId
+        ? mensagensPorPedido[chatPedidoId] ?? []
+        : [];
+
   const updateOrderStatus = (id: string, newStatus: OrderStatus) => {
     setOrders(orders.map((order) => (order.id === id ? { ...order, status: newStatus } : order)));
+  };
+
+  const abrirChatGeral = () => {
+    setChatTipo('geral');
+    setChatPedidoId(null);
+    setChatDestino(null);
+    setPedidoParaEscolherDestino(null);
+  };
+
+  const escolherDestinoChatPedido = (pedidoId: string) => {
+    setPedidoParaEscolherDestino(pedidoId);
+  };
+
+  const abrirChatPedido = (pedidoId: string, destino: ChatDestino) => {
+    setChatTipo('pedido');
+    setChatPedidoId(pedidoId);
+    setChatDestino(destino);
+    setPedidoParaEscolherDestino(null);
+  };
+
+  const fecharChat = () => {
+    setChatTipo('nenhum');
+    setChatPedidoId(null);
+    setChatDestino(null);
+    setMensagemAtual('');
+    setPedidoParaEscolherDestino(null);
+  };
+
+  const handleEnviarMensagem = () => {
+    if (chatTipo === 'nenhum') {
+      return;
+    }
+
+    const texto = mensagemAtual.trim();
+    if (!texto) {
+      return;
+    }
+
+    const hora = new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const novaMensagem: ChatMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      remetente: 'entregador',
+      texto,
+      hora,
+    };
+
+    if (chatTipo === 'geral') {
+      setMensagensGerais((prev) => [...prev, novaMensagem]);
+    } else if (chatTipo === 'pedido' && chatPedidoId) {
+      setMensagensPorPedido((prev) => ({
+        ...prev,
+        [chatPedidoId]: [...(prev[chatPedidoId] ?? []), novaMensagem],
+      }));
+    }
+
+    setMensagemAtual('');
+  };
+
+  const handleChatKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleEnviarMensagem();
+    }
   };
 
   const getStatusConfig = (status: OrderStatus) => {
@@ -133,6 +251,22 @@ export default function DeliveryOrders() {
     }
   };
 
+  const tituloChat =
+    chatTipo === 'geral'
+      ? 'Chat geral'
+      : chatTipo === 'pedido' && pedidoSelecionadoChat
+        ? `Pedido ${pedidoSelecionadoChat.id} - ${pedidoSelecionadoChat.cliente}`
+        : 'Chat';
+
+  const subtituloChat =
+    chatTipo === 'geral'
+      ? 'Converse com a central do delivery'
+      : chatTipo === 'pedido' && chatDestino === 'loja'
+        ? 'Converse com a loja sobre este pedido'
+        : chatTipo === 'pedido' && chatDestino === 'cliente'
+          ? 'Converse com o cliente sobre a entrega'
+          : 'Converse sobre este pedido em rota';
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -145,7 +279,6 @@ export default function DeliveryOrders() {
         </p>
       </div>
 
-      {/* Lista mobile (cards) */}
       <div className="space-y-4 md:hidden">
         {sortedOrders.length === 0 ? (
           <Card className="p-12 text-center">
@@ -236,13 +369,23 @@ export default function DeliveryOrders() {
                   )}
 
                   {order.status === 'em_entrega' && (
-                    <Button
-                      onClick={() => updateOrderStatus(order.id, 'entregue')}
-                      className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
-                      icon={<CheckCircle size={16} />}
-                    >
-                      Marcar Entregue
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => updateOrderStatus(order.id, 'entregue')}
+                        className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                        icon={<CheckCircle size={16} />}
+                      >
+                        Marcar Entregue
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => escolherDestinoChatPedido(order.id)}
+                        icon={<MessageCircle size={16} />}
+                      >
+                        Chat
+                      </Button>
+                    </div>
                   )}
 
                   {order.status === 'entregue' && (
@@ -333,13 +476,23 @@ export default function DeliveryOrders() {
                               </Button>
                             )}
                             {order.status === 'em_entrega' && (
-                              <Button
-                                onClick={() => updateOrderStatus(order.id, 'entregue')}
-                                className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
-                                icon={<CheckCircle size={16} />}
-                              >
-                                Marcar Entregue
-                              </Button>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  onClick={() => updateOrderStatus(order.id, 'entregue')}
+                                  className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                                  icon={<CheckCircle size={16} />}
+                                >
+                                  Marcar Entregue
+                                </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => escolherDestinoChatPedido(order.id)}
+                                  icon={<MessageCircle size={14} />}
+                                >
+                                  Chat
+                                </Button>
+                              </div>
                             )}
                             {order.status === 'entregue' && (
                               <div className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-xs font-semibold flex items-center gap-2">
@@ -358,6 +511,160 @@ export default function DeliveryOrders() {
           </div>
         )}
       </div>
+
+      <Button
+        variant="primary"
+        size="lg"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 shadow-lg"
+        icon={<MessageCircle size={18} />}
+        onClick={abrirChatGeral}
+      >
+        Chat geral
+      </Button>
+
+      {pedidoParaDefinirDestino && chatTipo === 'nenhum' && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm px-4">
+            <div className="bg-[var(--surface)] rounded-2xl shadow-2xl border border-[var(--border)] p-5 space-y-4">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  Escolher chat do pedido
+                </p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Selecione com quem você quer falar sobre este pedido em rota.
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-[var(--surface-nav)] border border-[var(--border)] px-3 py-2 text-xs text-[var(--text-secondary)]">
+                <p className="font-medium text-[var(--text-primary)]">
+                  Pedido {pedidoParaDefinirDestino.id} • {pedidoParaDefinirDestino.cliente}
+                </p>
+                <p className="mt-1">
+                  {pedidoParaDefinirDestino.endereco}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  variant="primary"
+                  className="w-full flex items-center justify-center gap-2"
+                  icon={<MessageCircle size={16} />}
+                  onClick={() => abrirChatPedido(pedidoParaDefinirDestino.id, 'loja')}
+                >
+                  Abrir chat com a loja
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-full flex items-center justify-center gap-2"
+                  icon={<MessageCircle size={16} />}
+                  onClick={() => abrirChatPedido(pedidoParaDefinirDestino.id, 'cliente')}
+                >
+                  Abrir chat com o cliente
+                </Button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPedidoParaEscolherDestino(null)}
+                className="w-full text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] mt-1"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {chatTipo !== 'nenhum' && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:justify-center bg-black/40">
+          <div className="w-full sm:max-w-md md:max-w-lg px-3 pb-3 sm:px-0 sm:pb-0">
+            <div className="bg-[var(--surface)] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-[var(--border)] flex flex-col max-h-[80vh]">
+              <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary-100)] text-white">
+                    <MessageCircle size={18} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-[var(--text-primary)]">
+                      {tituloChat}
+                    </span>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      {subtituloChat}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={fecharChat}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-secondary)] hover:bg-[var(--bg-body)]"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-[var(--bg-body)]">
+                {mensagensChatAtual.length === 0 && (
+                  <div className="flex h-full items-center justify-center">
+                    <p className="max-w-[240px] text-center text-xs text-[var(--text-secondary)]">
+                      Nenhuma mensagem ainda. Envie uma mensagem para iniciar a conversa.
+                    </p>
+                  </div>
+                )}
+
+                {mensagensChatAtual.map((mensagem) => {
+                  const alinhamento =
+                    mensagem.remetente === 'entregador' ? 'justify-end' : 'justify-start';
+                  const bubbleClasses =
+                    mensagem.remetente === 'entregador'
+                      ? 'bg-[var(--primary-100)] text-white rounded-[12px] rounded-br-sm'
+                      : 'bg-[var(--surface-nav)] text-[var(--text-primary)] border border-[var(--border)] rounded-[12px] rounded-bl-sm';
+
+                  return (
+                    <div key={mensagem.id} className={`flex ${alinhamento}`}>
+                      <div className={`max-w-[80%] px-3 py-2 text-xs ${bubbleClasses}`}>
+                        <p className="whitespace-pre-wrap break-words">{mensagem.texto}</p>
+                        <span className="mt-1 inline-block text-[10px] opacity-80">
+                          {mensagem.hora}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-[var(--border)] bg-[var(--surface)] p-3">
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    handleEnviarMensagem();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="text"
+                    value={mensagemAtual}
+                    onChange={(event) => setMensagemAtual(event.target.value)}
+                    onKeyDown={handleChatKeyDown}
+                    placeholder={
+                      chatTipo === 'geral'
+                        ? 'Digite uma mensagem para a central'
+                        : 'Digite uma mensagem sobre este pedido'
+                    }
+                    className="flex-1 rounded-full border border-[var(--border)] bg-[var(--bg-body)] px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!mensagemAtual.trim()}
+                    className="inline-flex items-center justify-center rounded-full bg-[var(--primary-100)] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-all"
+                  >
+                    <Send size={16} />
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

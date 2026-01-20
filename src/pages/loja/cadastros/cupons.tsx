@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { Tag, TicketPercent, Heart, CalendarDays } from 'lucide-react'
+import { Tag, TicketPercent, Heart, CalendarDays, Trash2 } from 'lucide-react'
 import {
   Input,
   Button,
@@ -7,6 +7,7 @@ import {
   Checkbox,
   DatePicker,
   Badge,
+   ConfirmModal,
 } from '../../../components'
 
 type TipoAplicacaoCupom = 'pedido' | 'produtos'
@@ -20,6 +21,7 @@ type Cupom = {
   categoriasIds: string[]
   validade?: Date
   quantidade: number
+  ativo: boolean
 }
 
 type CupomCardProps = {
@@ -140,6 +142,7 @@ export default function CuponsCadastro() {
       categoriasIds: [],
       validade: new Date(new Date().getFullYear(), 5, 12),
       quantidade: 100,
+      ativo: true,
     },
     {
       id: crypto.randomUUID(),
@@ -150,6 +153,7 @@ export default function CuponsCadastro() {
       categoriasIds: ['lanches', 'combos'],
       validade: new Date(new Date().getFullYear(), 8, 20),
       quantidade: 50,
+      ativo: true,
     },
     {
       id: crypto.randomUUID(),
@@ -160,8 +164,10 @@ export default function CuponsCadastro() {
       categoriasIds: ['sobremesas'],
       validade: new Date(new Date().getFullYear(), 10, 30),
       quantidade: 30,
+      ativo: true,
     },
   ])
+  const [cupomParaExcluir, setCupomParaExcluir] = useState<Cupom | null>(null)
 
   const descontoNumber =
     typeof descontoPercentual === 'number' ? descontoPercentual : 0
@@ -227,6 +233,7 @@ export default function CuponsCadastro() {
       categoriasIds: tipoAplicacao === 'pedido' ? [] : categoriasSelecionadas,
       validade,
       quantidade: quantidadeNumber,
+      ativo: true,
     }
 
     setTimeout(() => {
@@ -252,6 +259,7 @@ export default function CuponsCadastro() {
     categoriasIds: categoriasSelecionadas,
     validade,
     quantidade: quantidadeNumber || 50,
+    ativo: true,
   }
 
   const categoriasPreview = useMemo(() => {
@@ -269,6 +277,19 @@ export default function CuponsCadastro() {
 
     return `Categorias: ${nomes.join(', ')}`
   }, [previewCupom.tipoAplicacao, previewCupom.categoriasIds])
+
+  const handleToggleAtivoCupom = (id: string) => {
+    setCupons((prev) =>
+      prev.map((cupom) =>
+        cupom.id === id
+          ? {
+              ...cupom,
+              ativo: cupom.ativo ? false : true,
+            }
+          : cupom,
+      ),
+    )
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-6">
@@ -492,19 +513,76 @@ export default function CuponsCadastro() {
             <div className="flex justify-center">
               <div className="grid w-full max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {cupons.map((cupom) => {
-                const categoriasLegiveis =
-                  cupom.tipoAplicacao === 'pedido'
-                    ? 'Válido em todo o pedido'
-                    : cupom.categoriasIds.length
-                      ? `Categorias: ${CATEGORIAS_MOCK.filter((cat) =>
-                          cupom.categoriasIds.includes(cat.id),
-                        )
-                          .map((cat) => cat.nome)
-                          .join(', ')}`
-                      : 'Categorias não informadas'
+                  const categoriasLegiveis =
+                    cupom.tipoAplicacao === 'pedido'
+                      ? 'Válido em todo o pedido'
+                      : cupom.categoriasIds.length
+                        ? `Categorias: ${CATEGORIAS_MOCK.filter((cat) =>
+                            cupom.categoriasIds.includes(cat.id),
+                          )
+                            .map((cat) => cat.nome)
+                            .join(', ')}`
+                        : 'Categorias não informadas'
+
+                  const ativo = cupom.ativo
 
                   return (
-                    <div key={cupom.id} className="h-full">
+                    <div
+                      key={cupom.id}
+                      className={`h-full flex flex-col gap-2 transition-opacity ${
+                        ativo ? '' : 'opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3 px-1">
+                        <div className="space-y-0.5">
+                          <p className="text-[11px] font-mono text-[var(--text-secondary)]">
+                            Código:{' '}
+                            <span className="text-[var(--text-primary)]">
+                              {cupom.codigo.toUpperCase()}
+                            </span>
+                          </p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">
+                            Tipo:{' '}
+                            <span className="text-[var(--text-primary)]">Percentual</span>
+                          </p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">
+                            Validade:{' '}
+                            <span className="text-[var(--text-primary)]">
+                              {formatDate(cupom.validade)}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                              ativo
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                                : 'bg-zinc-500/10 text-zinc-600 dark:text-zinc-300'
+                            }`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            {ativo ? 'Ativo' : 'Inativo'}
+                          </span>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              label={ativo ? 'Desativar' : 'Ativar'}
+                              onClick={() => handleToggleAtivoCupom(cupom.id)}
+                              size="sm"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              icon={<Trash2 size={14} />}
+                              label="Excluir"
+                              onClick={() => setCupomParaExcluir(cupom)}
+                              size="sm"
+                              className="!text-red-600 !border-red-200 hover:!bg-red-50"
+                            />
+                          </div>
+                        </div>
+                      </div>
                       <CupomCard
                         cupom={cupom}
                         categoriasLegiveis={categoriasLegiveis}
@@ -516,6 +594,24 @@ export default function CuponsCadastro() {
             </div>
           )}
         </div>
+      )}
+      {cupomParaExcluir && (
+        <ConfirmModal
+          isOpen={!!cupomParaExcluir}
+          title="Excluir cupom"
+          description={`Deseja realmente excluir o cupom ${cupomParaExcluir.codigo.toUpperCase()}? Essa ação não pode ser desfeita.`}
+          confirmText="Excluir cupom"
+          cancelText="Cancelar"
+          variant="danger"
+          onConfirm={() => {
+            if (!cupomParaExcluir) return
+            setCupons((prev) =>
+              prev.filter((cupom) => cupom.id !== cupomParaExcluir.id),
+            )
+            setCupomParaExcluir(null)
+          }}
+          onCancel={() => setCupomParaExcluir(null)}
+        />
       )}
     </div>
   )

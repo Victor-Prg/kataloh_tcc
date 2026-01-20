@@ -1,17 +1,3 @@
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  SortableContext,
-  arrayMove,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 import type { Category } from './CategorySelector';
 import type { Product } from './ProductItem';
 import { CategoryBlock } from './CategoryBlock';
@@ -30,87 +16,6 @@ export const MenuBuilder = ({
   onChangeCategories,
   onChangeProducts,
 }: MenuBuilderProps) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
-    useSensor(KeyboardSensor),
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    console.log('🎯 Drag End:', active.id, '→', over.id);
-
-    const isCategoryDrag = categories.some((category) => category.id === active.id);
-
-    if (isCategoryDrag) {
-      const oldIndex = categories.findIndex((category) => category.id === active.id);
-      const newIndex = categories.findIndex((category) => category.id === over.id);
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      const reordered = arrayMove(categories, oldIndex, newIndex).map((category, index) => ({
-        ...category,
-        order: index,
-      }));
-
-      console.log('📁 Categorias reordenadas:', reordered.map(c => c.name));
-      onChangeCategories(reordered);
-      return;
-    }
-
-    const activeProduct = products.find((p) => p.id === active.id);
-    const overProduct = products.find((p) => p.id === over.id);
-
-    if (!activeProduct || !overProduct) {
-      console.log('❌ Produto não encontrado');
-      return;
-    }
-
-    if (activeProduct.categoryId !== overProduct.categoryId) {
-      console.log('⚠️ Categorias diferentes - não permite mover');
-      return;
-    }
-
-    console.log('📦 Movendo produto:', activeProduct.name, '→', overProduct.name);
-
-    // Filtra e ordena produtos da mesma categoria
-    const categoryProducts = products
-      .filter((product) => product.categoryId === activeProduct.categoryId)
-      .sort((a, b) => a.order - b.order);
-
-    const oldIndex = categoryProducts.findIndex((p) => p.id === active.id);
-    const newIndex = categoryProducts.findIndex((p) => p.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) {
-      console.log('❌ Índices inválidos');
-      return;
-    }
-
-    console.log('📍 Movendo de', oldIndex, 'para', newIndex);
-
-    // Reordena usando arrayMove
-    const reorderedCategoryProducts = arrayMove(categoryProducts, oldIndex, newIndex).map(
-      (product, idx) => ({
-        ...product,
-        order: idx,
-      }),
-    );
-
-    console.log('✅ Nova ordem:', reorderedCategoryProducts.map(p => p.name));
-
-    // Mescla com produtos de outras categorias
-    const otherProducts = products.filter((p) => p.categoryId !== activeProduct.categoryId);
-    const allProducts = [...otherProducts, ...reorderedCategoryProducts];
-
-    onChangeProducts(allProducts);
-  };
-
   const handleToggleProduct = (productId: string) => {
     const updated = products.map((product) =>
       product.id === productId ? { ...product, active: !product.active } : product,
@@ -125,6 +30,32 @@ export const MenuBuilder = ({
     );
 
     onChangeProducts(updated);
+  };
+
+  const handleMoveCategory = (categoryId: string, direction: 'up' | 'down') => {
+    const index = categories.findIndex((category) => category.id === categoryId);
+    if (index === -1) {
+      return;
+    }
+
+    if (direction === 'up' && index === 0) {
+      return;
+    }
+
+    if (direction === 'down' && index === categories.length - 1) {
+      return;
+    }
+
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    const reordered = [...categories];
+    [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
+
+    const updated = reordered.map((category, idx) => ({
+      ...category,
+      order: idx,
+    }));
+
+    onChangeCategories(updated);
   };
 
   const handleMoveProduct = (productId: string, direction: 'up' | 'down') => {
@@ -203,35 +134,32 @@ export const MenuBuilder = ({
       <div className="flex items-center justify-between gap-3 mb-1">
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">Menu da Loja</h2>
         <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">
-          Arraste para ordenar categorias e produtos
+          Use as setas para ordenar categorias e produtos
         </span>
       </div>
       <p className="text-sm text-[var(--text-secondary)]">
         Organize a ordem em que o cardápio aparecerá para o cliente. Você pode ativar, desativar ou limitar itens sem perder os cadastros.
       </p>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={categories.map((category) => category.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category) => (
-              <CategoryBlock
-                key={category.id}
-                id={category.id}
-                name={category.name}
-                products={products
-                  .filter((product) => product.categoryId === category.id)
-                  .sort((a, b) => a.order - b.order)}
-                onToggleProduct={handleToggleProduct}
-                onChangeProductMaxQuantity={handleChangeMaxQuantity}
-                onMoveProduct={handleMoveProduct}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {categories.map((category, index) => (
+          <CategoryBlock
+            key={category.id}
+            id={category.id}
+            name={category.name}
+            products={products
+              .filter((product) => product.categoryId === category.id)
+              .sort((a, b) => a.order - b.order)}
+            onToggleProduct={handleToggleProduct}
+            onChangeProductMaxQuantity={handleChangeMaxQuantity}
+            onMoveProduct={handleMoveProduct}
+            onMoveCategoryUp={() => handleMoveCategory(category.id, 'up')}
+            onMoveCategoryDown={() => handleMoveCategory(category.id, 'down')}
+            canMoveCategoryUp={index > 0}
+            canMoveCategoryDown={index < categories.length - 1}
+          />
+        ))}
+      </div>
     </div>
   );
 };

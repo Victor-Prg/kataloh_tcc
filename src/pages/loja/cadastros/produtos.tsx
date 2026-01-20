@@ -33,6 +33,13 @@ type Adicional = {
   valor: number
 }
 
+type TipoProduto = 'simples' | 'combo'
+
+type ItemCombo = {
+  produtoId: string
+  quantidade: number
+}
+
 type Produto = {
   id: string
   categoriaId: string
@@ -44,6 +51,8 @@ type Produto = {
   imagem?: string
   adicionais: Adicional[]
   ativo: boolean
+  tipo: TipoProduto
+  itensCombo: ItemCombo[]
 }
 
 // --- DADOS MOCKADOS INICIAIS ---
@@ -79,11 +88,14 @@ export default function ProdutosCadastro() {
     valorPromocional: undefined,
     imagem: '',
     adicionais: [],
-    ativo: true
+    ativo: true,
+    tipo: 'simples',
+    itensCombo: [],
   })
 
   // Estado temporário para Adicionais dentro do form de produto
   const [tempAdicional, setTempAdicional] = useState({ nome: '', valor: '' })
+  const [tempItemCombo, setTempItemCombo] = useState({ produtoId: '', quantidade: '' })
 
   // --- LÓGICA DE CATEGORIAS ---
 
@@ -136,7 +148,15 @@ export default function ProdutosCadastro() {
   }
 
   const handleSaveProduto = () => {
-    if (!prodForm.nome || !prodForm.categoriaId || !prodForm.valor) return alert('Preencha os campos obrigatórios e selecione uma categoria')
+    if (!prodForm.nome || !prodForm.categoriaId || !prodForm.valor) {
+      alert('Preencha os campos obrigatórios e selecione uma categoria')
+      return
+    }
+
+    if (prodForm.tipo === 'combo' && (!prodForm.itensCombo || prodForm.itensCombo.length === 0)) {
+      alert('Adicione ao menos um produto ao kit/combos antes de salvar')
+      return
+    }
 
     if (editingId) {
       setProdutos(prev => prev.map(p => p.id === editingId ? { ...p, ...prodForm } : p))
@@ -176,8 +196,42 @@ export default function ProdutosCadastro() {
       valorPromocional: undefined,
       imagem: '',
       adicionais: [],
-      ativo: true
+      ativo: true,
+      tipo: 'simples',
+      itensCombo: [],
     })
+  }
+
+  const handleAddItemCombo = () => {
+    if (!tempItemCombo.produtoId || !tempItemCombo.quantidade) return
+    const quantidadeNumber = Number(tempItemCombo.quantidade)
+    if (!Number.isFinite(quantidadeNumber) || quantidadeNumber <= 0) return
+
+    setProdForm((prev) => {
+      const itens = prev.itensCombo || []
+      const existente = itens.find((item) => item.produtoId === tempItemCombo.produtoId)
+      const atualizados = existente
+        ? itens.map((item) =>
+            item.produtoId === tempItemCombo.produtoId
+              ? { ...item, quantidade: quantidadeNumber }
+              : item,
+          )
+        : [...itens, { produtoId: tempItemCombo.produtoId, quantidade: quantidadeNumber }]
+
+      return {
+        ...prev,
+        itensCombo: atualizados,
+      }
+    })
+
+    setTempItemCombo({ produtoId: '', quantidade: '' })
+  }
+
+  const handleRemoveItemCombo = (produtoId: string) => {
+    setProdForm((prev) => ({
+      ...prev,
+      itensCombo: prev.itensCombo.filter((item) => item.produtoId !== produtoId),
+    }))
   }
 
   // --- RENDERIZADORES ---
@@ -263,7 +317,6 @@ export default function ProdutosCadastro() {
               </div>
             </div>
           ) : (
-            // --- FORM PRODUTO ---
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <Select 
@@ -281,14 +334,48 @@ export default function ProdutosCadastro() {
                   onChange={e => setProdForm(prev => ({...prev, nome: e.target.value}))}
                 />
 
-                {/* AREA DE IMAGEM */}
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">Imagem do Produto</span>
-                  <div className="border-2 border-dashed border-[var(--border-color)] rounded-lg p-6 flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors">
-                    <ImageIcon size={32} className="mb-2" />
-                    <span className="text-xs">Clique para fazer upload</span>
-                    {prodForm.imagem && <span className="text-xs text-[var(--primary-100)] mt-1">Imagem selecionada</span>}
+                <div>
+                  <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                    Tipo de produto
+                  </span>
+                  <div className="mt-2 inline-flex rounded-full bg-[var(--bg-body)] p-1 border border-[var(--border-color)]">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setProdForm(prev => ({
+                          ...prev,
+                          tipo: 'simples',
+                          itensCombo: [],
+                        }))
+                      }
+                      className={`px-4 py-1.5 text-xs sm:text-[14px] rounded-full font-medium transition-colors ${
+                        prodForm.tipo === 'simples'
+                          ? 'bg-[var(--primary-100)] text-white shadow-sm'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      Produto simples
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setProdForm(prev => ({
+                          ...prev,
+                          tipo: 'combo',
+                        }))
+                      }
+                      className={`px-4 py-1.5 text-xs sm:text-[14px] rounded-full font-medium transition-colors ${
+                        prodForm.tipo === 'combo'
+                          ? 'bg-[var(--primary-100)] text-white shadow-sm'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      Kit / Combo
+                    </button>
                   </div>
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
+                    Use combos para criar ofertas com vários produtos em um único item.
+                  </p>
                 </div>
 
                 <Textarea 
@@ -304,12 +391,21 @@ export default function ProdutosCadastro() {
                   value={prodForm.ingredientes}
                   onChange={e => setProdForm(prev => ({...prev, ingredientes: e.target.value}))}
                 />
+
+                <div className="space-y-2">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">Imagem do Produto</span>
+                  <div className="border-2 border-dashed border-[var(--border-color)] rounded-lg p-6 flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors">
+                    <ImageIcon size={32} className="mb-2" />
+                    <span className="text-xs">Clique para fazer upload</span>
+                    {prodForm.imagem && <span className="text-xs text-[var(--primary-100)] mt-1">Imagem selecionada</span>}
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <Input 
-                    label="Valor (R$) *"
+                    label={prodForm.tipo === 'combo' ? 'Preço final do combo (R$) *' : 'Valor (R$) *'}
                     type="number"
                     placeholder="0,00"
                     value={prodForm.valor}
@@ -324,7 +420,79 @@ export default function ProdutosCadastro() {
                   />
                 </div>
 
-                {/* ADICIONAIS */}
+                {prodForm.tipo === 'combo' && (
+                  <div className="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--surface)] space-y-3">
+                    <h3 className="text-sm font-semibold flex items-center gap-2">
+                      <Package size={16} /> Itens do Kit / Combo
+                    </h3>
+                    <p className="text-[11px] text-[var(--text-secondary)]">
+                      Selecione produtos já cadastrados e defina a quantidade de cada um.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex-1">
+                        <Select
+                          label="Produtos da loja"
+                          placeholder="Selecione um produto"
+                          value={tempItemCombo.produtoId}
+                          onChange={e => setTempItemCombo(prev => ({ ...prev, produtoId: e.target.value }))}
+                          options={produtos
+                            .filter(p => p.id !== editingId && p.ativo && p.tipo === 'simples')
+                            .map(p => ({ label: p.nome, value: p.id }))}
+                        />
+                      </div>
+                      <Input
+                        label="Qtd."
+                        type="number"
+                        min={1}
+                        className="sm:w-24"
+                        value={tempItemCombo.quantidade}
+                        onChange={e => setTempItemCombo(prev => ({ ...prev, quantidade: e.target.value }))}
+                      />
+                      <div className="flex items-end">
+                        <Button
+                          variant="secondary"
+                          icon={<Plus size={16} />}
+                          onClick={handleAddItemCombo}
+                        />
+                      </div>
+                    </div>
+                    {prodForm.itensCombo.length > 0 ? (
+                      <div className="space-y-2">
+                        {prodForm.itensCombo.map((item) => {
+                          const base = produtos.find(p => p.id === item.produtoId)
+                          if (!base) return null
+                          return (
+                            <div
+                              key={item.produtoId}
+                              className="flex justify-between items-center bg-[var(--bg-body)] p-2 rounded text-sm"
+                            >
+                              <div>
+                                <p className="font-medium text-[var(--text-primary)]">
+                                  {base.nome}
+                                </p>
+                                <p className="text-[11px] text-[var(--text-secondary)]">
+                                  Quantidade: {item.quantidade}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItemCombo(item.produtoId)}
+                                className="text-[var(--danger)] hover:opacity-80"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-[var(--text-secondary)] italic">
+                        Nenhum item adicionado ao combo.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--surface)]">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Plus size={16} /> Adicionais / Opcionais
@@ -375,9 +543,7 @@ export default function ProdutosCadastro() {
                    <Switch checked={prodForm.ativo} onToggle={() => setProdForm(prev => ({...prev, ativo: !prev.ativo}))} />
                 </div>
 
-                {/* --- BARRA DE AÇÕES DO FORMULÁRIO DE PRODUTO --- */}
                 <div className="pt-6 flex flex-wrap justify-between items-center gap-4 border-t border-[var(--border-color)] mt-4">
-                   {/* Botão de Excluir (Só aparece se estiver editando) */}
                    {editingId ? (
                      <Button 
                         variant="danger" 
@@ -386,7 +552,7 @@ export default function ProdutosCadastro() {
                         onClick={() => handleDeleteProduto(editingId)} 
                      />
                    ) : (
-                     <div /> /* Espaçador vazio para manter o alinhamento à direita */
+                     <div />
                    )}
 
                    <div className="flex gap-3">
@@ -447,6 +613,7 @@ export default function ProdutosCadastro() {
                   <div className="flex-1 min-w-0 text-center sm:text-left">
                     <div className="flex items-center justify-center sm:justify-start gap-2">
                        <h3 className="font-bold text-[var(--text-primary)] truncate">{prod.nome}</h3>
+                       {prod.tipo === 'combo' && <Badge label="Combo" variant="neutro" />}
                        {!prod.ativo && <Badge label="Inativo" variant="perigo" />}
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] truncate">{prod.descricao}</p>

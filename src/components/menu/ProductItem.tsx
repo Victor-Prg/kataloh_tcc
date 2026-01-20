@@ -1,4 +1,4 @@
-import { GripVertical, ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import { ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import { Switch } from '../Switch';
 import { Input } from '../Input';
 
@@ -10,6 +10,7 @@ export interface Product {
   categoryId: string;
   order: number;
   imageUrl?: string;
+  type?: 'simple' | 'combo';
 }
 
 interface ProductItemProps {
@@ -20,7 +21,6 @@ interface ProductItemProps {
   onMoveDown?: () => void;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
-  dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 export const ProductItem = ({
@@ -31,7 +31,6 @@ export const ProductItem = ({
   onMoveDown,
   canMoveUp = true,
   canMoveDown = true,
-  dragHandleProps,
 }: ProductItemProps) => {
   const handleChangeQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;
@@ -50,17 +49,7 @@ export const ProductItem = ({
 
   return (
     <div className="relative rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-      {/* Drag Handle - Desktop apenas */}
-      <button
-        type="button"
-        {...dragHandleProps}
-        className="absolute top-3 left-3 cursor-grab text-[var(--text-muted)] hover:text-[var(--text-primary)] z-10 hidden md:block"
-      >
-        <GripVertical size={16} />
-      </button>
-
-      {/* Setas de ordenação - Mobile apenas - Centralizadas verticalmente */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-2 flex flex-col gap-1.5 z-[5] md:hidden">
+      <div className="absolute top-1/2 -translate-y-1/2 left-2 flex flex-col gap-1.5 z-[5]">
         <button
           type="button"
           onClick={onMoveUp}
@@ -81,9 +70,7 @@ export const ProductItem = ({
         </button>
       </div>
 
-      {/* Conteúdo principal */}
-      <div className="pl-12 md:pl-6 space-y-3">
-        {/* Header: Imagem + Nome */}
+      <div className="pl-12 space-y-3">
         <div className="flex items-start gap-3">
           {/* Imagem do produto */}
           <div className="w-14 h-14 rounded-md bg-[var(--surface-nav)] border border-[var(--border)] flex items-center justify-center overflow-hidden shrink-0">
@@ -100,8 +87,15 @@ export const ProductItem = ({
 
           {/* Nome e status */}
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-[var(--text-primary)] leading-tight mb-1">
-              {product.name}
+            <div className="flex flex-wrap items-center gap-1 mb-1">
+              <span className="text-sm font-medium text-[var(--text-primary)] leading-tight">
+                {product.name}
+              </span>
+              {product.type === 'combo' && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--surface-nav)] text-[var(--text-secondary)] border border-[var(--border)]">
+                  Combo
+                </span>
+              )}
             </div>
             <div className="text-xs text-[var(--text-secondary)]">
               {product.active ? 'Ativo no cardápio' : 'Inativo para o cliente'}
