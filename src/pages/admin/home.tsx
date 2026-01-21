@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Package, ShoppingCart, Store, Trophy, Truck } from 'lucide-react'
 
 type LojaDestaque = {
@@ -50,17 +51,75 @@ function formatCurrency(value: number) {
 }
 
 export default function Dashboard() {
-  const lojaTop = lojasDestaque[0]
+  const [storeFilter, setStoreFilter] = useState<'geral' | string>('geral')
+
+  const lojasVisiveis =
+    storeFilter === 'geral'
+      ? lojasDestaque
+      : lojasDestaque.filter((loja) => loja.nome === storeFilter)
+
+  const lojaTop = lojasVisiveis[0] ?? lojasDestaque[0]
+
+  const totalPedidosVisao =
+    storeFilter === 'geral' ? totalPedidos : lojaTop?.pedidos ?? 0
+
+  const lojasAtivasVisao =
+    storeFilter === 'geral' ? totalLojasAtivas : lojasVisiveis.length || 1
+
+  const somaPedidosDestaque = lojasDestaque.reduce(
+    (total, loja) => total + loja.pedidos,
+    0
+  )
+
+  const proporcaoLoja =
+    storeFilter === 'geral' || somaPedidosDestaque === 0
+      ? 1
+      : (lojaTop?.pedidos ?? 0) / somaPedidosDestaque
+
+  const entregadoresAtivosVisao =
+    storeFilter === 'geral'
+      ? totalEntregadoresAtivos
+      : Math.max(1, Math.round(totalEntregadoresAtivos * proporcaoLoja))
+
+  const produtosAtivosVisao =
+    storeFilter === 'geral'
+      ? totalProdutosAtivos
+      : Math.max(1, Math.round(totalProdutosAtivos * proporcaoLoja))
+
+  const storeFilterLabel =
+    storeFilter === 'geral' ? 'Todas as lojas' : lojaTop?.nome ?? 'Loja selecionada'
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[color:var(--text-primary)]">
-          Visão Geral
-        </h1>
-        <p className="mt-1 text-[20px] leading-[24px] text-[color:var(--text-soft)]">
-          Resumo geral da plataforma
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-[28px] leading-[32px] font-semibold tracking-tight text-[color:var(--text-primary)]">
+            Visão Geral
+          </h1>
+          <p className="mt-1 text-[20px] leading-[24px] text-[color:var(--text-soft)]">
+            Resumo geral da plataforma
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
+          <div className="relative">
+            <select
+              value={storeFilter}
+              onChange={(event) => setStoreFilter(event.target.value)}
+              className="appearance-none rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-8 pl-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            >
+              <option value="geral">Geral (todas as lojas)</option>
+              {lojasDestaque.map((loja) => (
+                <option key={loja.nome} value={loja.nome}>
+                  {loja.nome}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+              ▼
+            </span>
+          </div>
+        </div>
       </div>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -81,7 +140,7 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="mt-4 text-[26px] leading-none font-semibold text-[color:var(--text-primary)]">
-            {totalPedidos.toLocaleString('pt-BR')}
+            {totalPedidosVisao.toLocaleString('pt-BR')}
           </p>
         </article>
 
@@ -102,7 +161,7 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="mt-4 text-[26px] leading-none font-semibold text-[color:var(--text-primary)]">
-            {totalLojasAtivas.toLocaleString('pt-BR')}
+            {lojasAtivasVisao.toLocaleString('pt-BR')}
           </p>
         </article>
 
@@ -123,7 +182,7 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="mt-4 text-[26px] leading-none font-semibold text-[color:var(--text-primary)]">
-            {totalEntregadoresAtivos.toLocaleString('pt-BR')}
+            {entregadoresAtivosVisao.toLocaleString('pt-BR')}
           </p>
         </article>
 
@@ -144,7 +203,7 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="mt-4 text-[26px] leading-none font-semibold text-[color:var(--text-primary)]">
-            {totalProdutosAtivos.toLocaleString('pt-BR')}
+            {produtosAtivosVisao.toLocaleString('pt-BR')}
           </p>
         </article>
       </section>
@@ -185,7 +244,7 @@ export default function Dashboard() {
               <span>Pedidos</span>
             </div>
             <ol className="divide-y divide-[color:var(--border)]">
-              {lojasDestaque.map((loja, index) => (
+              {lojasVisiveis.map((loja, index) => (
                 <li key={loja.nome} className="flex items-center justify-between py-2">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--surface-nav)] text-[11px] font-semibold text-[color:var(--text-primary)]">
@@ -217,6 +276,9 @@ export default function Dashboard() {
               </h2>
               <p className="mt-1 text-[13px] text-[color:var(--text-soft)]">
                 Quem mais entregou e volume total de entregas.
+              </p>
+              <p className="mt-0.5 text-[11px] text-[color:var(--text-soft)]">
+                Visão: {storeFilterLabel}
               </p>
             </div>
             <div className="p-2 rounded-full bg-indigo-500/10 text-indigo-300">
@@ -271,6 +333,9 @@ export default function Dashboard() {
               </h2>
               <p className="mt-1 text-[13px] text-[color:var(--text-soft)]">
                 Destaques de vendas por produto.
+              </p>
+              <p className="mt-0.5 text-[11px] text-[color:var(--text-soft)]">
+                Visão: {storeFilterLabel}
               </p>
             </div>
             <div className="p-2 rounded-full bg-amber-500/10 text-amber-300">
