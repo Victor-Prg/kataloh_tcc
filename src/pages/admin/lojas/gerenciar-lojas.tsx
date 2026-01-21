@@ -653,12 +653,21 @@ export default function AdminGerenciarLojas() {
                     onKeyDown={(event) => handleKeyDownCard(event, loja)}
                     className="group relative overflow-hidden rounded-[12px] border border-[var(--border)] bg-[var(--surface)] shadow-md hover:shadow-xl transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-100)] focus-visible:outline-none flex flex-col"
                   >
-                    {/* HEADER DO CARD (COR SÓLIDA) */}
-                    <div className="bg-[var(--primary-100)] p-4 relative">
-                      <div className="absolute top-2 right-2">
+                    <div className="relative p-4 bg-[var(--primary-100)]">
+                      {loja.banner && (
+                        <img
+                          src={loja.banner}
+                          alt={loja.nome}
+                          className="absolute inset-0 h-full w-full object-cover opacity-70"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
+                      <div className="relative">
+                        <div className="absolute top-2 right-2">
                         {loja.status === 'aberta' ? (
                           <span className="flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                            Aberta
                             Aberta
                           </span>
                         ) : (
@@ -668,24 +677,24 @@ export default function AdminGerenciarLojas() {
                           </span>
                         )}
                       </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-14 items-center justify-center rounded-[12px] bg-white/20 backdrop-blur-sm text-lg font-bold text-white border-2 border-white/30 overflow-hidden">
-                          {loja.logo ? (
-                            <img src={loja.logo} alt="Logo" className="w-full h-full object-cover" />
-                          ) : (
-                            getLojaAvatarLabel(loja.nome)
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-bold text-white truncate">
-                            {loja.nome}
-                          </h3>
-                          <div className="flex items-center gap-1 text-white/80">
-                             <MapPin size={10} />
-                             <p className="text-xs font-medium truncate">
-                               {formatAddress(loja)}
-                             </p>
+                        <div className="flex items-center gap-3 pt-8">
+                          <div className="flex size-14 items-center justify-center rounded-[12px] bg-white/20 backdrop-blur-sm text-lg font-bold text-white border-2 border-white/30 overflow-hidden">
+                            {loja.logo ? (
+                              <img src={loja.logo} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                              getLojaAvatarLabel(loja.nome)
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-bold text-white truncate">
+                              {loja.nome}
+                            </h3>
+                            <div className="flex items-center gap-1 text-white/80">
+                              <MapPin size={10} />
+                              <p className="text-xs font-medium truncate">
+                                {formatAddress(loja)}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
