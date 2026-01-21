@@ -84,12 +84,59 @@ export default function DeliveryDashboard() {
           </Card>
         </div>
 
-        {/* Pedidos Recentes */}
         <Card className="overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="text-lg font-semibold text-[var(--text-primary)]">Pedidos Recentes</h2>
           </div>
-          <div className="overflow-x-auto">
+
+          <div className="block sm:hidden">
+            <div className="divide-y divide-[var(--border)]">
+              {pedidos.map((pedido) => (
+                <div key={pedido.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-semibold text-[var(--text-secondary)]">
+                      ID • Loja
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        #{pedido.id}
+                      </span>
+                      <span className="text-sm text-[var(--text-primary)]">{pedido.loja}</span>
+                    </div>
+                    <span className="mt-1 text-[11px] text-[var(--text-secondary)]">
+                      Entregador:{' '}
+                      <span className="font-medium">
+                        {pedido.entregador || 'Não atribuído'}
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1">
+                    <span
+                      className={`inline-flex px-2 py-1 text-[10px] font-semibold rounded-full ${
+                        pedido.status === 'disponivel'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                          : pedido.status === 'em_entrega'
+                          ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                      }`}
+                    >
+                      {pedido.status === 'disponivel'
+                        ? 'Disponível'
+                        : pedido.status === 'em_entrega'
+                        ? 'Em Entrega'
+                        : 'Entregue'}
+                    </span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      R$ {pedido.valor.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-[var(--surface-nav)] border-b border-[var(--border)]">
                 <tr>
@@ -114,7 +161,9 @@ export default function DeliveryDashboard() {
                 {pedidos.map((pedido) => (
                   <tr key={pedido.id} className="hover:bg-[var(--surface-nav)] transition-colors">
                     <td className="px-4 py-3 text-sm text-[var(--text-primary)]">#{pedido.id}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-[var(--text-primary)]">{pedido.loja}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-[var(--text-primary)]">
+                      {pedido.loja}
+                    </td>
                     <td className="px-4 py-3 text-sm text-[var(--text-secondary)]">
                       {pedido.entregador || 'Não atribuído'}
                     </td>

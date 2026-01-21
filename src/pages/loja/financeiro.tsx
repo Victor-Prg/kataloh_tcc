@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect, type CSSProperties } from 'react'
 import {
   TrendingUp,
   TrendingDown,
@@ -14,8 +14,8 @@ import {
   Download,
   ChevronDown
 } from 'lucide-react'
+import { CalendarBlank, CaretDown } from 'phosphor-react'
 import { Button, Card } from '../../components'
-import { filtrarPorPeriodo, type PeriodoFiltro } from '../../composables/periodoFiltro'
 
 type Venda = {
   id: string
@@ -34,6 +34,8 @@ type RepasseSolicitacao = {
   status: 'pendente' | 'processando' | 'concluido' | 'recusado'
   previsaoRecebimento: string
 }
+
+type DateFilter = 'hoje' | 'ontem' | 'periodo'
 
 // Função helper para gerar data dinâmica
 const getDateString = (daysAgo: number = 0): string => {
@@ -116,25 +118,85 @@ function formatDate(dateString: string) {
   })
 }
 
+const isSameDay = (dateA: Date, dateB: Date) =>
+  dateA.getFullYear() === dateB.getFullYear() &&
+  dateA.getMonth() === dateB.getMonth() &&
+  dateA.getDate() === dateB.getDate()
+
+const parseIsoToDate = (iso: string) => {
+  const [year, month, day] = iso.split('-').map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day)
+}
+
+function matchesDateFilter(
+  isoDate: string,
+  dateFilter: DateFilter,
+  customStart?: string,
+  customEnd?: string,
+) {
+  const baseDate = parseIsoToDate(isoDate)
+  if (!baseDate) return false
+
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+
+  if (dateFilter === 'hoje') {
+    return isSameDay(baseDate, today)
+  }
+
+  if (dateFilter === 'ontem') {
+    return isSameDay(baseDate, yesterday)
+  }
+
+  if (dateFilter === 'periodo') {
+    if (!customStart || !customEnd) return true
+    const start = parseIsoToDate(customStart)
+    const end = parseIsoToDate(customEnd)
+    if (!start || !end) return true
+
+    start.setHours(0, 0, 0, 0)
+    end.setHours(23, 59, 59, 999)
+    const time = baseDate.getTime()
+
+    return time >= start.getTime() && time <= end.getTime()
+  }
+
+  return true
+}
+
+const toIsoDate = (date: Date) => date.toISOString().slice(0, 10)
+
 export default function LojaFinanceiro() {
-  const [periodo, setPeriodo] = useState<PeriodoFiltro>('tudo')
+  const [dateFilter, setDateFilter] = useState<DateFilter>('periodo')
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [tempStartDate, setTempStartDate] = useState('')
+  const [tempEndDate, setTempEndDate] = useState('')
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const datePickerRef = useRef<HTMLDivElement>(null)
+  const datePickerButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [datePickerStyle, setDatePickerStyle] = useState<CSSProperties>()
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'concluido' | 'cancelado'>('todos')
   const [mostrarModalRepasse, setMostrarModalRepasse] = useState(false)
   const [valorSolicitacao, setValorSolicitacao] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
-  const [mostrarMenuPeriodo, setMostrarMenuPeriodo] = useState(false)
   const [mostrarMenuStatus, setMostrarMenuStatus] = useState(false)
   const itensPorPagina = 10
 
   const vendasFiltradas = useMemo(() => {
-    const porPeriodo = filtrarPorPeriodo(vendasMock, venda => new Date(venda.data), periodo)
+    const filtradasPorPeriodo = vendasMock.filter((venda) =>
+      matchesDateFilter(venda.data, dateFilter, customStartDate, customEndDate),
+    )
 
     if (statusFiltro === 'todos') {
-      return porPeriodo
+      return filtradasPorPeriodo
     }
 
-    return porPeriodo.filter(venda => venda.status === statusFiltro)
-  }, [periodo, statusFiltro])
+    return filtradasPorPeriodo.filter(venda => venda.status === statusFiltro)
+  }, [dateFilter, customStartDate, customEndDate, statusFiltro])
 
   // Calcular métricas
   const metricas = useMemo(() => {
@@ -154,11 +216,24 @@ export default function LojaFinanceiro() {
     }
   }, [vendasFiltradas])
 
-  const getPeriodoLabel = () => {
-    if (periodo === 'hoje') return 'Hoje'
-    if (periodo === 'semana') return 'Últimos 7 dias'
-    if (periodo === 'mes') return 'Últimos 30 dias'
-    return 'Tudo'
+  const getDateLabel = () => {
+    if (!customStartDate && !customEndDate) {
+      return 'Tudo'
+    }
+
+    if (customStartDate && customEndDate) {
+      return `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`
+    }
+
+    if (customStartDate) {
+      return `A partir de ${formatDate(customStartDate)}`
+    }
+
+    if (customEndDate) {
+      return `Até ${formatDate(customEndDate)}`
+    }
+
+    return 'Selecionar período'
   }
 
   const getStatusLabel = () => {
@@ -170,6 +245,126 @@ export default function LojaFinanceiro() {
   const totalPaginas = Math.ceil(vendasFiltradas.length / itensPorPagina)
   const indexInicio = (paginaAtual - 1) * itensPorPagina
   const vendasPaginadas = vendasFiltradas.slice(indexInicio, indexInicio + itensPorPagina)
+
+  const handleQuickFilter = (type: 'hoje' | 'semana' | 'mes' | 'tudo') => {
+    const now = new Date()
+    const startOfDay = new Date(now)
+    startOfDay.setHours(0, 0, 0, 0)
+
+    switch (type) {
+      case 'hoje': {
+        const inicio = toIsoDate(startOfDay)
+        const fim = toIsoDate(now)
+        setCustomStartDate(inicio)
+        setCustomEndDate(fim)
+        setDateFilter('periodo')
+        setTempStartDate(inicio)
+        setTempEndDate(fim)
+        break
+      }
+      case 'semana': {
+        const weekAgo = new Date(startOfDay)
+        weekAgo.setDate(weekAgo.getDate() - 7)
+        const inicio = toIsoDate(weekAgo)
+        const fim = toIsoDate(now)
+        setCustomStartDate(inicio)
+        setCustomEndDate(fim)
+        setDateFilter('periodo')
+        setTempStartDate(inicio)
+        setTempEndDate(fim)
+        break
+      }
+      case 'mes': {
+        const monthAgo = new Date(startOfDay)
+        monthAgo.setMonth(monthAgo.getMonth() - 1)
+        const inicio = toIsoDate(monthAgo)
+        const fim = toIsoDate(now)
+        setCustomStartDate(inicio)
+        setCustomEndDate(fim)
+        setDateFilter('periodo')
+        setTempStartDate(inicio)
+        setTempEndDate(fim)
+        break
+      }
+      case 'tudo': {
+        setCustomStartDate('')
+        setCustomEndDate('')
+        setDateFilter('periodo')
+        setTempStartDate('')
+        setTempEndDate('')
+        break
+      }
+    }
+
+    setPaginaAtual(1)
+    setShowDatePicker(false)
+  }
+
+  const handleDateClick = (date: Date) => {
+    const isoDate = toIsoDate(date)
+
+    if (!tempStartDate || (tempStartDate && tempEndDate)) {
+      setTempStartDate(isoDate)
+      setTempEndDate('')
+    } else {
+      const start = parseIsoToDate(tempStartDate)
+      const end = date
+
+      if (start && end < start) {
+        setTempStartDate(isoDate)
+        setTempEndDate(tempStartDate)
+      } else {
+        setTempEndDate(isoDate)
+      }
+    }
+  }
+
+  const applyDateFilter = () => {
+    setCustomStartDate(tempStartDate)
+    setCustomEndDate(tempEndDate)
+    setDateFilter('periodo')
+    setPaginaAtual(1)
+    setShowDatePicker(false)
+  }
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
+
+    return { daysInMonth, startingDayOfWeek, year, month }
+  }
+
+  const isDateInRange = (date: Date) => {
+    if (!tempStartDate || !tempEndDate) return false
+    const start = parseIsoToDate(tempStartDate)
+    const end = parseIsoToDate(tempEndDate)
+    if (!start || !end) return false
+    return date >= start && date <= end
+  }
+
+  const isDateSelected = (date: Date) => {
+    const isoDate = toIsoDate(date)
+    return isoDate === tempStartDate || isoDate === tempEndDate
+  }
+
+  const changeMonth = (offset: number) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1))
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleExportarCsv = () => {
     if (vendasFiltradas.length === 0) return
@@ -233,42 +428,209 @@ export default function LojaFinanceiro() {
 
         <div className="flex flex-col items-stretch sm:items-end gap-3 w-full sm:w-auto">
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <div className="relative">
+            <div className="relative" ref={datePickerRef}>
               <button
                 type="button"
-                onClick={() => setMostrarMenuPeriodo(prev => !prev)}
-                className="inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-100)]"
+                ref={datePickerButtonRef}
+                onClick={() => {
+                  const willOpen = !showDatePicker
+                  if (willOpen) {
+                    setTempStartDate(customStartDate)
+                    setTempEndDate(customEndDate)
+
+                    if (datePickerButtonRef.current) {
+                      const rect = datePickerButtonRef.current.getBoundingClientRect()
+                      const viewportWidth = window.innerWidth
+                      const viewportHeight = window.innerHeight
+
+                      const pickerWidth = Math.min(320, viewportWidth - 32)
+                      const centerX = rect.left + rect.width / 2
+                      const minLeft = 16
+                      const maxLeft = viewportWidth - pickerWidth - 16
+                      const left = Math.min(Math.max(centerX - pickerWidth / 2, minLeft), maxLeft)
+
+                      const estimatedHeight = 420
+                      const spaceBelow = viewportHeight - rect.bottom - 16
+                      const top =
+                        spaceBelow >= estimatedHeight
+                          ? rect.bottom + 8
+                          : Math.max(16, viewportHeight - estimatedHeight - 16)
+
+                      setDatePickerStyle({
+                        position: 'fixed',
+                        top,
+                        left,
+                        width: pickerWidth,
+                        zIndex: 50,
+                      })
+                    }
+                  } else {
+                    setDatePickerStyle(undefined)
+                  }
+                  setShowDatePicker(willOpen)
+                }}
+                className="inline-flex items-center gap-2 rounded-[12px] border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
               >
-                <Calendar size={16} />
-                <span>{getPeriodoLabel()}</span>
-                <ChevronDown size={14} />
+                <CalendarBlank size={16} weight="bold" />
+                <span>{getDateLabel()}</span>
+                <CaretDown
+                  size={12}
+                  weight="bold"
+                  className={`transition-transform ${showDatePicker ? 'rotate-180' : ''}`}
+                />
               </button>
 
-              {mostrarMenuPeriodo && (
-                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-lg z-20 py-2">
-                  {([
-                    { value: 'tudo' as PeriodoFiltro, label: 'Tudo' },
-                    { value: 'hoje' as PeriodoFiltro, label: 'Hoje' },
-                    { value: 'semana' as PeriodoFiltro, label: 'Últimos 7 dias' },
-                    { value: 'mes' as PeriodoFiltro, label: 'Últimos 30 dias' },
-                  ] as const).map((opt) => (
+              {showDatePicker && (
+                <div
+                  className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-xl shadow-xl z-50 p-4"
+                  style={datePickerStyle}
+                >
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
+                      Filtros Rápidos
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('hoje')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Hoje
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('semana')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Última semana
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('mes')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Último mês
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickFilter('tudo')}
+                        className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
+                      >
+                        Tudo
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[color:var(--border)] pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <button
+                        type="button"
+                        onClick={() => changeMonth(-1)}
+                        className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                      >
+                        ←
+                      </button>
+                      <p className="text-xs font-semibold text-[color:var(--text-primary)]">
+                        {currentMonth.toLocaleDateString('pt-BR', {
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => changeMonth(1)}
+                        className="p-1 hover:bg-[color:var(--bg-hover)] rounded"
+                      >
+                        →
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+                        <div
+                          key={day}
+                          className="text-center text-[0.65rem] font-medium text-[color:var(--text-secondary)] py-1"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1">
+                      {(() => {
+                        const {
+                          daysInMonth,
+                          startingDayOfWeek,
+                          year,
+                          month,
+                        } = getDaysInMonth(currentMonth)
+                        const days = []
+
+                        for (let i = 0; i < startingDayOfWeek; i++) {
+                          days.push(<div key={`empty-${i}`} />)
+                        }
+
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const date = new Date(year, month, day)
+                          const selected = isDateSelected(date)
+                          const inRange = isDateInRange(date)
+                          const today = isSameDay(date, new Date())
+
+                          const baseClasses =
+                            'aspect-square text-xs rounded-lg transition-colors'
+                          const selectedClasses = selected
+                            ? 'bg-[color:var(--primary-100)] text-white font-bold'
+                            : inRange
+                            ? 'bg-[color:var(--primary-100)]/20 text-[color:var(--text-primary)]'
+                            : 'hover:bg-[color:var(--bg-hover)] text-[color:var(--text-primary)]'
+                          const todayClasses =
+                            today && !selected ? 'ring-1 ring-[color:var(--primary-100)]' : ''
+
+                          days.push(
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => handleDateClick(date)}
+                              className={`${baseClasses} ${selectedClasses} ${todayClasses}`}
+                            >
+                              {day}
+                            </button>,
+                          )
+                        }
+
+                        return days
+                      })()}
+                    </div>
+
+                    {tempStartDate && (
+                      <div className="mt-3 text-xs text-[color:var(--text-secondary)] text-center">
+                        {tempStartDate && !tempEndDate && 'Selecione a data final'}
+                        {tempStartDate &&
+                          tempEndDate &&
+                          `${formatDate(tempStartDate)} - ${formatDate(tempEndDate)}`}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-[color:var(--border)] mt-4 pt-3 flex justify-between gap-2">
                     <button
-                      key={opt.value}
                       type="button"
                       onClick={() => {
-                        setPeriodo(opt.value)
-                        setPaginaAtual(1)
-                        setMostrarMenuPeriodo(false)
+                        setTempStartDate('')
+                        setTempEndDate('')
                       }}
-                      className={`flex w-full items-center justify-between px-4 py-2 text-xs ${
-                        periodo === opt.value
-                          ? 'bg-[var(--primary-100)] text-white'
-                          : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
-                      }`}
+                      className="px-3 py-2 text-xs font-medium rounded-lg border border-[color:var(--border)] text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] transition-colors"
                     >
-                      <span>{opt.label}</span>
+                      Limpar
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={applyDateFilter}
+                      className="px-4 py-2 text-xs font-medium rounded-lg bg-[color:var(--primary-100)] text-white hover:opacity-90 transition-opacity"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -314,11 +676,15 @@ export default function LojaFinanceiro() {
             <button
               type="button"
               onClick={() => {
-                setPeriodo('tudo')
+                setDateFilter('periodo')
+                setCustomStartDate('')
+                setCustomEndDate('')
+                setTempStartDate('')
+                setTempEndDate('')
                 setStatusFiltro('todos')
                 setPaginaAtual(1)
-                setMostrarMenuPeriodo(false)
                 setMostrarMenuStatus(false)
+                setShowDatePicker(false)
               }}
               className="w-full sm:w-auto rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             >

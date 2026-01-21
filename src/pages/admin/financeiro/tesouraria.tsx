@@ -773,7 +773,7 @@ function Treasury() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
-          <div className="relative" ref={datePickerRef}>
+          <div className="relative flex-1 min-w-[110px] sm:flex-none" ref={datePickerRef}>
             <button
               type="button"
               ref={datePickerButtonRef}
@@ -994,7 +994,7 @@ function Treasury() {
             )}
           </div>
 
-          <div className="relative">
+          <div className="relative flex-1 min-w-[110px] sm:flex-none">
             <select
               value={storeFilter}
               onChange={(event) => setStoreFilter(event.target.value)}
@@ -1012,7 +1012,7 @@ function Treasury() {
             </span>
           </div>
 
-          <div className="relative">
+          <div className="relative flex-1 min-w-[110px] sm:flex-none">
             <select
               value={paymentFilter}
               onChange={(event) =>
@@ -1040,7 +1040,7 @@ function Treasury() {
           <button
             type="button"
             onClick={handleExportarCsv}
-            className="inline-flex items-center justify-center gap-2 rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--surface-nav)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--surface-nav)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
           >
             <FileCsv size={16} className="text-[color:var(--text-primary)]" />
             <span>Exportar</span>
