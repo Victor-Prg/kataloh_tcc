@@ -1,5 +1,5 @@
 # Kataloh
-
+.
 Design system em React + TypeScript + Vite.
 
 Currently, two official plugins are available:
