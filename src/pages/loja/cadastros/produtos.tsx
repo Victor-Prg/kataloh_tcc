@@ -428,33 +428,30 @@ export default function ProdutosCadastro() {
                     <p className="text-[11px] text-[var(--text-secondary)]">
                       Selecione produtos já cadastrados e defina a quantidade de cada um.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="flex-1">
-                        <Select
-                          label="Produtos da loja"
-                          placeholder="Selecione um produto"
-                          value={tempItemCombo.produtoId}
-                          onChange={e => setTempItemCombo(prev => ({ ...prev, produtoId: e.target.value }))}
-                          options={produtos
-                            .filter(p => p.id !== editingId && p.ativo && p.tipo === 'simples')
-                            .map(p => ({ label: p.nome, value: p.id }))}
-                        />
-                      </div>
+                    <div className="inline-form-row grid grid-cols-1 sm:grid-cols-[1fr_120px_40px] gap-3 items-end sm:items-center">
+                      <Select
+                        placeholder="Selecione um produto"
+                        value={tempItemCombo.produtoId}
+                        onChange={e => setTempItemCombo(prev => ({ ...prev, produtoId: e.target.value }))}
+                        className="h-10"
+                        options={produtos
+                          .filter(p => p.id !== editingId && p.ativo && p.tipo === 'simples')
+                          .map(p => ({ label: p.nome, value: p.id }))}
+                      />
                       <Input
-                        label="Qtd."
+                        placeholder="Qtd."
                         type="number"
                         min={1}
-                        className="sm:w-24"
+                        className="w-24 h-10"
                         value={tempItemCombo.quantidade}
                         onChange={e => setTempItemCombo(prev => ({ ...prev, quantidade: e.target.value }))}
                       />
-                      <div className="flex items-end">
-                        <Button
-                          variant="secondary"
-                          icon={<Plus size={16} />}
-                          onClick={handleAddItemCombo}
-                        />
-                      </div>
+                      <Button
+                        variant="secondary"
+                        icon={<Plus size={16} />}
+                        className="h-10 w-10 flex items-center justify-center"
+                        onClick={handleAddItemCombo}
+                      />
                     </div>
                     {prodForm.itensCombo.length > 0 ? (
                       <div className="space-y-2">
@@ -493,28 +490,29 @@ export default function ProdutosCadastro() {
                   </div>
                 )}
 
-                <div className="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--surface)]">
-                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <div className="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--surface)] space-y-3">
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
                     <Plus size={16} /> Adicionais / Opcionais
                   </h3>
                   
-                  <div className="flex gap-2 mb-3">
+                  <div className="inline-form-row grid grid-cols-1 sm:grid-cols-[1fr_120px_40px] gap-3 items-end sm:items-center">
                     <Input 
                       placeholder="Nome (ex: Bacon)" 
-                      className="flex-1" 
+                      className="flex-1 h-10" 
                       value={tempAdicional.nome}
                       onChange={e => setTempAdicional(prev => ({...prev, nome: e.target.value}))}
                     />
                     <Input 
                       placeholder="R$" 
                       type="number" 
-                      className="w-24" 
+                      className="w-24 h-10" 
                       value={tempAdicional.valor}
                       onChange={e => setTempAdicional(prev => ({...prev, valor: e.target.value}))}
                     />
                     <Button 
                       variant="secondary" 
                       icon={<Plus size={16} />} 
+                      className="h-10 w-10 flex items-center justify-center"
                       onClick={handleAddAdicional}
                     />
                   </div>

@@ -5,6 +5,10 @@
   margin-bottom: 16px;
 }
 
+.inline-form-row .input-group {
+  margin-bottom: 0;
+}
+
 .input-label {
   font-size: 14px;
   font-weight: 500;

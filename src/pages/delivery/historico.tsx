@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef, type CSSProperties } from 'react';
 import { Package, TrendingUp } from 'lucide-react';
 import { CalendarBlank, CaretDown } from 'phosphor-react';
-import { Card } from '../../components/Card';
+import { Card } from '../../components';
 
 type DateFilter = 'hoje' | 'ontem' | 'periodo';
 
@@ -75,6 +75,12 @@ interface Entrega {
 export default function DeliveryHistorico() {
   const [entregadorFiltro, setEntregadorFiltro] = useState<string>('todos');
   const [buscaFiltro, setBuscaFiltro] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [sortKey, setSortKey] = useState<'entregador' | 'loja' | 'distancia' | 'data' | 'valor'>(
+    'data',
+  );
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const [dateFilter, setDateFilter] = useState<DateFilter>('periodo');
   const [customStartDate, setCustomStartDate] = useState<string>('');
@@ -127,6 +133,58 @@ export default function DeliveryHistorico() {
 
     return filtered;
   }, [entregas, dateFilter, customStartDate, customEndDate, entregadorFiltro, buscaFiltro]);
+
+  const handleChangeSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(key);
+    setSortDirection('asc');
+  };
+
+  const entregasOrdenadas = useMemo(() => {
+    const parseDistanciaKm = (value: string) => Number(value.replace('km', '').trim());
+    const parseTimeMinutes = (time: string) => {
+      const [h, m] = time.split(':').map(Number);
+      return (h || 0) * 60 + (m || 0);
+    };
+
+    const valueForSort = (row: Entrega) => {
+      switch (sortKey) {
+        case 'entregador':
+          return row.entregador;
+        case 'loja':
+          return row.loja;
+        case 'distancia':
+          return parseDistanciaKm(row.distancia);
+        case 'valor':
+          return row.valor;
+        case 'data':
+          return new Date(`${row.data}T00:00:00`).getTime() + parseTimeMinutes(row.hora);
+      }
+    };
+
+    const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
+
+    return [...entregasFiltradas].sort((a, b) => {
+      const av = valueForSort(a);
+      const bv = valueForSort(b);
+      const direction = sortDirection === 'asc' ? 1 : -1;
+
+      if (typeof av === 'number' && typeof bv === 'number') {
+        return (av - bv) * direction;
+      }
+
+      return collator.compare(String(av), String(bv)) * direction;
+    });
+  }, [entregasFiltradas, sortDirection, sortKey]);
+
+  const totalRegistros = entregasOrdenadas.length;
+  const totalPaginas = Math.max(1, Math.ceil(totalRegistros / pageSize));
+  const paginaAtualCorrigida = Math.min(Math.max(page, 1), totalPaginas);
+  const startIndex = (paginaAtualCorrigida - 1) * pageSize;
+  const entregasPaginadas = entregasOrdenadas.slice(startIndex, startIndex + pageSize);
 
   const handleQuickFilter = (type: 'hoje' | 'semana' | 'mes' | 'tudo') => {
     const now = new Date();
@@ -561,89 +619,230 @@ export default function DeliveryHistorico() {
 
         {/* Tabela de Entregas */}
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[var(--surface-nav)] border-b border-[var(--border)]">
+          <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)]">
+            <p>
+              {totalRegistros === 0
+                ? 'Nenhuma entrega encontrada para os filtros selecionados'
+                : totalRegistros === 1
+                  ? 'Mostrando 1 de 1 entrega'
+                  : `Mostrando ${startIndex + 1}–${
+                      startIndex + entregasPaginadas.length
+                    } de ${totalRegistros} entregas`}
+            </p>
+          </div>
+
+          <div className="block sm:hidden">
+            {entregasPaginadas.length === 0 ? (
+              <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
+                Nenhuma entrega encontrada para os filtros selecionados
+              </div>
+            ) : (
+              <div className="space-y-3 px-4 py-3">
+                {entregasPaginadas.map((entrega) => (
+                  <div
+                    key={entrega.id}
+                    className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] p-3 text-xs"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-100)] to-[var(--primary-90)] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {entrega.entregador.charAt(0)}
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                            {entrega.entregador}
+                          </p>
+                          <p className="text-[0.7rem] text-[color:var(--text-primary)]">
+                            {entrega.loja}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                          R$ {entrega.valor.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 flex flex-col gap-1 text-[0.7rem] text-[color:var(--text-primary)]">
+                      <span>
+                        {formatDate(entrega.data)} • {entrega.hora} • {entrega.distancia}
+                      </span>
+                      <span>{entrega.endereco}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="min-w-full divide-y divide-[color:var(--border)] text-sm">
+              <thead className="bg-[color:var(--surface-nav)]">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Entregador
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                    <button
+                      type="button"
+                      onClick={() => handleChangeSort('entregador')}
+                      className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                    >
+                      <span>Entregador</span>
+                      {sortKey === 'entregador' && (
+                        <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                      )}
+                    </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Loja
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                    <button
+                      type="button"
+                      onClick={() => handleChangeSort('loja')}
+                      className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                    >
+                      <span>Loja</span>
+                      {sortKey === 'loja' && <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>}
+                    </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
                     Endereço
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Distância
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                    <button
+                      type="button"
+                      onClick={() => handleChangeSort('distancia')}
+                      className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                    >
+                      <span>Distância</span>
+                      {sortKey === 'distancia' && (
+                        <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                      )}
+                    </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Data/Hora
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                    <button
+                      type="button"
+                      onClick={() => handleChangeSort('data')}
+                      className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                    >
+                      <span>Data/Hora</span>
+                      {sortKey === 'data' && <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>}
+                    </button>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Valor
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                    <button
+                      type="button"
+                      onClick={() => handleChangeSort('valor')}
+                      className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                    >
+                      <span>Valor</span>
+                      {sortKey === 'valor' && <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>}
+                    </button>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {entregasFiltradas.length === 0 ? (
+              <tbody className="divide-y divide-[color:var(--border)]">
+                {totalRegistros === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center">
-                      <Package size={48} className="mx-auto mb-4 text-[var(--text-muted)]" />
-                      <p className="text-sm font-medium text-[var(--text-secondary)]">
-                        Nenhuma entrega encontrada
-                      </p>
+                    <td
+                      colSpan={6}
+                      className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]"
+                    >
+                      Nenhuma entrega encontrada para os filtros selecionados
                     </td>
                   </tr>
                 ) : (
-                  entregasFiltradas.map((entrega) => (
+                  entregasPaginadas.map((entrega) => (
                     <tr
                       key={entrega.id}
-                      className="hover:bg-[var(--surface-nav)] transition-colors"
+                      className="hover:bg-[color:var(--bg-hover)] transition-colors"
                     >
-                      <td className="px-4 py-3">
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-100)] to-[var(--primary-90)] rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {entrega.entregador.charAt(0)}
                           </div>
-                          <span className="text-sm font-medium text-[var(--text-primary)]">
+                          <div className="text-sm font-medium text-[color:var(--text-primary)]">
                             {entrega.entregador}
-                          </span>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-[var(--text-primary)] font-medium">
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
+                        <div className="text-sm font-medium text-[color:var(--text-primary)]">
                           {entrega.loja}
-                        </span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-[var(--text-secondary)]">
-                          {entrega.endereco}
-                        </span>
+                      <td className="px-4 py-3 align-top text-sm text-[color:var(--text-primary)]">
+                        {entrega.endereco}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
                         <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                           {entrega.distancia}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="text-sm text-[var(--text-primary)]">
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
+                        <div className="text-sm text-[color:var(--text-primary)]">
                           {formatDate(entrega.data)}
                         </div>
-                        <div className="text-xs text-[var(--text-secondary)]">
-                          {entrega.hora}
-                        </div>
+                        <div className="text-xs text-[color:var(--text-primary)]">{entrega.hora}</div>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      <td className="whitespace-nowrap px-4 py-3 text-right align-top">
+                        <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                           R$ {entrega.valor.toFixed(2)}
-                        </span>
+                        </div>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+
+            {totalRegistros > 0 && (
+              <div className="flex flex-col gap-2 border-t border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)] sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                  <span>Itens por página:</span>
+                  <div className="relative">
+                    <select
+                      value={pageSize}
+                      onChange={(event) => {
+                        const value = Number(event.target.value);
+                        setPageSize(value);
+                        setPage(1);
+                      }}
+                      className="appearance-none rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-7 pl-2 py-1 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+                      ▼
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
+                  <p>
+                    Página {paginaAtualCorrigida} de {totalPaginas}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                      disabled={paginaAtualCorrigida === 1}
+                      className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPage((prev) => Math.min(totalPaginas, prev + 1))}
+                      disabled={paginaAtualCorrigida === totalPaginas}
+                      className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                    >
+                      Próxima
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       </div>

@@ -581,16 +581,16 @@ export default function AdminGerenciarLojas() {
 
           {/* ALERTA DE ALTA DEMANDA */}
           {hasLojasAltaDemanda && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-[12px] p-4">
+            <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-700 rounded-[12px] p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <AlertTriangle size={24} className="text-yellow-500" />
+                  <AlertTriangle size={24} className="text-yellow-700 dark:text-yellow-300" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
+                  <h3 className="text-sm font-semibold text-black dark:text-yellow-200">
                     Atenção: Alta Demanda Detectada
                   </h3>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                  <p className="text-sm text-black dark:text-yellow-100 mt-1">
                     Algumas lojas estão com alta demanda ou fila elevada. Monitore os pedidos com atenção.
                   </p>
                 </div>
@@ -626,8 +626,8 @@ export default function AdminGerenciarLojas() {
                     } else if (loja.pedidosPendentes >= 5) {
                       return {
                         label: 'DEMANDA NORMAL',
-                        bgColor: 'bg-yellow-500/20',
-                        textColor: 'text-yellow-700 dark:text-yellow-400',
+                        bgColor: 'bg-yellow-50',
+                        textColor: 'text-yellow-800 dark:text-yellow-300',
                         icon: Clock
                       }
                     } else if (loja.pedidosPendentes >= 3) {

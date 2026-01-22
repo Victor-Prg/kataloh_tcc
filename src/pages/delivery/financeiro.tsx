@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Wallet, TrendingUp, Clock, CreditCard, DollarSign, AlertCircle, CheckCircle2, Info } from 'lucide-react'
 import { CalendarBlank, CaretDown } from 'phosphor-react'
-import { Button, Card, Table, type TableColumn, Pagination, Tooltip, EmptyState, Skeleton } from '../../components'
+import { Button, Card, Tooltip, EmptyState } from '../../components'
 
 type MetodoRecebimento = 'pix' | 'dinheiro' | 'cartao'
 
@@ -107,6 +107,38 @@ const statusColor: Record<RepasseStatus, string> = {
   bloqueado: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
 }
 
+const statusOrder: Record<RepasseStatus, number> = {
+  disponivel: 1,
+  solicitado: 2,
+  processando: 3,
+  pago: 4,
+  bloqueado: 5,
+}
+
+const metodoConfig: Record<
+  MetodoRecebimento,
+  { label: string; icon: ReactNode; className: string }
+> = {
+  pix: {
+    label: 'PIX',
+    icon: <CreditCard size={12} />,
+    className:
+      'bg-emerald-500/10 text-[color:var(--chip-text)] border border-emerald-500/30',
+  },
+  dinheiro: {
+    label: 'Dinheiro',
+    icon: <DollarSign size={12} />,
+    className:
+      'bg-amber-500/10 text-[color:var(--chip-text)] border border-amber-500/30',
+  },
+  cartao: {
+    label: 'Cartão',
+    icon: <CreditCard size={12} />,
+    className:
+      'bg-sky-500/10 text-[color:var(--chip-text)] border border-sky-500/30',
+  },
+}
+
 export default function DeliveryFinanceiro() {
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [modalAberto, setModalAberto] = useState(false)
@@ -128,7 +160,9 @@ export default function DeliveryFinanceiro() {
   const datePickerButtonRef = useRef<HTMLButtonElement | null>(null)
   const [datePickerStyle, setDatePickerStyle] = useState<CSSProperties>()
 
-  const itensPorPagina = 8
+  const [sortKey, setSortKey] = useState<'data' | 'tipo' | 'valor' | 'status'>('data')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [pageSize, setPageSize] = useState(8)
 
   const saldoDisponivel = 1245.7
   const saldoPendente = 320.0
@@ -155,9 +189,38 @@ export default function DeliveryFinanceiro() {
     [dateFilter, customStartDate, customEndDate],
   )
 
-  const totalPaginas = Math.ceil(repassesFiltrados.length / itensPorPagina)
-  const indexInicio = (paginaAtual - 1) * itensPorPagina
-  const repassesPaginados = repassesFiltrados.slice(indexInicio, indexInicio + itensPorPagina)
+  const handleChangeSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+      return
+    }
+    setSortKey(key)
+    setSortDirection('asc')
+  }
+
+  const repassesOrdenados = useMemo(() => {
+    const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' })
+    const direction = sortDirection === 'asc' ? 1 : -1
+
+    return [...repassesFiltrados].sort((a, b) => {
+      if (sortKey === 'data') {
+        return (new Date(a.data).getTime() - new Date(b.data).getTime()) * direction
+      }
+      if (sortKey === 'valor') {
+        return (a.valor - b.valor) * direction
+      }
+      if (sortKey === 'tipo') {
+        return collator.compare(a.metodo, b.metodo) * direction
+      }
+      return (statusOrder[a.status] - statusOrder[b.status]) * direction
+    })
+  }, [repassesFiltrados, sortDirection, sortKey])
+
+  const totalRegistros = repassesOrdenados.length
+  const totalPaginas = Math.max(1, Math.ceil(totalRegistros / pageSize))
+  const paginaAtualCorrigida = Math.min(Math.max(paginaAtual, 1), totalPaginas)
+  const indexInicio = (paginaAtualCorrigida - 1) * pageSize
+  const repassesPaginados = repassesOrdenados.slice(indexInicio, indexInicio + pageSize)
 
   const getDateLabel = () => {
     if (!customStartDate && !customEndDate) {
@@ -298,75 +361,6 @@ export default function DeliveryFinanceiro() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  const columns: TableColumn<RepasseHistorico>[] = [
-    {
-      key: 'data',
-      header: 'Data do Repasse',
-      renderCell: (row) => (
-        <div className="flex flex-col">
-          <span className="text-sm text-[var(--text-primary)]">{formatDate(row.data)}</span>
-          <span className="text-xs text-[var(--text-secondary)]">Agendado</span>
-        </div>
-      ),
-    },
-    {
-      key: 'tipo',
-      header: 'Tipo',
-      renderCell: (row) => (
-        <span className="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)]">
-          {row.metodo === 'pix' && <CreditCard size={14} />}
-          {row.metodo === 'dinheiro' && <DollarSign size={14} />}
-          {row.metodo === 'cartao' && <CreditCard size={14} />}
-          {row.metodo === 'pix' && 'PIX'}
-          {row.metodo === 'dinheiro' && 'Dinheiro'}
-          {row.metodo === 'cartao' && 'Cartão'}
-        </span>
-      ),
-    },
-    {
-      key: 'valor',
-      header: 'Valor',
-      width: '140px',
-      renderCell: (row) => (
-        <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-          {formatCurrency(row.valor)}
-        </span>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      width: '150px',
-      renderCell: (row) => (
-        <Tooltip content={statusLabel[row.status]}>
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${statusColor[row.status]}`}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            {statusLabel[row.status]}
-          </span>
-        </Tooltip>
-      ),
-    },
-    {
-      key: 'acao',
-      header: 'Ação',
-      width: '120px',
-      renderCell: (row) => (
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation()
-            setRepasseSelecionado(row)
-          }}
-          className="text-xs font-medium text-[var(--primary-100)] hover:underline"
-        >
-          Ver detalhes
-        </button>
-      ),
-    },
-  ]
 
   const handleSolicitarRepasse = () => {
     const valor = parseFloat(valorSolicitacao.replace(',', '.'))
@@ -723,97 +717,252 @@ export default function DeliveryFinanceiro() {
 
           {estadoTela !== 'sem_historico' && (
             <>
-              <div className="block sm:hidden space-y-3">
-                {loading && repassesPaginados.length === 0 && (
-                  <>
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="rounded-lg border border-[var(--border)] bg-[var(--bg-body)] p-4 space-y-3"
+              <div className="flex items-center justify-between border-b border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)]">
+                <p>
+                  {totalRegistros === 0
+                    ? 'Nenhum repasse encontrado para os filtros selecionados'
+                    : totalRegistros === 1
+                      ? 'Mostrando 1 de 1 repasse'
+                      : `Mostrando ${indexInicio + 1}–${
+                          indexInicio + repassesPaginados.length
+                        } de ${totalRegistros} repasses`}
+                </p>
+              </div>
+
+              <div className="block sm:hidden">
+                {loading ? (
+                  <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
+                    Carregando repasses...
+                  </div>
+                ) : totalRegistros === 0 ? (
+                  <div className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]">
+                    Nenhum repasse encontrado para os filtros selecionados
+                  </div>
+                ) : (
+                  <div className="space-y-3 px-4 py-3">
+                    {repassesPaginados.map((repasse) => (
+                      <button
+                        key={repasse.id}
+                        type="button"
+                        onClick={() => setRepasseSelecionado(repasse)}
+                        className="w-full text-left rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-nav)] p-3 text-xs"
                       >
-                        <div className="flex items-center justify-between">
-                          <Skeleton variant="text" width="40%" />
-                          <Skeleton variant="rectangular" width="80px" height="20px" />
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                              {formatDate(repasse.data)}
+                            </p>
+                            <p className="text-[0.7rem] text-[color:var(--text-primary)]">
+                              {repasse.metodo === 'pix' && 'PIX'}
+                              {repasse.metodo === 'dinheiro' && 'Dinheiro'}
+                              {repasse.metodo === 'cartao' && 'Cartão'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                              {formatCurrency(repasse.valor)}
+                            </p>
+                          </div>
                         </div>
-                        <Skeleton variant="text" width="60%" />
-                        <Skeleton variant="text" width="50%" />
-                      </div>
+
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${statusColor[repasse.status]}`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            {statusLabel[repasse.status]}
+                          </span>
+                          <span className="text-xs font-medium text-[color:var(--primary-100)]">
+                            Ver detalhes
+                          </span>
+                        </div>
+                      </button>
                     ))}
-                  </>
+                  </div>
                 )}
+              </div>
 
-                {!loading && repassesFiltrados.length === 0 && (
-                  <EmptyState
-                    title="Nenhum repasse encontrado"
-                    description="Ajuste os filtros ou solicite um novo repasse."
-                  />
-                )}
-
-                {!loading &&
-                  repassesFiltrados.length > 0 &&
-                  repassesPaginados.map((repasse) => (
-                    <button
-                      key={repasse.id}
-                      type="button"
-                      onClick={() => setRepasseSelecionado(repasse)}
-                      className="w-full text-left rounded-lg border border-[var(--border)] bg-[var(--bg-body)] p-4 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-[var(--text-primary)]">
-                            {formatDate(repasse.data)}
-                          </span>
-                          <span className="text-xs text-[var(--text-secondary)]">
-                            Agendado
-                          </span>
-                        </div>
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${statusColor[repasse.status]}`}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-[color:var(--border)] text-sm">
+                  <thead className="bg-[color:var(--surface-nav)]">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                        <button
+                          type="button"
+                          onClick={() => handleChangeSort('data')}
+                          className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                          {statusLabel[repasse.status]}
-                        </span>
-                      </div>
+                          <span>Data</span>
+                          {sortKey === 'data' && (
+                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                        <button
+                          type="button"
+                          onClick={() => handleChangeSort('tipo')}
+                          className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                        >
+                          <span>Tipo de pagamento</span>
+                          {sortKey === 'tipo' && (
+                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                        <button
+                          type="button"
+                          onClick={() => handleChangeSort('valor')}
+                          className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                        >
+                          <span>Valor</span>
+                          {sortKey === 'valor' && (
+                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                        <button
+                          type="button"
+                          onClick={() => handleChangeSort('status')}
+                          className="inline-flex items-center gap-1 hover:text-[color:var(--text-primary)]"
+                        >
+                          <span>Status</span>
+                          {sortKey === 'status' && (
+                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[color:var(--text-primary)]">
+                        Ação
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[color:var(--border)]">
+                    {loading ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]"
+                        >
+                          Carregando repasses...
+                        </td>
+                      </tr>
+                    ) : totalRegistros === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-4 py-6 text-center text-xs text-[color:var(--text-primary)]"
+                        >
+                          Nenhum repasse encontrado para os filtros selecionados
+                        </td>
+                      </tr>
+                    ) : (
+                      repassesPaginados.map((repasse) => (
+                        <tr
+                          key={repasse.id}
+                          className="hover:bg-[color:var(--bg-hover)] transition-colors"
+                        >
+                          <td className="whitespace-nowrap px-4 py-3 align-top text-sm text-[color:var(--text-primary)]">
+                            {formatDate(repasse.data)}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 align-top">
+                            {(() => {
+                              const cfg = metodoConfig[repasse.metodo]
+                              return (
+                                <div
+                                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${cfg.className}`}
+                                >
+                                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/30 text-[0.65rem]">
+                                    {cfg.icon}
+                                  </span>
+                                  <span>{cfg.label}</span>
+                                </div>
+                              )
+                            })()}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-right align-top">
+                            <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                              {formatCurrency(repasse.valor)}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 align-top">
+                            <Tooltip content={statusLabel[repasse.status]}>
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${statusColor[repasse.status]}`}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                {statusLabel[repasse.status]}
+                              </span>
+                            </Tooltip>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 align-top">
+                            <button
+                              type="button"
+                              onClick={() => setRepasseSelecionado(repasse)}
+                              className="text-xs font-medium text-[color:var(--primary-100)] hover:underline"
+                            >
+                              Ver detalhes
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
 
-                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(repasse.valor)}
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-                        <span className="inline-flex items-center gap-1">
-                          {repasse.metodo === 'pix' && <CreditCard size={14} />}
-                          {repasse.metodo === 'dinheiro' && <DollarSign size={14} />}
-                          {repasse.metodo === 'cartao' && <CreditCard size={14} />}
-                          {repasse.metodo === 'pix' && 'PIX'}
-                          {repasse.metodo === 'dinheiro' && 'Dinheiro'}
-                          {repasse.metodo === 'cartao' && 'Cartão'}
+                {totalRegistros > 0 && (
+                  <div className="flex flex-col gap-2 border-t border-[color:var(--border)] px-4 py-3 text-xs text-[color:var(--text-primary)] sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                      <span>Itens por página:</span>
+                      <div className="relative">
+                        <select
+                          value={pageSize}
+                          onChange={(event) => {
+                            const value = Number(event.target.value)
+                            setPageSize(value)
+                            setPaginaAtual(1)
+                          }}
+                          className="appearance-none rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] pr-7 pl-2 py-1 text-xs font-medium text-[color:var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                        </select>
+                        <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[color:var(--text-primary)]">
+                          ▼
                         </span>
-                        <span className="inline-flex items-center gap-1 text-[var(--primary-100)] font-medium">
-                          Ver detalhes
-                        </span>
                       </div>
-                    </button>
-                  ))}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 sm:justify-end">
+                      <p>
+                        Página {paginaAtualCorrigida} de {totalPaginas}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPaginaAtual((prev) => Math.max(1, prev - 1))}
+                          disabled={paginaAtualCorrigida === 1}
+                          className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                        >
+                          Anterior
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPaginaAtual((prev) => Math.min(totalPaginas, prev + 1))
+                          }
+                          disabled={paginaAtualCorrigida === totalPaginas}
+                          className="inline-flex items-center rounded-md border border-[color:var(--border)] bg-[color:var(--surface-nav)] px-2.5 py-1 text-xs font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-hover)] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-100)]"
+                        >
+                          Próxima
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div className="hidden sm:block">
-                <Table
-                  columns={columns}
-                  data={repassesPaginados}
-                  loading={loading}
-                  emptyTitle="Nenhum repasse encontrado"
-                  emptyDescription="Ajuste os filtros ou solicite um novo repasse."
-                />
-              </div>
-
-              {!loading && repassesFiltrados.length > 0 && (
-                <Pagination
-                  currentPage={paginaAtual}
-                  totalPages={totalPaginas}
-                  onPageChange={setPaginaAtual}
-                  className="mt-2"
-                />
-              )}
             </>
           )}
         </Card>

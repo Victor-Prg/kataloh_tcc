@@ -460,16 +460,16 @@ export default function AdminPedidosLoja() {
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                   lojaStatus === 'aberta'
-                    ? 'border border-emerald-500/40 bg-emerald-500/10 text-black dark:text-emerald-200'
-                    : 'border border-zinc-500/40 bg-zinc-500/10 text-black dark:text-zinc-300'
+                    ? 'border border-emerald-600 bg-emerald-200 text-black dark:border-emerald-400 dark:bg-emerald-500/30 dark:text-emerald-50'
+                    : 'border border-zinc-500 bg-zinc-400 text-white dark:border-zinc-500/60 dark:bg-zinc-500/40 dark:text-zinc-100'
                 }`}
               >
                 <BuildingStorefrontIcon className="h-3 w-3" />
                 Loja {lojaStatus === 'aberta' ? 'aberta' : 'fechada'}
               </span>
               {hasPedidosEmAtraso && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-black dark:text-amber-200">
-                  <ExclamationTriangleIcon className="h-3 w-3 text-amber-500" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500 dark:border-amber-700 bg-amber-100 dark:bg-amber-900/30 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-black dark:text-amber-100">
+                  <ExclamationTriangleIcon className="h-3 w-3 text-amber-700 dark:text-amber-300" />
                   Pedidos em atraso
                 </span>
               )}
@@ -628,9 +628,9 @@ export default function AdminPedidosLoja() {
 
                         {/* OBSERVAÇÃO */}
                         {pedido.observacao && (
-                          <div className="flex items-start gap-2 mb-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-2">
-                            <AlertCircle size={12} className="text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-xs text-yellow-800 dark:text-yellow-300 line-clamp-2">
+                          <div className="flex items-start gap-2 mb-3 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-700 rounded p-2">
+                            <AlertCircle size={12} className="text-yellow-700 dark:text-yellow-300 mt-0.5 flex-shrink-0" />
+                            <p className="text-xs text-black dark:text-yellow-100 line-clamp-2">
                               {pedido.observacao}
                             </p>
                           </div>
@@ -726,7 +726,7 @@ export default function AdminPedidosLoja() {
                         <p className="text-sm font-medium text-[var(--text-primary)]">{item.nome}</p>
                         <p className="text-xs text-[var(--text-muted)]">Quantidade: {item.quantidade}x</p>
                         {item.observacao && (
-                          <p className="mt-1 text-xs text-[var(--text-primary)] bg-yellow-50 dark:bg-yellow-900/20 rounded px-2 py-1">
+                          <p className="mt-1 text-xs text-black dark:text-yellow-100 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-700 rounded px-2 py-1">
                             Obs: {item.observacao}
                           </p>
                         )}
@@ -741,7 +741,7 @@ export default function AdminPedidosLoja() {
                   <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
                     Observações do Pedido
                   </label>
-                  <p className="text-sm text-[var(--text-primary)] bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3 mt-1">
+                  <p className="text-sm text-black dark:text-yellow-100 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-700 rounded p-3 mt-1">
                     {pedidoSelecionado.observacao}
                   </p>
                 </div>
