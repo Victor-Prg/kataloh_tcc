@@ -25,6 +25,8 @@ interface Product {
   image: string;
   category?: string;
   discount?: number;
+  type?: 'simple' | 'configurable';
+  isCustomizable?: boolean;
 }
 
 interface Category {
@@ -33,6 +35,39 @@ interface Category {
   icon?: string;
   items: Product[];
 }
+
+const MARMITA_PROTEINS = [
+  { id: 'frango-grelhado', name: 'Frango grelhado' },
+  { id: 'frango-empanado', name: 'Frango empanado' },
+  { id: 'estrogonoff-frango', name: 'Estrogonoff de frango' },
+  { id: 'carne-bovina-acebolada', name: 'Carne bovina acebolada' },
+  { id: 'carne-moida', name: 'Carne moída' },
+  { id: 'bife-milanesa', name: 'Bife à milanesa' },
+  { id: 'linguica-calabresa', name: 'Linguiça calabresa' },
+  { id: 'ovo-frito', name: 'Ovo frito' },
+  { id: 'ovo-mexido', name: 'Ovo mexido' },
+];
+
+const MARMITA_SIDES = [
+  { id: 'arroz-branco', name: 'Arroz branco' },
+  { id: 'arroz-temperado', name: 'Arroz temperado com legumes' },
+  { id: 'feijao', name: 'Feijão' },
+  { id: 'feijao-tropeiro', name: 'Feijão tropeiro' },
+  { id: 'farofa', name: 'Farofa' },
+  { id: 'pure-batata', name: 'Purê de batata' },
+  { id: 'batata-frita', name: 'Batata frita' },
+  { id: 'macarrao', name: 'Macarrão ao alho e óleo' },
+  { id: 'legumes', name: 'Legumes no vapor' },
+  { id: 'salada', name: 'Salada simples' },
+  { id: 'vinagrete', name: 'Vinagrete' },
+];
+
+const MARMITA_EXTRAS = [
+  { id: 'extra-ovo', name: 'Ovo extra', price: 2 },
+  { id: 'queijo-ralado', name: 'Queijo ralado', price: 1.5 },
+  { id: 'bacon', name: 'Bacon', price: 3 },
+  { id: 'molho-especial', name: 'Molho especial', price: 1 },
+];
 
 // --- DADOS MOCKADOS ---
 const CATALOG_MOCK: Category[] = [
@@ -53,9 +88,45 @@ const CATALOG_MOCK: Category[] = [
         name: "Box Família", 
         description: "4 Smash Burgers + Batata Suprema + Nuggets (12un) + 2 Refris", 
         price: 89.90, 
-        image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=800&h=600&fit=crop&q=80" 
+        image: "https://images.unsplash.com/photo-1604908176997-125188f2c5b9?w=800&h=600&fit=crop&q=80" 
+      },
+      {
+        id: 103,
+        name: 'Monte sua Marmita',
+        description: 'Escolha o tamanho e monte sua combinação perfeita de pratos executivos',
+        price: 21.9,
+        image: 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=800&h=600&fit=crop&q=80',
+        type: 'configurable',
+        isCustomizable: true,
       }
     ]
+  },
+  {
+    id: 'executivos',
+    title: '🍽️ Pratos Executivos',
+    items: [
+      {
+        id: 401,
+        name: 'Prato Executivo Filé Grelhado',
+        description: 'Arroz, feijão, filé grelhado e batata frita',
+        price: 32.9,
+        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop&q=80',
+      },
+      {
+        id: 402,
+        name: 'Prato Executivo Estrogonoff de Frango',
+        description: 'Estrogonoff de frango com arroz e batata palha',
+        price: 29.9,
+        image: 'https://images.unsplash.com/photo-1533777324565-a040eb52fac1?w=800&h=600&fit=crop&q=80',
+      },
+      {
+        id: 403,
+        name: 'Prato Executivo Bife Acebolado',
+        description: 'Arroz, feijão, bife acebolado e salada',
+        price: 31.5,
+        image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&h=600&fit=crop&q=80',
+      },
+    ],
   },
   {
     id: 'burgers',
@@ -103,6 +174,13 @@ export const LojaDetalhes = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
+  const [customProductModal, setCustomProductModal] = useState<{
+    product: Product;
+    size: 'P' | 'M' | 'G' | null;
+    selectedProteins: string[];
+    selectedSides: string[];
+    selectedExtras?: string[];
+  } | null>(null);
 
   // Simulação de dados da Loja
   const storeMock = {
@@ -144,6 +222,16 @@ export const LojaDetalhes = () => {
   }, [cartItems]);
 
   const handleAddToCart = (product: Product) => {
+    if (product.type === 'configurable') {
+      setCustomProductModal({
+        product,
+        size: null,
+        selectedProteins: [],
+        selectedSides: [],
+      });
+      return;
+    }
+
     addToCart({
       id: String(product.id),
       name: product.name,
@@ -157,6 +245,43 @@ export const LojaDetalhes = () => {
 
   const formatCurrency = (val: number) => 
     val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const getMarmitaPrice = (basePrice: number, size: 'P' | 'M' | 'G') => {
+    if (size === 'P') return basePrice;
+    if (size === 'M') return basePrice + 4;
+    return basePrice + 8;
+  };
+
+  const getProteinLimit = (size: 'P' | 'M' | 'G') => {
+    if (size === 'G') return 2;
+    return 1;
+  };
+
+  const getSideLimit = (size: 'P' | 'M' | 'G') => {
+    if (size === 'P') return 2;
+    return 3;
+  };
+
+  const extrasTotal =
+    customProductModal?.selectedExtras && customProductModal.selectedExtras.length > 0
+      ? customProductModal.selectedExtras.reduce((acc, extraId) => {
+          const extra = MARMITA_EXTRAS.find((item) => item.id === extraId);
+          if (!extra) return acc;
+          return acc + extra.price;
+        }, 0)
+      : 0;
+
+  let isMarmitaButtonDisabled = true;
+
+  if (customProductModal && customProductModal.size) {
+    const size = customProductModal.size;
+    const proteinLimit = getProteinLimit(size);
+    const sideLimit = getSideLimit(size);
+
+    isMarmitaButtonDisabled =
+      customProductModal.selectedProteins.length !== proteinLimit ||
+      customProductModal.selectedSides.length !== sideLimit;
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-body)] pb-24 md:pb-0">
@@ -265,6 +390,11 @@ export const LojaDetalhes = () => {
                         
                         <div className="flex-1 flex flex-col justify-between">
                           <div>
+                            {product.isCustomizable && (
+                              <span className="inline-flex items-center rounded-full border border-[var(--primary-100)]/50 bg-[var(--surface-nav)] px-2 py-0.5 text-[10px] font-semibold text-[var(--primary-100)] mb-1">
+                                Personalizável
+                              </span>
+                            )}
                             <h3 className="font-semibold text-[var(--text-primary)] line-clamp-1">{product.name}</h3>
                             <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-1">{product.description}</p>
                           </div>
@@ -464,6 +594,358 @@ export const LojaDetalhes = () => {
             </div>
             <span>{formatCurrency(cartTotal)}</span>
           </button>
+        </div>
+      )}
+
+      {customProductModal && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-[var(--bg-card)] rounded-t-[18px] md:rounded-[18px] border border-[var(--border)] shadow-2xl p-4 md:p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <h2 className="text-lg md:text-xl font-bold text-[var(--text-primary)]">
+                  {customProductModal.product.name}
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  {customProductModal.product.description}
+                </p>
+              </div>
+              <button
+                onClick={() => setCustomProductModal(null)}
+                className="p-1.5 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                Escolha o tamanho da marmita
+              </span>
+              <div className="grid grid-cols-3 gap-3">
+                {(['P', 'M', 'G'] as const).map((size) => {
+                  const isActive = customProductModal.size === size;
+                  const basePrice = customProductModal.product.price;
+                  const price = getMarmitaPrice(basePrice, size);
+
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() =>
+                        setCustomProductModal((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                size,
+                                selectedProteins: [],
+                                selectedSides: [],
+                              }
+                            : prev
+                        )
+                      }
+                      className={`flex flex-col items-center justify-center rounded-[14px] border px-2 py-2 text-xs font-medium transition-all ${
+                        isActive
+                          ? 'border-[var(--primary-100)] bg-[var(--primary-100)]/10 text-[var(--primary-100)] shadow-sm'
+                          : 'border-[var(--border)] bg-[var(--surface-nav)] text-[var(--text-secondary)] hover:border-[var(--primary-100)]'
+                      }`}
+                    >
+                      <span className="text-base">
+                        {size === 'P' ? 'P' : size === 'M' ? 'M' : 'G'}
+                      </span>
+                      <span className="text-[10px] opacity-80">
+                        {size === 'P'
+                          ? '1 proteína + 2 acompanhamentos'
+                          : size === 'M'
+                          ? '1 proteína + 3 acompanhamentos'
+                          : '2 proteínas + 3 acompanhamentos'}
+                      </span>
+                      <span className="mt-1 text-[11px] font-semibold">
+                        {formatCurrency(price)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {customProductModal.size && (
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                      Proteínas
+                    </span>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      Proteínas: {customProductModal.selectedProteins.length} de{' '}
+                      {getProteinLimit(customProductModal.size)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                    {MARMITA_PROTEINS.map((protein) => {
+                      const isSelected = customProductModal.selectedProteins.includes(
+                        protein.id,
+                      );
+                      const limit = getProteinLimit(customProductModal.size as 'P' | 'M' | 'G');
+                      const isFull =
+                        !isSelected &&
+                        customProductModal.selectedProteins.length >= limit;
+
+                      return (
+                        <button
+                          key={protein.id}
+                          type="button"
+                          disabled={isFull}
+                          onClick={() =>
+                            setCustomProductModal((prev) => {
+                              if (!prev || !prev.size) return prev;
+
+                              const currentSelected = prev.selectedProteins;
+                              const alreadySelected = currentSelected.includes(
+                                protein.id,
+                              );
+                              const max = getProteinLimit(prev.size);
+
+                              if (alreadySelected) {
+                                return {
+                                  ...prev,
+                                  selectedProteins: currentSelected.filter(
+                                    (id) => id !== protein.id,
+                                  ),
+                                };
+                              }
+
+                              if (currentSelected.length >= max) {
+                                return prev;
+                              }
+
+                              return {
+                                ...prev,
+                                selectedProteins: [
+                                  ...currentSelected,
+                                  protein.id,
+                                ],
+                              };
+                            })
+                          }
+                          className={`flex items-center justify-between rounded-[12px] border px-3 py-2 text-xs transition-all ${
+                            isSelected
+                              ? 'border-[var(--primary-100)] bg-[var(--primary-100)]/10 text-[var(--primary-100)]'
+                              : 'border-[var(--border)] bg-[var(--surface-nav)] text-[var(--text-secondary)] hover:border-[var(--primary-100)]'
+                          } ${isFull ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          <span className="truncate">{protein.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                      Acompanhamentos
+                    </span>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      Acompanhamentos: {customProductModal.selectedSides.length} de{' '}
+                      {getSideLimit(customProductModal.size)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                    {MARMITA_SIDES.map((side) => {
+                      const isSelected = customProductModal.selectedSides.includes(
+                        side.id,
+                      );
+                      const limit = getSideLimit(customProductModal.size as 'P' | 'M' | 'G');
+                      const isFull =
+                        !isSelected &&
+                        customProductModal.selectedSides.length >= limit;
+
+                      return (
+                        <button
+                          key={side.id}
+                          type="button"
+                          disabled={isFull}
+                          onClick={() =>
+                            setCustomProductModal((prev) => {
+                              if (!prev || !prev.size) return prev;
+
+                              const currentSelected = prev.selectedSides;
+                              const alreadySelected = currentSelected.includes(
+                                side.id,
+                              );
+                              const max = getSideLimit(prev.size);
+
+                              if (alreadySelected) {
+                                return {
+                                  ...prev,
+                                  selectedSides: currentSelected.filter(
+                                    (id) => id !== side.id,
+                                  ),
+                                };
+                              }
+
+                              if (currentSelected.length >= max) {
+                                return prev;
+                              }
+
+                              return {
+                                ...prev,
+                                selectedSides: [...currentSelected, side.id],
+                              };
+                            })
+                          }
+                          className={`flex items-center justify-between rounded-[12px] border px-3 py-2 text-xs transition-all ${
+                            isSelected
+                              ? 'border-[var(--primary-100)] bg-[var(--primary-100)]/10 text-[var(--primary-100)]'
+                              : 'border-[var(--border)] bg-[var(--surface-nav)] text-[var(--text-secondary)] hover:border-[var(--primary-100)]'
+                          } ${isFull ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          <span className="truncate">{side.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                      Extras (opcional)
+                    </span>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      Não entram no limite, somam no total
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-1">
+                    {MARMITA_EXTRAS.map((extra) => {
+                      const isSelected =
+                        customProductModal.selectedExtras?.includes(extra.id) ?? false;
+
+                      return (
+                        <button
+                          key={extra.id}
+                          type="button"
+                          onClick={() =>
+                            setCustomProductModal((prev) => {
+                              if (!prev) return prev;
+
+                              const currentSelected = prev.selectedExtras ?? [];
+                              const alreadySelected = currentSelected.includes(extra.id);
+
+                              if (alreadySelected) {
+                                return {
+                                  ...prev,
+                                  selectedExtras: currentSelected.filter(
+                                    (id) => id !== extra.id,
+                                  ),
+                                };
+                              }
+
+                              return {
+                                ...prev,
+                                selectedExtras: [...currentSelected, extra.id],
+                              };
+                            })
+                          }
+                          className={`flex items-center justify-between rounded-[12px] border px-3 py-2 text-xs transition-all ${
+                            isSelected
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
+                              : 'border-[var(--border)] bg-[var(--surface-nav)] text-[var(--text-secondary)] hover:border-[var(--primary-100)]'
+                          }`}
+                        >
+                          <span className="truncate">{extra.name}</span>
+                          <span className="ml-2 whitespace-nowrap text-[11px] font-semibold">
+                            + {formatCurrency(extra.price)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col">
+                <span className="text-[11px] text-[var(--text-secondary)]">
+                  Total da marmita
+                </span>
+                <span className="text-lg font-bold text-[var(--primary-100)]">
+                  {customProductModal.size
+                    ? formatCurrency(
+                        getMarmitaPrice(
+                          customProductModal.product.price,
+                          customProductModal.size,
+                        ) + extrasTotal,
+                      )
+                    : formatCurrency(customProductModal.product.price + extrasTotal)}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                disabled={isMarmitaButtonDisabled}
+                onClick={() => {
+                  if (!customProductModal || !customProductModal.size) return;
+
+                  const size = customProductModal.size;
+                  const price =
+                    getMarmitaPrice(customProductModal.product.price, size) +
+                    extrasTotal;
+
+                  const selectedProteinNames = MARMITA_PROTEINS.filter((protein) =>
+                    customProductModal.selectedProteins.includes(protein.id),
+                  )
+                    .map((protein) => protein.name)
+                    .join(', ');
+
+                  const selectedSideNames = MARMITA_SIDES.filter((side) =>
+                    customProductModal.selectedSides.includes(side.id),
+                  )
+                    .map((side) => side.name)
+                    .join(', ');
+
+                  const selectedExtraNames =
+                    customProductModal.selectedExtras && customProductModal.selectedExtras.length > 0
+                      ? MARMITA_EXTRAS.filter((extra) =>
+                          customProductModal.selectedExtras?.includes(extra.id),
+                        )
+                          .map((extra) => extra.name)
+                          .join(', ')
+                      : '';
+
+                  addToCart({
+                    id: `${customProductModal.product.id}-${size}-${customProductModal.selectedProteins.join(
+                      '+',
+                    )}-${customProductModal.selectedSides.join('+')}${
+                      customProductModal.selectedExtras &&
+                      customProductModal.selectedExtras.length > 0
+                        ? `-${customProductModal.selectedExtras.join('+')}`
+                        : ''
+                    }`,
+                    name: `${customProductModal.product.name} (${size}) - ${selectedProteinNames} | ${selectedSideNames}${
+                      selectedExtraNames ? ` | Extras: ${selectedExtraNames}` : ''
+                    }`,
+                    price,
+                    image: customProductModal.product.image,
+                    quantity: 1,
+                    storeId: storeMock.id,
+                    storeName: storeMock.name,
+                  });
+
+                  setCustomProductModal(null);
+                  setIsCartOpen(true);
+                }}
+                className={`inline-flex items-center justify-center px-4 py-2 rounded-[14px] text-sm font-semibold transition-all ${
+                  isMarmitaButtonDisabled
+                    ? 'bg-[var(--bg-hover)] text-[var(--text-secondary)] cursor-not-allowed'
+                    : 'bg-[var(--primary-100)] text-white hover:bg-[var(--primary-90)]'
+                }`}
+              >
+                Adicionar à sacola
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
