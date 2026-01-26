@@ -12,10 +12,26 @@ type Produto = {
   imagem?: string
 }
 
+type AdicionalConfig = {
+  id: string
+  nome: string
+  descricao: string
+  preco: number
+}
+
+type ItemAdicional = {
+  id: string
+  nome: string
+  descricao?: string
+  preco: number
+  quantidade: number
+}
+
 type ItemPedido = {
   produto: Produto
   quantidade: number
   observacao: string
+  adicionais?: ItemAdicional[]
 }
 
 type Categoria = {
@@ -81,6 +97,16 @@ const produtosMock: Produto[] = [
     imagem: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&h=300&fit=crop',
   },
   {
+    id: 'monte-hamburguer',
+    nome: 'Monte seu Hambúrguer',
+    descricao: 'Escolha o pão, tipo de carne, queijos, molhos e adicionais.',
+    preco: 29.9,
+    categoriaId: 'hamburgueres',
+    disponivel: true,
+    tempo: '20-25 min',
+    imagem: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&h=300&fit=crop',
+  },
+  {
     id: 'refrigerante',
     nome: 'Refrigerante Lata',
     descricao: 'Coca-Cola, Guaraná ou Sprite - 350ml gelado',
@@ -112,6 +138,45 @@ const produtosMock: Produto[] = [
   },
 ]
 
+const adicionaisConfig: AdicionalConfig[] = [
+  {
+    id: 'Mussarela',
+    nome: 'Mussarela',
+    descricao: 'adicional Mussarela',
+    preco: 3,
+  },
+  {
+    id: 'bacon-sanduiche',
+    nome: 'Bacon',
+    descricao: 'adicional bacon',
+    preco: 5,
+  },
+  {
+    id: 'hamburguer-sanduiche',
+    nome: 'Hambúrguer',
+    descricao: 'adicional hambúrguer',
+    preco: 8,
+  },
+  {
+    id: 'frango-sanduiche',
+    nome: 'Frango',
+    descricao: 'adicional frango',
+    preco: 9,
+  },
+  {
+    id: 'catupiry-sanduiche',
+    nome: 'Catupiry',
+    descricao: 'adicional catupiry',
+    preco: 4,
+  },
+  {
+    id: 'milho-sanduiche',
+    nome: 'Milho',
+    descricao: 'adicional milho',
+    preco: 2,
+  },
+]
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -125,6 +190,7 @@ export default function NewPedido() {
   const [carrinho, setCarrinho] = useState<ItemPedido[]>([])
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null)
   const [observacaoTemp, setObservacaoTemp] = useState('')
+  const [adicionaisTemp, setAdicionaisTemp] = useState<Record<string, number>>({})
   const [numeroMesa, setNumeroMesa] = useState('')
 
   const produtosFiltrados = useMemo(() => {
@@ -153,21 +219,52 @@ export default function NewPedido() {
   )
 
   const totalValor = useMemo(
-    () => carrinho.reduce((acc, item) => acc + (item.produto.preco * item.quantidade), 0),
+    () =>
+      carrinho.reduce((acc, item) => {
+        const totalProduto = item.produto.preco * item.quantidade
+        const totalAdicionais =
+          item.adicionais?.reduce(
+            (soma, adicional) => soma + adicional.preco * adicional.quantidade,
+            0,
+          ) ?? 0
+        return acc + totalProduto + totalAdicionais
+      }, 0),
     [carrinho],
   )
 
   const handleAdicionarAoCarrinho = (produto: Produto) => {
     setProdutoSelecionado(produto)
     setObservacaoTemp('')
+    setAdicionaisTemp({})
   }
 
   const handleConfirmarItem = () => {
     if (!produtoSelecionado) return
+    const listaAdicionaisTemp: ItemAdicional[] = Object.entries(adicionaisTemp)
+      .filter(([, quantidade]) => quantidade > 0)
+      .map(([id, quantidade]) => {
+        const config = adicionaisConfig.find(adicional => adicional.id === id)
+        return {
+          id,
+          nome: config?.nome ?? id,
+          descricao: config?.descricao,
+          preco: config?.preco ?? 0,
+          quantidade,
+        }
+      })
+
+    const normalizarAdicionais = (lista?: ItemAdicional[]) =>
+      (lista ?? [])
+        .map(adicional => `${adicional.id}:${adicional.quantidade}`)
+        .sort()
+        .join('|')
+
+    const chaveAdicionaisTemp = normalizarAdicionais(listaAdicionaisTemp)
 
     const itemExistente = carrinho.find(item => 
       item.produto.id === produtoSelecionado.id && 
-      item.observacao === observacaoTemp
+      item.observacao === observacaoTemp &&
+      normalizarAdicionais(item.adicionais) === chaveAdicionaisTemp
     )
 
     if (itemExistente) {
@@ -180,12 +277,14 @@ export default function NewPedido() {
       setCarrinho([...carrinho, {
         produto: produtoSelecionado,
         quantidade: 1,
-        observacao: observacaoTemp
+        observacao: observacaoTemp,
+        adicionais: listaAdicionaisTemp.length > 0 ? listaAdicionaisTemp : undefined,
       }])
     }
 
     setProdutoSelecionado(null)
     setObservacaoTemp('')
+    setAdicionaisTemp({})
   }
 
   const handleRemoverItem = (index: number) => {
@@ -275,57 +374,133 @@ export default function NewPedido() {
           ))}
         </div>
 
-        {/* GRID DE PRODUTOS */}
         <div className="flex-1 overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pb-4">
-            {produtosFiltrados.map((produto) => (
-              <button
-                key={produto.id}
-                onClick={() => handleAdicionarAoCarrinho(produto)}
-                disabled={!produto.disponivel}
-                className={`bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
-                  !produto.disponivel ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                <div className="relative h-40 mb-3 rounded-[12px] overflow-hidden bg-[var(--surface-nav)]">
-                  <img
-                    src={produto.imagem || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop`}
-                    alt={produto.nome}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  {produto.disponivel && (
-                    <div className="absolute bottom-2 right-2 bg-[var(--primary-100)] text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Plus size={20} />
-                    </div>
-                  )}
-                  {!produto.disponivel && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">Indisponível</span>
-                    </div>
-                  )}
-                </div>
+          {categoriaAtiva === 'todos' ? (
+            <div className="space-y-6 pb-4">
+              {categoriasMock.map(categoria => {
+                const produtosDaCategoria = produtosFiltrados.filter(
+                  produto => produto.categoriaId === categoria.id,
+                )
 
-                <h3 className="font-bold text-base text-[var(--text-primary)] mb-1 line-clamp-1">
-                  {produto.nome}
-                </h3>
-                
-                <p className="text-xs text-[var(--text-secondary)] mb-2 line-clamp-2 leading-relaxed">
-                  {produto.descricao}
-                </p>
+                if (produtosDaCategoria.length === 0) {
+                  return null
+                }
 
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-lg font-bold text-[var(--primary-100)]">
-                    {formatCurrency(produto.preco)}
-                  </span>
-                  {produto.tempo && (
-                    <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-body)] px-2 py-1 rounded">
-                      {produto.tempo}
+                return (
+                  <div key={categoria.id} className="space-y-3">
+                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] px-1">
+                      {categoria.nome}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {produtosDaCategoria.map(produto => (
+                        <button
+                          key={produto.id}
+                          onClick={() => handleAdicionarAoCarrinho(produto)}
+                          disabled={!produto.disponivel}
+                          className={`bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
+                            !produto.disponivel ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          <div className="relative h-40 mb-3 rounded-[12px] overflow-hidden bg-[var(--surface-nav)]">
+                            <img
+                              src={
+                                produto.imagem ||
+                                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                              }
+                              alt={produto.nome}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            {produto.disponivel && (
+                              <div className="absolute bottom-2 right-2 bg-[var(--primary-100)] text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Plus size={20} />
+                              </div>
+                            )}
+                            {!produto.disponivel && (
+                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">Indisponível</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <h3 className="font-bold text-base text-[var(--text-primary)] mb-1 line-clamp-1">
+                            {produto.nome}
+                          </h3>
+
+                          <p className="text-xs text-[var(--text-secondary)] mb-2 line-clamp-2 leading-relaxed">
+                            {produto.descricao}
+                          </p>
+
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="text-lg font-bold text-[var(--primary-100)]">
+                              {formatCurrency(produto.preco)}
+                            </span>
+                            {produto.tempo && (
+                              <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-body)] px-2 py-1 rounded">
+                                {produto.tempo}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pb-4">
+              {produtosFiltrados.map(produto => (
+                <button
+                  key={produto.id}
+                  onClick={() => handleAdicionarAoCarrinho(produto)}
+                  disabled={!produto.disponivel}
+                  className={`bg-[var(--surface)] border border-[var(--border)] rounded-[12px] p-4 text-left hover:shadow-lg hover:border-[var(--primary-100)] transition-all group ${
+                    !produto.disponivel ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <div className="relative h-40 mb-3 rounded-[12px] overflow-hidden bg-[var(--surface-nav)]">
+                    <img
+                      src={
+                        produto.imagem ||
+                        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                      }
+                      alt={produto.nome}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    {produto.disponivel && (
+                      <div className="absolute bottom-2 right-2 bg-[var(--primary-100)] text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Plus size={20} />
+                      </div>
+                    )}
+                    {!produto.disponivel && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">Indisponível</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className="font-bold text-base text-[var(--text-primary)] mb-1 line-clamp-1">
+                    {produto.nome}
+                  </h3>
+
+                  <p className="text-xs text-[var(--text-secondary)] mb-2 line-clamp-2 leading-relaxed">
+                    {produto.descricao}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-lg font-bold text-[var(--primary-100)]">
+                      {formatCurrency(produto.preco)}
                     </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+                    {produto.tempo && (
+                      <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-body)] px-2 py-1 rounded">
+                        {produto.tempo}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -369,6 +544,11 @@ export default function NewPedido() {
                     <p className="text-xs text-[var(--text-secondary)]">
                       {formatCurrency(item.produto.preco)} cada
                     </p>
+                    {item.produto.descricao && (
+                      <p className="text-[11px] text-[var(--text-secondary)] line-clamp-2">
+                        {item.produto.descricao}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleRemoverItem(index)}
@@ -377,6 +557,42 @@ export default function NewPedido() {
                     <Trash2 size={16} />
                   </button>
                 </div>
+
+                {item.adicionais && item.adicionais.length > 0 && (
+                  <div className="flex items-start gap-1 bg-[var(--surface)] p-2 rounded text-xs">
+                    <StickyNote
+                      size={12}
+                      className="text-[var(--primary-100)] mt-0.5 flex-shrink-0"
+                    />
+                    <div className="flex-1 space-y-0.5">
+                      {item.adicionais.map(adicional => (
+                        <div
+                          key={adicional.id}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-[11px] text-[var(--text-secondary)]">
+                              {adicional.nome}
+                            </span>
+                            {adicional.descricao && (
+                              <span className="text-[10px] text-[var(--text-muted)]">
+                                {adicional.descricao}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span className="block text-[10px] text-[var(--text-secondary)]">
+                              {adicional.quantidade}x {formatCurrency(adicional.preco)}
+                            </span>
+                            <span className="block text-[10px] font-semibold text-[var(--text-primary)]">
+                              {formatCurrency(adicional.preco * adicional.quantidade)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {item.observacao && (
                   <div className="flex items-start gap-1 bg-[var(--surface)] p-2 rounded text-xs">
@@ -404,7 +620,14 @@ export default function NewPedido() {
                     </button>
                   </div>
                   <span className="font-bold text-[var(--text-primary)]">
-                    {formatCurrency(item.produto.preco * item.quantidade)}
+                    {formatCurrency(
+                      item.produto.preco * item.quantidade +
+                        ((item.adicionais ??
+                          []).reduce(
+                          (soma, adicional) => soma + adicional.preco * adicional.quantidade,
+                          0,
+                        )),
+                    )}
                   </span>
                 </div>
               </div>
@@ -447,8 +670,11 @@ export default function NewPedido() {
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">
                   {produtoSelecionado.nome}
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-sm font-semibold text-[var(--text-primary)] mt-1">
                   {formatCurrency(produtoSelecionado.preco)}
+                </p>
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  {produtoSelecionado.descricao}
                 </p>
               </div>
               <button
@@ -466,17 +692,88 @@ export default function NewPedido() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Observações (opcional)
-              </label>
-              <textarea
-                value={observacaoTemp}
-                onChange={(e) => setObservacaoTemp(e.target.value)}
-                placeholder="Ex: Sem cebola, ponto da carne, etc..."
-                rows={3}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
-              />
+            <div className="space-y-3">
+              {produtoSelecionado.categoriaId !== 'bebidas' && (
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    Adicionais
+                  </label>
+                  <div className="space-y-2">
+                    {adicionaisConfig.map(adicional => {
+                      const quantidade = adicionaisTemp[adicional.id] ?? 0
+                      return (
+                        <div
+                          key={adicional.id}
+                          className="flex items-center justify-between rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold text-[var(--text-primary)]">
+                              {adicional.nome}
+                            </p>
+                            <p className="text-xs text-[var(--text-secondary)]">
+                              {adicional.descricao}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAdicionaisTemp(prev => {
+                                    const atual = prev[adicional.id] ?? 0
+                                    const novaQuantidade = Math.max(0, atual - 1)
+                                    const copia = { ...prev }
+                                    if (novaQuantidade === 0) {
+                                      delete copia[adicional.id]
+                                    } else {
+                                      copia[adicional.id] = novaQuantidade
+                                    }
+                                    return copia
+                                  })
+                                }
+                                className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-body)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center text-xs text-[var(--text-secondary)]">
+                                {quantidade}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAdicionaisTemp(prev => ({
+                                    ...prev,
+                                    [adicional.id]: (prev[adicional.id] ?? 0) + 1,
+                                  }))
+                                }
+                                className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-body)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                              >
+                                +
+                              </button>
+                            </div>
+                            <span className="text-xs font-semibold text-[var(--text-primary)]">
+                              {formatCurrency(adicional.preco)}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Observações (opcional)
+                </label>
+                <textarea
+                  value={observacaoTemp}
+                  onChange={(e) => setObservacaoTemp(e.target.value)}
+                  placeholder="Ex: ponto da carne, retirar ingrediente, etc..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
+                />
+              </div>
             </div>
 
             <button
