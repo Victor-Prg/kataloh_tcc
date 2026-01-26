@@ -10,7 +10,6 @@ export interface Product {
   categoryId: string;
   order: number;
   imageUrl?: string;
-  type?: 'simple' | 'combo';
 }
 
 interface ProductItemProps {
@@ -87,15 +86,8 @@ export const ProductItem = ({
 
           {/* Nome e status */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-1 mb-1">
-              <span className="text-sm font-medium text-[var(--text-primary)] leading-tight">
-                {product.name}
-              </span>
-              {product.type === 'combo' && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--surface-nav)] text-[var(--text-secondary)] border border-[var(--border)]">
-                  Combo
-                </span>
-              )}
+            <div className="text-sm font-medium text-[var(--text-primary)] leading-tight mb-1">
+              {product.name}
             </div>
             <div className="text-xs text-[var(--text-secondary)]">
               {product.active ? 'Ativo no cardápio' : 'Inativo para o cliente'}

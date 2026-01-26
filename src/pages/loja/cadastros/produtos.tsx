@@ -33,13 +33,6 @@ type Adicional = {
   valor: number
 }
 
-type TipoProduto = 'simples' | 'combo'
-
-type ItemCombo = {
-  produtoId: string
-  quantidade: number
-}
-
 type Produto = {
   id: string
   categoriaId: string
@@ -51,8 +44,6 @@ type Produto = {
   imagem?: string
   adicionais: Adicional[]
   ativo: boolean
-  tipo: TipoProduto
-  itensCombo: ItemCombo[]
 }
 
 // --- DADOS MOCKADOS INICIAIS ---
@@ -88,14 +79,14 @@ export default function ProdutosCadastro() {
     valorPromocional: undefined,
     imagem: '',
     adicionais: [],
-    ativo: true,
-    tipo: 'simples',
-    itensCombo: [],
+    ativo: true
   })
+
+  const [prodValorStr, setProdValorStr] = useState<string>('0,00')
+  const [prodValorPromoStr, setProdValorPromoStr] = useState<string>('')
 
   // Estado temporário para Adicionais dentro do form de produto
   const [tempAdicional, setTempAdicional] = useState({ nome: '', valor: '' })
-  const [tempItemCombo, setTempItemCombo] = useState({ produtoId: '', quantidade: '' })
 
   // --- LÓGICA DE CATEGORIAS ---
 
@@ -137,7 +128,7 @@ export default function ProdutosCadastro() {
     const novoAdicional: Adicional = {
       id: crypto.randomUUID(),
       nome: tempAdicional.nome,
-      valor: Number(tempAdicional.valor)
+      valor: toNumberFromComma(tempAdicional.valor)
     }
     setProdForm(prev => ({ ...prev, adicionais: [...prev.adicionais, novoAdicional] }))
     setTempAdicional({ nome: '', valor: '' })
@@ -148,15 +139,7 @@ export default function ProdutosCadastro() {
   }
 
   const handleSaveProduto = () => {
-    if (!prodForm.nome || !prodForm.categoriaId || !prodForm.valor) {
-      alert('Preencha os campos obrigatórios e selecione uma categoria')
-      return
-    }
-
-    if (prodForm.tipo === 'combo' && (!prodForm.itensCombo || prodForm.itensCombo.length === 0)) {
-      alert('Adicione ao menos um produto ao kit/combos antes de salvar')
-      return
-    }
+    if (!prodForm.nome || !prodForm.categoriaId || !prodForm.valor) return alert('Preencha os campos obrigatórios e selecione uma categoria')
 
     if (editingId) {
       setProdutos(prev => prev.map(p => p.id === editingId ? { ...p, ...prodForm } : p))
@@ -170,6 +153,8 @@ export default function ProdutosCadastro() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rest } = prod
     setProdForm(rest)
+    setProdValorStr((rest.valor || 0).toFixed(2).replace('.', ','))
+    setProdValorPromoStr(rest.valorPromocional !== undefined ? rest.valorPromocional.toFixed(2).replace('.', ',') : '')
     setEditingId(prod.id)
     setIsFormOpen(true)
     setActiveTab('produtos')
@@ -196,42 +181,8 @@ export default function ProdutosCadastro() {
       valorPromocional: undefined,
       imagem: '',
       adicionais: [],
-      ativo: true,
-      tipo: 'simples',
-      itensCombo: [],
+      ativo: true
     })
-  }
-
-  const handleAddItemCombo = () => {
-    if (!tempItemCombo.produtoId || !tempItemCombo.quantidade) return
-    const quantidadeNumber = Number(tempItemCombo.quantidade)
-    if (!Number.isFinite(quantidadeNumber) || quantidadeNumber <= 0) return
-
-    setProdForm((prev) => {
-      const itens = prev.itensCombo || []
-      const existente = itens.find((item) => item.produtoId === tempItemCombo.produtoId)
-      const atualizados = existente
-        ? itens.map((item) =>
-            item.produtoId === tempItemCombo.produtoId
-              ? { ...item, quantidade: quantidadeNumber }
-              : item,
-          )
-        : [...itens, { produtoId: tempItemCombo.produtoId, quantidade: quantidadeNumber }]
-
-      return {
-        ...prev,
-        itensCombo: atualizados,
-      }
-    })
-
-    setTempItemCombo({ produtoId: '', quantidade: '' })
-  }
-
-  const handleRemoveItemCombo = (produtoId: string) => {
-    setProdForm((prev) => ({
-      ...prev,
-      itensCombo: prev.itensCombo.filter((item) => item.produtoId !== produtoId),
-    }))
   }
 
   // --- RENDERIZADORES ---
@@ -327,6 +278,18 @@ export default function ProdutosCadastro() {
                   placeholder="Selecione uma categoria..."
                 />
                 
+                <Select
+                  label="Tipo de Produto"
+                  options={[
+                    { label: 'Padrão', value: 'padrao' },
+                    { label: 'Montável', value: 'montavel' },
+                    { label: 'Marmita', value: 'marmita' },
+                  ]}
+                  value={prodForm.tipo}
+                  onChange={e => setProdForm(prev => ({ ...prev, tipo: e.target.value as TipoProduto }))}
+                  placeholder="Selecione o tipo..."
+                />
+                
                 <Input 
                   label="Nome do Produto *"
                   placeholder="Ex: X-Salada"
@@ -391,32 +354,43 @@ export default function ProdutosCadastro() {
                   value={prodForm.ingredientes}
                   onChange={e => setProdForm(prev => ({...prev, ingredientes: e.target.value}))}
                 />
-
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">Imagem do Produto</span>
-                  <div className="border-2 border-dashed border-[var(--border-color)] rounded-lg p-6 flex flex-col items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors">
-                    <ImageIcon size={32} className="mb-2" />
-                    <span className="text-xs">Clique para fazer upload</span>
-                    {prodForm.imagem && <span className="text-xs text-[var(--primary-100)] mt-1">Imagem selecionada</span>}
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input 
-                    label={prodForm.tipo === 'combo' ? 'Preço final do combo (R$) *' : 'Valor (R$) *'}
+                    label="Valor (R$) *"
                     type="number"
                     placeholder="0,00"
-                    value={prodForm.valor}
-                    onChange={e => setProdForm(prev => ({...prev, valor: Number(e.target.value)}))}
+                    value={prodValorStr}
+                    inputMode="decimal"
+                    onChange={e => {
+                      const s = toDecimalCommaInput(e.target.value)
+                      setProdValorStr(s)
+                      setProdForm(prev => ({...prev, valor: toNumberFromComma(s)}))
+                    }}
+                    onBlur={e => {
+                      const s = toFixed2CommaMasked(e.target.value)
+                      setProdValorStr(s)
+                      setProdForm(prev => ({...prev, valor: toNumberFromComma(s)}))
+                    }}
                   />
                   <Input 
                     label="Valor Promocional"
-                    type="number"
+                    type="text"
                     placeholder="0,00"
-                    value={prodForm.valorPromocional || ''}
-                    onChange={e => setProdForm(prev => ({...prev, valorPromocional: e.target.value ? Number(e.target.value) : undefined}))}
+                    value={prodValorPromoStr}
+                    inputMode="decimal"
+                    onChange={e => {
+                      const s = toDecimalCommaInput(e.target.value)
+                      setProdValorPromoStr(s)
+                      setProdForm(prev => ({...prev, valorPromocional: s ? toNumberFromComma(s) : undefined}))
+                    }}
+                    onBlur={e => {
+                      const s = toFixed2CommaMasked(e.target.value)
+                      setProdValorPromoStr(s)
+                      setProdForm(prev => ({...prev, valorPromocional: s ? toNumberFromComma(s) : undefined}))
+                    }}
                   />
                 </div>
 
@@ -495,7 +469,7 @@ export default function ProdutosCadastro() {
                     <Plus size={16} /> Adicionais / Opcionais
                   </h3>
                   
-                  <div className="inline-form-row grid grid-cols-1 sm:grid-cols-[1fr_120px_40px] gap-3 items-end sm:items-center">
+                  <div className="flex gap-2 mb-3">
                     <Input 
                       placeholder="Nome (ex: Bacon)" 
                       className="flex-1 h-10" 
@@ -505,9 +479,11 @@ export default function ProdutosCadastro() {
                     <Input 
                       placeholder="R$" 
                       type="number" 
-                      className="w-24 h-10" 
+                      className="w-24" 
                       value={tempAdicional.valor}
-                      onChange={e => setTempAdicional(prev => ({...prev, valor: e.target.value}))}
+                      inputMode="decimal"
+                      onChange={e => setTempAdicional(prev => ({...prev, valor: toDecimalCommaInput(e.target.value)}))}
+                      onBlur={e => setTempAdicional(prev => ({...prev, valor: toFixed2CommaMasked(e.target.value)}))}
                     />
                     <Button 
                       variant="secondary" 

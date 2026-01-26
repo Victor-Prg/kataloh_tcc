@@ -13,6 +13,7 @@ const ALL_CATEGORIES: Category[] = [
   { id: 'bebidas', name: 'Bebidas', order: 1 },
   { id: 'sobremesas', name: 'Sobremesas', order: 2 },
   { id: 'combos', name: 'Combos', order: 3 },
+  { id: 'marmitas', name: 'Marmitas', order: 4 },
 ];
 
 const ALL_PRODUCTS: Product[] = [
@@ -31,6 +32,15 @@ const ALL_PRODUCTS: Product[] = [
     categoryId: 'lanches',
     order: 1,
     imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=200&h=200&fit=crop',
+  },
+  {
+    id: '7',
+    name: 'Monte seu Sanduíche',
+    active: true,
+    categoryId: 'lanches',
+    order: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1607017032715-9d978b51c4e7?w=200&h=200&fit=crop',
+    productType: 'montavel',
   },
   {
     id: '3',
@@ -64,6 +74,15 @@ const ALL_PRODUCTS: Product[] = [
     order: 0,
     imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
     type: 'combo',
+  },
+  {
+    id: '8',
+    name: 'Marmita da Casa',
+    active: true,
+    categoryId: 'marmitas',
+    order: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
+    productType: 'marmita',
   },
 ];
 
