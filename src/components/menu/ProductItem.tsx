@@ -10,6 +10,8 @@ export interface Product {
   categoryId: string;
   order: number;
   imageUrl?: string;
+  type?: 'combo' | 'montavel';
+  productType?: 'montavel' | 'marmita';
 }
 
 interface ProductItemProps {

@@ -17,8 +17,16 @@ import {
   Badge,
   Switch 
 } from '../../../components'
+import {
+  toNumberFromComma,
+  toDecimalCommaInput,
+  toFixed2CommaMasked,
+  formatCurrency,
+} from '../../../utils/formatting'
 
 // --- TIPAGENS ---
+
+type TipoProduto = 'padrao' | 'montavel' | 'marmita' | 'simples' | 'combo'
 
 type Categoria = {
   id: string
@@ -33,6 +41,11 @@ type Adicional = {
   valor: number
 }
 
+type ItemCombo = {
+  produtoId: string
+  quantidade: number
+}
+
 type Produto = {
   id: string
   categoriaId: string
@@ -44,6 +57,8 @@ type Produto = {
   imagem?: string
   adicionais: Adicional[]
   ativo: boolean
+  tipo?: TipoProduto
+  itensCombo?: ItemCombo[]
 }
 
 // --- DADOS MOCKADOS INICIAIS ---
@@ -79,7 +94,9 @@ export default function ProdutosCadastro() {
     valorPromocional: undefined,
     imagem: '',
     adicionais: [],
-    ativo: true
+    ativo: true,
+    tipo: 'padrao',
+    itensCombo: [],
   })
 
   const [prodValorStr, setProdValorStr] = useState<string>('0,00')
@@ -87,6 +104,9 @@ export default function ProdutosCadastro() {
 
   // Estado temporário para Adicionais dentro do form de produto
   const [tempAdicional, setTempAdicional] = useState({ nome: '', valor: '' })
+
+  // Estado temporário para ItemCombo
+  const [tempItemCombo, setTempItemCombo] = useState({ produtoId: '', quantidade: '' })
 
   // --- LÓGICA DE CATEGORIAS ---
 
@@ -138,6 +158,25 @@ export default function ProdutosCadastro() {
     setProdForm(prev => ({ ...prev, adicionais: prev.adicionais.filter(a => a.id !== id) }))
   }
 
+  const handleAddItemCombo = () => {
+    if (!tempItemCombo.produtoId || !tempItemCombo.quantidade) return
+    setProdForm(prev => ({
+      ...prev,
+      itensCombo: [
+        ...(prev.itensCombo || []),
+        { produtoId: tempItemCombo.produtoId, quantidade: Number(tempItemCombo.quantidade) }
+      ]
+    }))
+    setTempItemCombo({ produtoId: '', quantidade: '' })
+  }
+
+  const handleRemoveItemCombo = (produtoId: string) => {
+    setProdForm(prev => ({
+      ...prev,
+      itensCombo: (prev.itensCombo || []).filter(item => item.produtoId !== produtoId)
+    }))
+  }
+
   const handleSaveProduto = () => {
     if (!prodForm.nome || !prodForm.categoriaId || !prodForm.valor) return alert('Preencha os campos obrigatórios e selecione uma categoria')
 
@@ -181,8 +220,12 @@ export default function ProdutosCadastro() {
       valorPromocional: undefined,
       imagem: '',
       adicionais: [],
-      ativo: true
+      ativo: true,
+      tipo: 'padrao',
+      itensCombo: [],
     })
+    setTempAdicional({ nome: '', valor: '' })
+    setTempItemCombo({ produtoId: '', quantidade: '' })
   }
 
   // --- RENDERIZADORES ---
@@ -200,9 +243,6 @@ export default function ProdutosCadastro() {
       {label}
     </button>
   )
-
-  const formatCurrency = (val: number) => 
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-20">
@@ -427,9 +467,9 @@ export default function ProdutosCadastro() {
                         onClick={handleAddItemCombo}
                       />
                     </div>
-                    {prodForm.itensCombo.length > 0 ? (
+                    {(prodForm.itensCombo ?? []).length > 0 ? (
                       <div className="space-y-2">
-                        {prodForm.itensCombo.map((item) => {
+                        {(prodForm.itensCombo ?? []).map((item) => {
                           const base = produtos.find(p => p.id === item.produtoId)
                           if (!base) return null
                           return (
