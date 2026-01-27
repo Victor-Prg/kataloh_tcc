@@ -27,6 +27,11 @@ interface Product {
   discount?: number;
   type?: 'simple' | 'configurable';
   isCustomizable?: boolean;
+  additionals?: {
+    id: string;
+    name: string;
+    price: number;
+  }[];
 }
 
 interface Category {
@@ -69,6 +74,47 @@ const MARMITA_EXTRAS = [
   { id: 'molho-especial', name: 'Molho especial', price: 1 },
 ];
 
+// --- IMAGENS PADRÃO POR CATEGORIA ---
+const FALLBACK_IMAGES = {
+  executivos:
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=800&fit=crop&q=80',
+  burgers:
+    'https://images.unsplash.com/photo-1550317138-10000687a72b?w=800&h=800&fit=crop&q=80',
+  bebidas:
+    'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&h=800&fit=crop&q=80',
+  promo:
+    'https://images.unsplash.com/photo-1550317138-2a9c1e3fd915?w=800&h=800&fit=crop&q=80',
+  marmita:
+    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=800&fit=crop&q=80',
+  default:
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=800&fit=crop&q=80',
+} as const;
+
+const getProductImage = (product: Product, categoryId: string): string => {
+  if (product.image) {
+    return product.image;
+  }
+
+  if (product.type === 'configurable' || product.isCustomizable) {
+    return FALLBACK_IMAGES.marmita;
+  }
+
+  if (categoryId === 'executivos') {
+    return FALLBACK_IMAGES.executivos;
+  }
+  if (categoryId === 'burgers') {
+    return FALLBACK_IMAGES.burgers;
+  }
+  if (categoryId === 'bebidas') {
+    return FALLBACK_IMAGES.bebidas;
+  }
+  if (categoryId === 'promo') {
+    return FALLBACK_IMAGES.promo;
+  }
+
+  return FALLBACK_IMAGES.default;
+};
+
 // --- DADOS MOCKADOS ---
 const CATALOG_MOCK: Category[] = [
   {
@@ -81,21 +127,30 @@ const CATALOG_MOCK: Category[] = [
         description: "2 Hamburgueres suculentos + Batata frita crocante + Refri 1L", 
         price: 45.90, 
         image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=600&fit=crop&q=80", 
-        discount: 10
+        discount: 10,
+        additionals: [
+          { id: 'combo-queijo-extra', name: 'Queijo cheddar extra', price: 2 },
+          { id: 'combo-bacon', name: 'Bacon crocante extra', price: 3 },
+          { id: 'combo-molho-especial', name: 'Molho especial da casa', price: 1 },
+        ],
       },
       { 
         id: 102, 
         name: "Box Família", 
         description: "4 Smash Burgers + Batata Suprema + Nuggets (12un) + 2 Refris", 
         price: 89.90, 
-        image: "https://images.unsplash.com/photo-1604908176997-125188f2c5b9?w=800&h=600&fit=crop&q=80" 
+        image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=800&fit=crop&q=80",
+        additionals: [
+          { id: 'box-batata-extra', name: 'Batata frita extra', price: 5 },
+          { id: 'box-refrigerante-extra', name: 'Refrigerante lata extra', price: 6 },
+        ],
       },
       {
         id: 103,
         name: 'Monte sua Marmita',
         description: 'Escolha o tamanho e monte sua combinação perfeita de pratos executivos',
         price: 21.9,
-        image: 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=800&h=600&fit=crop&q=80',
+        image: FALLBACK_IMAGES.marmita,
         type: 'configurable',
         isCustomizable: true,
       }
@@ -110,21 +165,33 @@ const CATALOG_MOCK: Category[] = [
         name: 'Prato Executivo Filé Grelhado',
         description: 'Arroz, feijão, filé grelhado e batata frita',
         price: 32.9,
-        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1604908176997-125188f2c5b9?w=800&h=800&fit=crop&q=80',
+        additionals: [
+          { id: 'file-ovo', name: 'Ovo frito extra', price: 2.5 },
+          { id: 'file-queijo', name: 'Queijo ralado extra', price: 1.5 },
+        ],
       },
       {
         id: 402,
         name: 'Prato Executivo Estrogonoff de Frango',
         description: 'Estrogonoff de frango com arroz e batata palha',
         price: 29.9,
-        image: 'https://images.unsplash.com/photo-1533777324565-a040eb52fac1?w=800&h=600&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&h=800&fit=crop&q=80',
+        additionals: [
+          { id: 'estrogonoff-batata-extra', name: 'Batata palha extra', price: 2 },
+          { id: 'estrogonoff-molho', name: 'Molho de estrogonoff extra', price: 1.5 },
+        ],
       },
       {
         id: 403,
         name: 'Prato Executivo Bife Acebolado',
         description: 'Arroz, feijão, bife acebolado e salada',
         price: 31.5,
-        image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&h=600&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1604908176997-125188f2c5b9?w=800&h=800&fit=crop&q=80',
+        additionals: [
+          { id: 'bife-ovo', name: 'Ovo frito extra', price: 2.5 },
+          { id: 'bife-farofa', name: 'Farofa extra', price: 2 },
+        ],
       },
     ],
   },
@@ -137,14 +204,23 @@ const CATALOG_MOCK: Category[] = [
         name: "X-Bacon", 
         description: "Pão brioche, carne 160g, queijo cheddar, bacon crocante e maionese da casa", 
         price: 28.50, 
-        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&q=80" 
+        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&q=80",
+        additionals: [
+          { id: 'xbacon-queijo-extra', name: 'Queijo cheddar extra', price: 2 },
+          { id: 'xbacon-bacon-extra', name: 'Bacon crocante extra', price: 3 },
+          { id: 'xbacon-maionese-extra', name: 'Maionese da casa extra', price: 1.5 },
+        ],
       },
       { 
         id: 202, 
         name: "Salada Burger", 
         description: "Pão, carne 160g, queijo prato, alface americana, tomate e cebola roxa", 
         price: 24.90, 
-        image: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&h=600&fit=crop&q=80" 
+        image: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&h=600&fit=crop&q=80",
+        additionals: [
+          { id: 'salada-queijo-extra', name: 'Queijo prato extra', price: 2 },
+          { id: 'salada-bacon', name: 'Bacon crocante extra', price: 3 },
+        ],
       }
     ]
   },
@@ -180,6 +256,12 @@ export const LojaDetalhes = () => {
     selectedProteins: string[];
     selectedSides: string[];
     selectedExtras?: string[];
+  } | null>(null);
+  const [productModal, setProductModal] = useState<{
+    product: Product;
+    quantity: number;
+    selectedAdditionals: Record<string, boolean>;
+    observation: string;
   } | null>(null);
 
   // Simulação de dados da Loja
@@ -232,14 +314,11 @@ export const LojaDetalhes = () => {
       return;
     }
 
-    addToCart({
-      id: String(product.id),
-      name: product.name,
-      price: product.discount ? (product.price * (1 - product.discount / 100)) : product.price,
-      image: product.image,
+    setProductModal({
+      product,
       quantity: 1,
-      storeId: storeMock.id,
-      storeName: storeMock.name
+      selectedAdditionals: {},
+      observation: '',
     });
   };
 
@@ -260,6 +339,76 @@ export const LojaDetalhes = () => {
   const getSideLimit = (size: 'P' | 'M' | 'G') => {
     if (size === 'P') return 2;
     return 3;
+  };
+
+  const getProductModalTotal = () => {
+    if (!productModal) return 0;
+
+    const basePrice = productModal.product.discount
+      ? productModal.product.price * (1 - productModal.product.discount / 100)
+      : productModal.product.price;
+
+    const additionalsTotal =
+      productModal.product.additionals?.reduce((total, adicional) => {
+        if (productModal.selectedAdditionals[adicional.id]) {
+          return total + adicional.price;
+        }
+        return total;
+      }, 0) ?? 0;
+
+    return (basePrice + additionalsTotal) * productModal.quantity;
+  };
+
+  const handleConfirmProductModal = () => {
+    if (!productModal) return;
+
+    const { product, quantity, selectedAdditionals, observation } = productModal;
+
+    const basePrice = product.discount
+      ? product.price * (1 - product.discount / 100)
+      : product.price;
+
+    const additionalsList =
+      product.additionals?.filter((adicional) => selectedAdditionals[adicional.id]) ?? [];
+
+    const additionalsTotal = additionalsList.reduce(
+      (total, adicional) => total + adicional.price,
+      0
+    );
+
+    const unitPrice = basePrice + additionalsTotal;
+
+    const additionalsKey =
+      additionalsList.map((adicional) => adicional.id).sort().join('+') || 'sem-adicionais';
+
+    const normalizedObservation = observation
+      .trim()
+      .slice(0, 50)
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+
+    const observationKey = normalizedObservation || 'sem-observacao';
+
+    addToCart({
+      id: `${product.id}-${additionalsKey}-${observationKey}`,
+      name: product.name,
+      price: unitPrice,
+      image: product.image,
+      quantity,
+      storeId: storeMock.id,
+      storeName: storeMock.name,
+      additionals:
+        additionalsList.length > 0
+          ? additionalsList.map((adicional) => ({
+              name: adicional.name,
+              price: adicional.price,
+            }))
+          : undefined,
+      observation: observation.trim() || undefined,
+    });
+
+    setProductModal(null);
+    setIsCartOpen(true);
   };
 
   const extrasTotal =
@@ -409,14 +558,31 @@ export const LojaDetalhes = () => {
                                 {formatCurrency(finalPrice)}
                               </span>
                             </div>
-                            <button className="p-1.5 bg-[var(--bg-body)] rounded-[12px] text-[var(--text-secondary)] group-hover:bg-[var(--primary-100)] group-hover:text-white transition-colors">
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                              className="p-1.5 bg-[var(--bg-body)] rounded-[12px] text-[var(--text-secondary)] group-hover:bg-[var(--primary-100)] group-hover:text-white transition-colors"
+                            >
                               <Plus size={18} />
                             </button>
                           </div>
                         </div>
 
                         <div className="w-24 h-24 rounded-[12px] overflow-hidden shrink-0 bg-[var(--bg-body)]">
-                          <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          <img
+                            src={getProductImage(product, category.id)}
+                            alt={product.name}
+                            onError={(event) => {
+                              event.currentTarget.src = getProductImage(
+                                { ...product, image: undefined },
+                                category.id,
+                              );
+                            }}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
                         </div>
                       </div>
                     )
@@ -596,6 +762,166 @@ export const LojaDetalhes = () => {
           </button>
         </div>
       )}
+
+      {productModal && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-[var(--bg-card)] rounded-t-[18px] md:rounded-[18px] border border-[var(--border)] shadow-2xl p-4 md:p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <h2 className="text-lg md:text-xl font-bold text-[var(--text-primary)]">
+                  {productModal.product.name}
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  {productModal.product.description}
+                </p>
+              </div>
+              <button
+                onClick={() => setProductModal(null)}
+                className="p-1.5 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="w-full h-40 rounded-[14px] overflow-hidden bg-[var(--bg-body)]">
+              <img
+                src={productModal.product.image}
+                alt={productModal.product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {productModal.product.additionals && productModal.product.additionals.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                    Adicionais do produto
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                  {productModal.product.additionals.map((adicional) => {
+                    const isSelected =
+                      productModal.selectedAdditionals[adicional.id] ?? false;
+
+                    return (
+                      <button
+                        key={adicional.id}
+                        type="button"
+                        onClick={() =>
+                          setProductModal((prev) => {
+                            if (!prev) return prev;
+
+                            const current = prev.selectedAdditionals;
+                            const nextSelected = {
+                              ...current,
+                              [adicional.id]: !current[adicional.id],
+                            };
+
+                            return {
+                              ...prev,
+                              selectedAdditionals: nextSelected,
+                            };
+                          })
+                        }
+                        className={`flex items-center justify-between rounded-[12px] border px-3 py-2 text-xs transition-all ${
+                          isSelected
+                            ? 'border-[var(--primary-100)] bg-[var(--primary-100)]/10 text-[var(--primary-100)]'
+                            : 'border-[var(--border)] bg-[var(--surface-nav)] text-[var(--text-secondary)] hover:border-[var(--primary-100)]'
+                        }`}
+                      >
+                        <span className="truncate">{adicional.name}</span>
+                        <span className="ml-2 whitespace-nowrap text-[11px] font-semibold">
+                          + {formatCurrency(adicional.price)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+                Observações (opcional)
+              </span>
+              <textarea
+                value={productModal.observation}
+                onChange={(e) =>
+                  setProductModal((prev) =>
+                    prev
+                      ? { ...prev, observation: e.target.value.slice(0, 140) }
+                      : prev
+                  )
+                }
+                placeholder="Ex: sem cebola, pouco sal, bem passado..."
+                rows={3}
+                className="w-full px-3 py-2 border border-[var(--border)] rounded-[12px] bg-[var(--bg-body)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] resize-none"
+              />
+              <span className="block text-right text-[10px] text-[var(--text-secondary)]">
+                {productModal.observation.length}/140
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center border border-[var(--border)] rounded-[12px]">
+                  <button
+                    onClick={() =>
+                      setProductModal((prev) =>
+                        prev
+                          ? { ...prev, quantity: Math.max(1, prev.quantity - 1) }
+                          : prev
+                      )
+                    }
+                    className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="text-sm font-medium w-10 text-center text-[var(--text-primary)]">
+                    {productModal.quantity}
+                  </span>
+                  <button
+                    onClick={() =>
+                      setProductModal((prev) =>
+                        prev ? { ...prev, quantity: prev.quantity + 1 } : prev
+                      )
+                    }
+                    className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[11px] text-[var(--text-secondary)]">
+                    Total
+                  </span>
+                  <span className="text-lg font-bold text-[var(--primary-100)]">
+                    {formatCurrency(getProductModalTotal())}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setProductModal(null)}
+                  className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-[14px] border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmProductModal}
+                  className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-[14px] text-sm font-semibold bg-[var(--primary-100)] text-white hover:bg-[var(--primary-90)]"
+                >
+                  Adicionar à sacola
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {customProductModal && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60">

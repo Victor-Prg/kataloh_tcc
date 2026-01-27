@@ -8,6 +8,8 @@ export interface CartItem {
   quantity: number;
   storeId: string;
   storeName: string;
+  additionals?: { name: string; price: number }[];
+  observation?: string;
 }
 
 export interface CartContextType {

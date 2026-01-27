@@ -4,7 +4,7 @@ import type { Category } from '../../../components/menu/CategorySelector';
 import { MenuBuilder } from '../../../components/menu/MenuBuilder';
 import type { Product } from '../../../components/menu/ProductItem';
 import { Button } from '../../../components/Button';
-import { CheckCircle2, Loader2, ImageIcon } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import { Modal } from '../../../components/Modal';
 import { Text } from '../../../components/Text';
 
@@ -226,17 +226,18 @@ export default function MenuCadastro() {
                               </div>
 
                               <div className="w-20 h-20 rounded-[12px] overflow-hidden shrink-0 bg-[var(--bg-body)] border border-[var(--border)]">
-                                {product.imageUrl ? (
-                                  <img
-                                    src={product.imageUrl}
-                                    alt={product.name}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <ImageIcon size={18} className="text-[var(--text-muted)]" />
-                                  </div>
-                                )}
+                                <img
+                                  src={
+                                    product.imageUrl ||
+                                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                                  }
+                                  alt={product.name}
+                                  onError={event => {
+                                    event.currentTarget.src =
+                                      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                                  }}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
                               </div>
                             </div>
                           ))}

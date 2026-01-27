@@ -1,4 +1,4 @@
-import { ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Switch } from '../Switch';
 import { Input } from '../Input';
 
@@ -73,17 +73,19 @@ export const ProductItem = ({
 
       <div className="pl-12 space-y-3">
         <div className="flex items-start gap-3">
-          {/* Imagem do produto */}
           <div className="w-14 h-14 rounded-md bg-[var(--surface-nav)] border border-[var(--border)] flex items-center justify-center overflow-hidden shrink-0">
-            {product.imageUrl ? (
-              <img 
-                src={product.imageUrl} 
-                alt={product.name} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <ImageIcon size={20} className="text-[var(--text-muted)]" />
-            )}
+            <img
+              src={
+                product.imageUrl ||
+                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+              }
+              alt={product.name}
+              onError={event => {
+                event.currentTarget.src =
+                  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+              }}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Nome e status */}

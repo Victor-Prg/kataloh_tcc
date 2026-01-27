@@ -3,7 +3,6 @@ import {
   Plus, 
   Edit3, 
   Trash2, 
-  Image as ImageIcon, 
   X,
   Package,
   List,
@@ -620,8 +619,19 @@ export default function ProdutosCadastro() {
               )}
               {produtos.map(prod => (
                 <div key={prod.id} className="bg-[var(--surface)] border border-[var(--border-color)] rounded-lg p-4 flex flex-col sm:flex-row gap-4 items-center">
-                  <div className="w-16 h-16 bg-[var(--bg-body)] rounded-md flex items-center justify-center text-[var(--text-secondary)] shrink-0">
-                    <ImageIcon size={24} />
+                  <div className="w-16 h-16 bg-[var(--bg-body)] rounded-md flex items-center justify-center text-[var(--text-secondary)] shrink-0 overflow-hidden">
+                    <img
+                      src={
+                        prod.imagem ||
+                        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                      }
+                      alt={prod.nome}
+                      onError={event => {
+                        event.currentTarget.src =
+                          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   
                   <div className="flex-1 min-w-0 text-center sm:text-left">
